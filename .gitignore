@@ -1,0 +1,6 @@
+node_modules/
+dist/
+coverage/
+*.tgz
+.regex-wand-pack-check/
+.DS_Store
