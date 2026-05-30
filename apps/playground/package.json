@@ -3,20 +3,26 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "bun build ./index.html --minify --outdir=dist",
+		"build": "bun run build.ts",
 		"check": "bun run typecheck && bun run build",
 		"dev": "bun --port 4317 ./index.html --console",
 		"preview": "bun ./dist/index.html",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {
-		"typescript": "^5.9.3",
+		"@monaco-editor/react": "^4.7.0",
+		"arkregex": "0.0.5",
+		"bun-plugin-tailwind": "^0.1.2",
+		"clsx": "^2.1.1",
+		"lucide-react": "^0.562.0",
+		"magic-regexp": "0.11.0",
+		"monaco-editor": "^0.55.1",
 		"react": "^19.2.3",
 		"react-dom": "^19.2.3",
-		"lucide-react": "^0.562.0",
 		"regex-wand": "workspace:*",
-		"arkregex": "0.0.5",
-		"magic-regexp": "0.11.0"
+		"tailwind-merge": "^3.6.0",
+		"tailwindcss": "^4",
+		"typescript": "^5.9.3"
 	},
 	"devDependencies": {
 		"@types/react": "^19.2.7",

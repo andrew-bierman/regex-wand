@@ -24,6 +24,10 @@ import {
 	digit,
 	oneOrMore,
 } from "regex-wand"
+import { Badge } from "./components/ui/badge"
+import { Button } from "./components/ui/button"
+import { Card } from "./components/ui/card"
+import { Input } from "./components/ui/input"
 import { regexWandTypes } from "./monaco-types"
 import "./styles.css"
 
@@ -243,10 +247,10 @@ function App() {
 							<p>Magic Regex authoring, ArkRegex result types.</p>
 						</div>
 					</div>
-					<div className="status-pill">
+					<Badge className="status-pill">
 						<Sparkles size={16} />
 						<span>typed RegExp playground</span>
-					</div>
+					</Badge>
 				</header>
 
 				<div className="layout">
@@ -254,8 +258,9 @@ function App() {
 						{examples.map((example) => {
 							const ExampleIcon = example.icon
 							return (
-								<button
+								<Button
 									type="button"
+									variant="ghost"
 									className={example.id === selected.id ? "example active" : "example"}
 									key={example.id}
 									onClick={() => setSelectedId(example.id)}
@@ -263,7 +268,7 @@ function App() {
 									<ExampleIcon size={18} />
 									<span>{example.title}</span>
 									<ChevronRight size={16} />
-								</button>
+								</Button>
 							)
 						})}
 					</nav>
@@ -296,22 +301,22 @@ function App() {
 								}}
 							/>
 						</div>
-						<div className="quick-info">
+						<Card className="quick-info">
 							<span>Monaco quick info</span>
 							<code>{quickInfo}</code>
-						</div>
+						</Card>
 						<pre className="code-block compact">
 							<code>{selected.code}</code>
 						</pre>
-						<div className="tester">
+						<Card className="tester">
 							<div className="tester-header">
 								<label htmlFor="sample-input">Sample input</label>
-								<div className={isMatch ? "result ok" : "result nope"}>
+								<Badge className={isMatch ? "result ok" : "result nope"}>
 									{isMatch ? "match" : "no match"}
-								</div>
+								</Badge>
 							</div>
 							<div className="input-row">
-								<input
+								<Input
 									id="sample-input"
 									value={input}
 									onChange={(event) =>
@@ -321,8 +326,10 @@ function App() {
 										}))
 									}
 								/>
-								<button
+								<Button
 									type="button"
+									variant="outline"
+									size="icon"
 									title="Use matching sample"
 									onClick={() =>
 										setInputById((current) => ({
@@ -332,9 +339,11 @@ function App() {
 									}
 								>
 									<BadgeCheck size={16} />
-								</button>
-								<button
+								</Button>
+								<Button
 									type="button"
+									variant="outline"
+									size="icon"
 									title="Use non-matching sample"
 									onClick={() =>
 										setInputById((current) => ({
@@ -344,7 +353,7 @@ function App() {
 									}
 								>
 									<Copy size={16} />
-								</button>
+								</Button>
 							</div>
 							<div className="match-output">
 								<div>
@@ -356,7 +365,7 @@ function App() {
 									<code>{JSON.stringify(match?.groups ?? {})}</code>
 								</div>
 							</div>
-						</div>
+						</Card>
 					</section>
 
 					<aside className="types-pane" aria-label="Inferred types">
@@ -430,10 +439,10 @@ const readQuickInfo = async (
 
 function TypeRow({ label, value }: { label: string; value: string }) {
 	return (
-		<div className="type-row">
+		<Card className="type-row">
 			<span>{label}</span>
 			<code>{value}</code>
-		</div>
+		</Card>
 	)
 }
 
