@@ -3,9 +3,11 @@
 Magic Regex authoring with ArkRegex-powered type inference.
 
 `regex-wand` is intentionally a thin adapter. You keep composing patterns with
-`magic-regexp`; the final compiled value is an ArkRegex-powered `RegExp` with
-typed string inference, captures, named groups, flags, `exec`, and `test`
-narrowing.
+`magic-regexp`; the final compiled value has ArkRegex-powered types for string
+inference, captures, named groups, flags, `exec`, and `test` narrowing.
+
+At runtime, `regex-wand` constructs a native `RegExp`. ArkRegex is used for the
+published type surface, so browser bundlers do not need to execute ArkRegex code.
 
 ## Install
 
@@ -70,7 +72,7 @@ bun run check
 bun run test:coverage
 ```
 
-The check suite runs Biome, TypeScript, tsup, Vitest runtime tests, `tsd` type
-tests, TanStack Intent validation, and a packed-consumer install check. The type
-tests are the main proof that this package adds value over plain Magic Regex
-output.
+The check suite runs Biome, TypeScript, tsup, a runtime import guard, Vitest
+runtime tests, `tsd` type tests, TanStack Intent validation, and a packed-consumer
+install check. The type tests are the main proof that this package adds value
+over plain Magic Regex output.

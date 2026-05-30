@@ -5,8 +5,8 @@
 	"scripts": {
 		"build": "bun run build.ts",
 		"check": "bun run typecheck && bun run build",
-		"dev": "bun --port 4317 ./index.html --console",
-		"preview": "bun ./dist/index.html",
+		"dev": "bun run build && bun --port 4317 ./dist/index.html --console",
+		"preview": "bun --port 4317 ./dist/index.html --console",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {

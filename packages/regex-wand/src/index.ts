@@ -1,4 +1,4 @@
-import { type Regex, regex } from "arkregex"
+import type { Regex, regex } from "arkregex"
 import {
 	createRegExp as createMagicRegExp,
 	type Flag,
@@ -152,10 +152,7 @@ export type WandRegExp<
 export function fromMagic<
 	const R extends MagicRegExp<string, string, (string | undefined)[], string>,
 >(magic: R): WandRegExp<R> {
-	const ark = regex.as(
-		magic.source,
-		magic.flags as ArkFlags,
-	) as unknown as ArkFromMagic<R>
+	const ark = new RegExp(magic.source, magic.flags) as unknown as ArkFromMagic<R>
 
 	return Object.assign(ark, {
 		magic,

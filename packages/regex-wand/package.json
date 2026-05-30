@@ -32,13 +32,14 @@
 		"build": "tsup",
 		"format": "biome format --write .",
 		"lint": "biome check .",
+		"runtime-imports:check": "bun run scripts/assert-no-runtime-arkregex.mjs",
 		"pack:check": "bun run scripts/verify-packed-consumer.mjs",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"type-test": "tsd --files index.test-d.ts",
 		"intent:validate": "intent validate",
-		"check": "bun run typecheck && bun run build && bun run test && bun run type-test && bun run intent:validate && bun run pack:check"
+		"check": "bun run typecheck && bun run build && bun run runtime-imports:check && bun run test && bun run type-test && bun run intent:validate && bun run pack:check"
 	},
 	"peerDependencies": {
 		"arkregex": "^0.0.5",
