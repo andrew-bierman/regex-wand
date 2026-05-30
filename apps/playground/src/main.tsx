@@ -24,10 +24,10 @@ import {
 	digit,
 	oneOrMore,
 } from "regex-wand"
-import { Badge } from "./components/ui/badge"
-import { Button } from "./components/ui/button"
-import { Card } from "./components/ui/card"
-import { Input } from "./components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { regexWandTypes } from "./monaco-types"
 import "./styles.css"
 
@@ -237,49 +237,59 @@ function App() {
 	const Icon = selected.icon
 
 	return (
-		<main className="app-shell">
-			<section className="workspace">
-				<header className="topbar">
-					<div className="brand">
-						<Regex size={22} />
+		<main className="min-h-screen bg-muted/40 p-4 text-foreground lg:p-6">
+			<section className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1500px] flex-col overflow-hidden rounded-xl border bg-background shadow-sm lg:min-h-[calc(100vh-3rem)]">
+				<header className="flex flex-col gap-4 border-b px-5 py-4 md:h-16 md:flex-row md:items-center md:justify-between">
+					<div className="flex min-w-0 items-center gap-3">
+						<Regex className="size-5 text-muted-foreground" />
 						<div>
-							<h1>regex-wand</h1>
-							<p>Magic Regex authoring, ArkRegex result types.</p>
+							<h1 className="font-semibold leading-none tracking-tight">regex-wand</h1>
+							<p className="mt-1 text-sm text-muted-foreground">
+								Magic Regex authoring, ArkRegex result types.
+							</p>
 						</div>
 					</div>
-					<Badge className="status-pill">
-						<Sparkles size={16} />
+					<Badge variant="secondary" className="w-fit gap-1.5">
+						<Sparkles className="size-3" />
 						<span>typed RegExp playground</span>
 					</Badge>
 				</header>
 
-				<div className="layout">
-					<nav className="sidebar" aria-label="Examples">
+				<div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[220px_minmax(420px,1.35fr)_minmax(320px,0.8fr)]">
+					<nav
+						className="grid gap-1 border-b bg-muted/30 p-2 sm:grid-cols-2 lg:flex lg:flex-col lg:border-b-0 lg:border-r"
+						aria-label="Examples"
+					>
 						{examples.map((example) => {
 							const ExampleIcon = example.icon
 							return (
 								<Button
 									type="button"
-									variant="ghost"
-									className={example.id === selected.id ? "example active" : "example"}
+									variant={example.id === selected.id ? "secondary" : "ghost"}
+									className="h-10 justify-start gap-2 px-3"
 									key={example.id}
 									onClick={() => setSelectedId(example.id)}
 								>
-									<ExampleIcon size={18} />
-									<span>{example.title}</span>
-									<ChevronRight size={16} />
+									<ExampleIcon className="size-4 text-muted-foreground" />
+									<span className="min-w-0 truncate">{example.title}</span>
+									<ChevronRight className="ml-auto size-4 text-muted-foreground" />
 								</Button>
 							)
 						})}
 					</nav>
 
-					<section className="editor-pane" aria-label={`${selected.title} example`}>
-						<div className="pane-title">
-							<Icon size={18} />
-							<h2>{selected.title}</h2>
-							<code>{String(selected.pattern)}</code>
+					<section
+						className="flex min-w-0 flex-col gap-4 border-b p-4 lg:border-b-0 lg:border-r"
+						aria-label={`${selected.title} example`}
+					>
+						<div className="flex min-h-8 items-center gap-2">
+							<Icon className="size-4 text-muted-foreground" />
+							<h2 className="text-sm font-semibold">{selected.title}</h2>
+							<code className="ml-auto max-w-[52%] truncate rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+								{String(selected.pattern)}
+							</code>
 						</div>
-						<div className="monaco-shell">
+						<div className="overflow-hidden rounded-lg border bg-zinc-950">
 							<Editor
 								key={selected.id}
 								height="260px"
@@ -301,21 +311,30 @@ function App() {
 								}}
 							/>
 						</div>
-						<Card className="quick-info">
-							<span>Monaco quick info</span>
-							<code>{quickInfo}</code>
+						<Card className="grid gap-0 overflow-hidden py-0 sm:grid-cols-[150px_minmax(0,1fr)]">
+							<span className="flex items-center border-b bg-muted px-3 py-2 text-xs font-medium uppercase text-muted-foreground sm:border-b-0 sm:border-r">
+								Monaco quick info
+							</span>
+							<code className="overflow-auto bg-card px-3 py-2 text-xs leading-5">
+								{quickInfo}
+							</code>
 						</Card>
-						<pre className="code-block compact">
+						<pre className="min-h-28 overflow-auto rounded-lg border bg-zinc-950 p-4 text-xs leading-6 text-zinc-100">
 							<code>{selected.code}</code>
 						</pre>
-						<Card className="tester">
-							<div className="tester-header">
-								<label htmlFor="sample-input">Sample input</label>
-								<Badge className={isMatch ? "result ok" : "result nope"}>
+						<Card className="gap-3 p-4 py-4">
+							<div className="flex items-center justify-between gap-3">
+								<label
+									htmlFor="sample-input"
+									className="text-sm font-medium text-muted-foreground"
+								>
+									Sample input
+								</label>
+								<Badge variant={isMatch ? "default" : "destructive"}>
 									{isMatch ? "match" : "no match"}
 								</Badge>
 							</div>
-							<div className="input-row">
+							<div className="flex items-center gap-2">
 								<Input
 									id="sample-input"
 									value={input}
@@ -338,7 +357,7 @@ function App() {
 										}))
 									}
 								>
-									<BadgeCheck size={16} />
+									<BadgeCheck className="size-4" />
 								</Button>
 								<Button
 									type="button"
@@ -352,33 +371,44 @@ function App() {
 										}))
 									}
 								>
-									<Copy size={16} />
+									<Copy className="size-4" />
 								</Button>
 							</div>
-							<div className="match-output">
-								<div>
-									<span>captures</span>
-									<code>{JSON.stringify(match?.slice(1) ?? [])}</code>
+							<div className="grid gap-2 sm:grid-cols-2">
+								<div className="min-w-0 rounded-md bg-muted p-3">
+									<span className="text-xs font-medium uppercase text-muted-foreground">
+										captures
+									</span>
+									<code className="mt-2 block overflow-auto text-xs leading-5">
+										{JSON.stringify(match?.slice(1) ?? [])}
+									</code>
 								</div>
-								<div>
-									<span>groups</span>
-									<code>{JSON.stringify(match?.groups ?? {})}</code>
+								<div className="min-w-0 rounded-md bg-muted p-3">
+									<span className="text-xs font-medium uppercase text-muted-foreground">
+										groups
+									</span>
+									<code className="mt-2 block overflow-auto text-xs leading-5">
+										{JSON.stringify(match?.groups ?? {})}
+									</code>
 								</div>
 							</div>
 						</Card>
 					</section>
 
-					<aside className="types-pane" aria-label="Inferred types">
-						<div className="pane-title">
-							<Code2 size={18} />
-							<h2>Inferred surface</h2>
+					<aside
+						className="flex min-w-0 flex-col gap-3 bg-muted/20 p-4"
+						aria-label="Inferred types"
+					>
+						<div className="flex min-h-8 items-center gap-2">
+							<Code2 className="size-4 text-muted-foreground" />
+							<h2 className="text-sm font-semibold">Inferred surface</h2>
 						</div>
 						<TypeRow label="infer" value={selected.types.infer} />
 						<TypeRow label="inferCaptures" value={selected.types.captures} />
 						<TypeRow label="inferNamedCaptures" value={selected.types.namedCaptures} />
 						<TypeRow label="flags" value={selected.types.flags} />
-						<div className="note">
-							<Braces size={16} />
+						<div className="mt-auto flex items-center gap-2 rounded-lg border bg-card p-3 text-sm text-muted-foreground">
+							<Braces className="size-4" />
 							<span>Displayed types are curated from the package type tests.</span>
 						</div>
 					</aside>
@@ -439,9 +469,11 @@ const readQuickInfo = async (
 
 function TypeRow({ label, value }: { label: string; value: string }) {
 	return (
-		<Card className="type-row">
-			<span>{label}</span>
-			<code>{value}</code>
+		<Card className="gap-2 p-4 py-4">
+			<span className="text-xs font-medium uppercase text-muted-foreground">{label}</span>
+			<code className="overflow-auto rounded-md bg-muted px-3 py-2 text-xs leading-5">
+				{value}
+			</code>
 		</Card>
 	)
 }
