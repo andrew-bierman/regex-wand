@@ -3,4 +3,7 @@ dist/
 coverage/
 *.tgz
 .regex-wand-pack-check/
+apps/playground/dist/
+packages/regex-wand/dist/
+packages/regex-wand/coverage/
 .DS_Store

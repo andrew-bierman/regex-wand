@@ -1,0 +1,25 @@
+{
+	"name": "@regex-wand/playground",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "bun build ./index.html --minify --outdir=dist",
+		"check": "bun run typecheck && bun run build",
+		"dev": "bun --port 4317 ./index.html --console",
+		"preview": "bun ./dist/index.html",
+		"typecheck": "tsc -p tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"typescript": "^5.9.3",
+		"react": "^19.2.3",
+		"react-dom": "^19.2.3",
+		"lucide-react": "^0.562.0",
+		"regex-wand": "workspace:*",
+		"arkregex": "0.0.5",
+		"magic-regexp": "0.11.0"
+	},
+	"devDependencies": {
+		"@types/react": "^19.2.7",
+		"@types/react-dom": "^19.2.3"
+	}
+}

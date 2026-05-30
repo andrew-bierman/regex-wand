@@ -1,59 +1,28 @@
 {
-	"name": "regex-wand",
-	"version": "0.1.0",
-	"description": "Magic Regex authoring with ArkRegex-powered type inference.",
+	"name": "regex-wand-workspace",
+	"private": true,
 	"type": "module",
-	"license": "MIT",
-	"author": "Andrew Bierman",
 	"packageManager": "bun@1.3.9",
-	"sideEffects": false,
-	"keywords": [
-		"arkregex",
-		"magic-regexp",
-		"regex",
-		"tanstack-intent",
-		"type-safe-regex",
-		"typescript"
-	],
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js"
-		}
-	},
-	"types": "./dist/index.d.ts",
-	"files": [
-		"dist",
-		"docs",
-		"skills",
-		"!skills/_artifacts"
+	"workspaces": [
+		"packages/*",
+		"apps/*"
 	],
 	"scripts": {
-		"build": "tsup",
+		"build": "bun run --filter './packages/regex-wand' build && bun run --filter './apps/playground' build",
+		"check": "bun run lint && bun run --filter './packages/regex-wand' check && bun run --filter './apps/playground' check",
+		"dev": "bun run --filter './apps/playground' dev",
 		"format": "biome format --write .",
 		"lint": "biome check .",
-		"pack:check": "bun run scripts/verify-packed-consumer.mjs",
-		"test": "vitest run",
-		"test:coverage": "vitest run --coverage",
-		"typecheck": "tsc -p tsconfig.json --noEmit",
-		"type-test": "tsd --files index.test-d.ts",
-		"intent:validate": "intent validate",
-		"check": "bun run lint && bun run typecheck && bun run build && bun run test && bun run type-test && bun run intent:validate && bun run pack:check"
-	},
-	"peerDependencies": {
-		"arkregex": "^0.0.5",
-		"magic-regexp": "^0.11.0"
+		"test": "bun run --filter './packages/regex-wand' test",
+		"test:coverage": "bun run --filter './packages/regex-wand' test:coverage",
+		"typecheck": "bun run --filter './packages/regex-wand' typecheck && bun run --filter './apps/playground' typecheck"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.16",
-		"@tanstack/intent": "0.0.41",
-		"@types/node": "^24.10.1",
-		"@vitest/coverage-v8": "^4.0.14",
-		"arkregex": "0.0.5",
-		"magic-regexp": "0.11.0",
-		"tsup": "^8.5.1",
-		"tsd": "^0.33.0",
-		"typescript": "^5.9.3",
-		"vitest": "^4.0.14"
+		"@biomejs/biome": "2.4.16"
+	},
+	"dependencies": {
+		"@monaco-editor/react": "^4.7.0",
+		"@regex-wand/playground": "./apps/playground",
+		"monaco-editor": "^0.55.1"
 	}
 }
