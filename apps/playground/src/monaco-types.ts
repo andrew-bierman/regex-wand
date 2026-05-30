@@ -5,7 +5,7 @@ declare module "regex-wand" {
 		Captures extends readonly unknown[] = [],
 		NamedCaptures extends Record<string, unknown> = {},
 		Flags extends string = ""
-	> = RegExp & {
+	> = Omit<RegExp, "exec" | "flags" | "test"> & {
 		readonly infer: Infer
 		readonly inferCaptures: Captures
 		readonly inferNamedCaptures: NamedCaptures

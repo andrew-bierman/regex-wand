@@ -289,9 +289,10 @@ function App() {
 								{String(selected.pattern)}
 							</code>
 						</div>
-						<div className="overflow-hidden rounded-lg border bg-zinc-950">
+						<div className="min-w-0 overflow-hidden rounded-lg border bg-zinc-950">
 							<Editor
 								key={selected.id}
+								width="100%"
 								height="260px"
 								language="typescript"
 								path={`file:///${selected.id}.ts`}
@@ -299,13 +300,28 @@ function App() {
 								value={selected.editorCode}
 								beforeMount={configureMonaco}
 								onMount={(editor, monaco) =>
-									void readQuickInfo(editor, monaco, selected.hoverTarget, setQuickInfo)
+									void handleEditorMount(
+										editor,
+										monaco,
+										selected.hoverTarget,
+										setQuickInfo,
+									)
 								}
 								options={{
+									automaticLayout: true,
+									folding: false,
 									fontSize: 13,
 									fontLigatures: true,
+									lineNumbersMinChars: 3,
 									minimap: { enabled: false },
+									overviewRulerLanes: 0,
+									renderLineHighlight: "none",
 									scrollBeyondLastLine: false,
+									scrollbar: {
+										alwaysConsumeMouseWheel: false,
+										horizontalScrollbarSize: 8,
+										verticalScrollbarSize: 8,
+									},
 									tabSize: 2,
 									wordWrap: "on",
 								}}
@@ -432,6 +448,7 @@ const configureMonaco: BeforeMount = (monaco) => {
 	monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
 		allowNonTsExtensions: true,
 		allowSyntheticDefaultImports: true,
+		lib: ["es2022", "dom", "dom.iterable"],
 		module: monaco.languages.typescript.ModuleKind.ESNext,
 		moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
 		noEmit: true,
@@ -443,6 +460,16 @@ const configureMonaco: BeforeMount = (monaco) => {
 		regexWandTypes,
 		"file:///node_modules/regex-wand/index.d.ts",
 	)
+}
+
+const handleEditorMount = async (
+	editor: Parameters<OnMount>[0],
+	monaco: Parameters<BeforeMount>[0],
+	target: string,
+	setQuickInfo: (value: string) => void,
+) => {
+	requestAnimationFrame(() => editor.layout())
+	await readQuickInfo(editor, monaco, target, setQuickInfo)
 }
 
 const readQuickInfo = async (
