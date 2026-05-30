@@ -25,6 +25,7 @@ import {
 	oneOrMore,
 } from "regex-wand"
 import { regexWandTypes } from "./monaco-types"
+import "juice.css/out/juice.min.css"
 import "./styles.css"
 
 const templateSlot = (name: string) => `$${`{${name}}`}`

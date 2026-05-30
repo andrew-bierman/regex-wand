@@ -8,6 +8,17 @@
 	--panel: #ffffff;
 	--panel-soft: #f7f9fc;
 	--code: #101820;
+	--links: var(--accent);
+	--button-base: var(--accent);
+	--button-hover: var(--accent-strong);
+	--focus: color-mix(in srgb, var(--accent) 40%, transparent);
+	--selection: color-mix(in srgb, var(--accent) 18%, transparent);
+	--background-body: #eef3f8;
+	--background: var(--panel-soft);
+	--background-alt: var(--panel);
+	--text-main: var(--ink);
+	--text-muted: var(--muted);
+	--border: var(--line);
 	color: var(--ink);
 	background: #eef3f8;
 	font-family:
