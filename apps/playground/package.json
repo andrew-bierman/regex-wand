@@ -3,10 +3,11 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "bun run build.ts",
-		"check": "bun run typecheck && bun run build",
+		"build": "bun run types:generate && bun run build.ts",
+		"check": "bun run types:generate && bun run typecheck && bun run build",
 		"dev": "bun run build && bun --port 4317 ./dist/index.html --console",
 		"preview": "bun --port 4317 ./dist/index.html --console",
+		"types:generate": "bun run scripts/generate-monaco-extra-libs.ts",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {

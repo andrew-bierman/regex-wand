@@ -28,7 +28,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { regexWandTypes } from "./monaco-types"
+import { monacoExtraLibs } from "./generated/monaco-extra-libs"
 import "./styles.css"
 
 const templateSlot = (name: string) => `$${`{${name}}`}`
@@ -456,10 +456,9 @@ const configureMonaco: BeforeMount = (monaco) => {
 		target: monaco.languages.typescript.ScriptTarget.ES2022,
 	})
 
-	monaco.languages.typescript.typescriptDefaults.addExtraLib(
-		regexWandTypes,
-		"file:///node_modules/regex-wand/index.d.ts",
-	)
+	for (const lib of monacoExtraLibs) {
+		monaco.languages.typescript.typescriptDefaults.addExtraLib(lib.content, lib.filePath)
+	}
 }
 
 const handleEditorMount = async (
