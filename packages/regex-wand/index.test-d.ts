@@ -7,8 +7,11 @@ import {
 	createRegExp,
 	createRegExpWithFlags,
 	digit,
+	dotAll,
 	global,
+	letter,
 	maybe,
+	multiline,
 	oneOrMore,
 	type RegexParts,
 	type WandCompatibilityError,
@@ -28,6 +31,7 @@ const semver = createExactRegExp(
 expectType<`${number}.${number}.${number}`>(semver.infer)
 expectType<`${number}.${number}.${number}`>(semver.ark.infer)
 expectType<[`${number}`, `${number}`, `${number}`]>(semver.inferCaptures)
+expectAssignable<RegExp>(semver)
 
 const maybeVersion = "1.2.3" as string
 if (semver.test(maybeVersion)) {
@@ -37,6 +41,10 @@ if (semver.test(maybeVersion)) {
 const ok = createExactRegExpWithFlags(["ok"], caseInsensitive)
 expectType<"ok" | "oK" | "Ok" | "OK">(ok.infer)
 expectType<"i">(ok.flags)
+
+const exactGlobalInsensitive = createExactRegExpWithFlags(["ok"], global, caseInsensitive)
+expectType<"gi">(exactGlobalInsensitive.flags)
+expectType<"ok" | "oK" | "Ok" | "OK">(exactGlobalInsensitive.infer)
 
 const answer = createExactRegExp(anyOf("yes", "no"))
 expectType<"yes" | "no">(answer.infer)
@@ -48,6 +56,10 @@ expectType<[`${number}`]>(repeated.inferCaptures)
 
 const indexed = createRegExpWithFlags([digit.grouped()], withIndices)
 expectType<"d">(indexed.flags)
+
+const multilineDotAll = createRegExpWithFlags(["a", "b"], multiline, dotAll)
+expectType<"ms">(multilineDotAll.flags)
+expectType<`${string}ab${string}`>(multilineDotAll.infer)
 
 const namedIdentifier = <K extends string>(key: K) => oneOrMore(digit).or("name").as(key)
 
@@ -66,6 +78,9 @@ if (emailMatch?.groups) {
 	expectAssignable<string | undefined>(emailMatch.groups.tld)
 	expectError(emailMatch.groups.missing)
 }
+expectAssignable<"name" | "domain" | "tld">(
+	null as never as keyof typeof email.inferNamedCaptures,
+)
 
 const optionalNamed = createExactRegExp(maybe(digit.as("maybeDigit")))
 const optionalMatch = optionalNamed.exec("")
@@ -74,18 +89,42 @@ if (optionalMatch?.groups) {
 	expectError(optionalMatch.groups.nope)
 }
 
+const optionalAnonymous = createExactRegExp(maybe(digit.grouped()))
+expectType<[undefined] | [`${number}`]>(optionalAnonymous.inferCaptures)
+
 const idInsideText = createRegExp("id:", digit.times.atLeast(1).grouped())
 expectType<`${string}id:${number}${string}`>(idInsideText.infer)
+
+const userRoute = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))
+expectType<`/users/${number}`>(userRoute.infer)
+expectType<{ userId: `${number}` }>(userRoute.inferNamedCaptures)
+
+const lowerWord = createExactRegExp(oneOrMore(letter.lowercase).as("word"))
+const lowerWordMatch = lowerWord.exec("abc")
+if (lowerWordMatch?.groups) {
+	expectAssignable<string | undefined>(lowerWordMatch.groups.word)
+	expectError(lowerWordMatch.groups.id)
+}
 
 const slashy = createExactRegExp("api/v1")
 expectType<"api/v1">(slashy.infer)
 expectType<[source: "a/b", flags: "i"]>(null as never as RegexParts<"/a\\/b/i">)
+expectType<[source: "api/v1/users", flags: "g"]>(
+	null as never as RegexParts<"/api\\/v1\\/users/g">,
+)
+expectType<never>(null as never as RegexParts<"not-a-regex-literal">)
 
 type InvalidArkRegex = WandRegExp<MagicRegExp<"/(/", never, [], never>>
 expectAssignable<WandCompatibilityError<"ArkRegex could not infer this pattern", "(">>(
 	null as never as InvalidArkRegex,
 )
 expectError((null as never as InvalidArkRegex).test("nope"))
+
+type InvalidArkFlags = WandRegExp<MagicRegExp<"/a/z", never, [], never>>
+expectAssignable<
+	WandCompatibilityError<"Expected Magic Regex literal /source/flags", "/a/z">
+>(null as never as InvalidArkFlags)
+expectError((null as never as InvalidArkFlags).test("a"))
 
 type InvalidMagicLiteral = WandRegExp<
 	MagicRegExp<"not-a-regex-literal", never, [], never>

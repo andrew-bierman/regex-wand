@@ -1,6 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises"
 import { createRequire } from "node:module"
 import { dirname, join, relative, resolve } from "node:path"
+import { $ } from "bun"
 
 type MonacoExtraLib = {
 	content: string
@@ -153,3 +154,4 @@ export const monacoExtraLibs = ${JSON.stringify(libs, null, "\t")} satisfies Mon
 
 await mkdir(dirname(outputPath), { recursive: true })
 await writeFile(outputPath, generated)
+await $`bunx biome format --write ${outputPath}`.cwd(workspaceRoot).quiet()

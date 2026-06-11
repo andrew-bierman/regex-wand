@@ -1,10 +1,12 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises"
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { $ } from "bun"
 
 const root = process.cwd()
 const workspace = await mkdtemp(join(tmpdir(), "regex-wand-pack-"))
+const packageJson = JSON.parse(await readFile(join(root, "package.json"), "utf8"))
+const tarballName = `${packageJson.name}-${packageJson.version}.tgz`
 const semverType = [
 	"`",
 	"$",
@@ -20,7 +22,7 @@ const semverType = [
 
 try {
 	await $`bun pm pack --destination ${workspace}`.cwd(root).quiet()
-	const tarball = join(workspace, "regex-wand-0.1.0.tgz")
+	const tarball = join(workspace, tarballName)
 
 	await writeFile(
 		join(workspace, "package.json"),
