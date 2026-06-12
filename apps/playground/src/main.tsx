@@ -122,15 +122,24 @@ semver.infer`,
   ".",
   namedIdentifier("tld"),
 )`,
-		editorCode: `import { createExactRegExp, digit } from "regex-wand"
+		editorCode: `import { charIn, createExactRegExp, oneOrMore } from "regex-wand"
 
-const userRoute = createExactRegExp(
-  "/users/",
-  digit.times.atLeast(1).as("userId"),
+const identifierChar = charIn
+  .from("a", "z")
+  .orChar.from("A", "Z")
+  .orChar.from("0", "9")
+  .orChar("_")
+
+const email = createExactRegExp(
+  oneOrMore(identifierChar).as("name"),
+  "@",
+  oneOrMore(identifierChar).as("domain"),
+  ".",
+  oneOrMore(identifierChar).as("tld"),
 )
 
-userRoute.inferNamedCaptures.userId`,
-		hoverTarget: "userRoute.inferNamedCaptures.userId",
+email.inferNamedCaptures.domain`,
+		hoverTarget: "email.inferNamedCaptures.domain",
 		types: {
 			infer: templateType(stringSlot, "@", stringSlot, ".", stringSlot),
 			captures:
@@ -488,7 +497,11 @@ const readQuickInfo = async (
 
 	const workerFactory = await monaco.languages.typescript.getTypeScriptWorker()
 	const worker = await workerFactory(model.uri)
-	const info = await worker.getQuickInfoAtPosition(model.uri.toString(), offset + 1)
+	const propertyOffset = target.lastIndexOf(".") + 1
+	const info = await worker.getQuickInfoAtPosition(
+		model.uri.toString(),
+		offset + propertyOffset + 1,
+	)
 	const display = info?.displayParts?.map((part: { text: string }) => part.text).join("")
 	setQuickInfo(display || "No quick info returned yet. Try hovering in the editor.")
 }

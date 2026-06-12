@@ -15,6 +15,10 @@ published type surface, so browser bundlers do not need to execute ArkRegex code
 bun add regex-wand magic-regexp arkregex
 ```
 
+```sh
+npm install regex-wand magic-regexp arkregex
+```
+
 `magic-regexp` and `arkregex` are peer dependencies so projects can control the
 versions they use.
 
@@ -40,6 +44,46 @@ if (semver.test(value)) {
 semver.inferCaptures satisfies [`${number}`, `${number}`, `${number}`]
 ```
 
+Use `createRegExp` when the pattern can appear inside a larger string:
+
+```ts
+import { createRegExp, digit } from "regex-wand"
+
+const ticketId = createRegExp("id:", digit.times.atLeast(1).grouped())
+
+ticketId.infer satisfies `${string}id:${number}${string}`
+ticketId.test("ticket id:8042 is ready")
+```
+
+Use named captures when you want `exec()` group types:
+
+```ts
+import { createExactRegExp, digit } from "regex-wand"
+
+const userRoute = createExactRegExp(
+	"/users/",
+	digit.times.atLeast(1).as("userId"),
+)
+
+const match = userRoute.exec("/users/42")
+match?.groups.userId satisfies string | undefined
+```
+
+Use flag helpers from the same import:
+
+```ts
+import {
+	caseInsensitive,
+	createExactRegExpWithFlags,
+	global,
+} from "regex-wand"
+
+const accepted = createExactRegExpWithFlags(["ok"], global, caseInsensitive)
+
+accepted.flags satisfies "gi"
+accepted.infer satisfies "ok" | "oK" | "Ok" | "OK"
+```
+
 ## API
 
 - `createRegExp(...inputs)` compiles Magic Regex inputs as a contains-style regex.
@@ -51,6 +95,18 @@ semver.inferCaptures satisfies [`${number}`, `${number}`, `${number}`]
 
 All Magic Regex primitives are re-exported from the package.
 
+## Runtime Contract
+
+The returned value is a native `RegExp` with extra typed properties attached:
+
+- `magic` is the original Magic Regex `RegExp`.
+- `ark` is an alias to the adapted value for explicit interop.
+- `toRegExp()` returns a new plain `RegExp` with the same source and flags.
+
+Plain string inputs are escaped by Magic Regex. Magic Regex fragments keep their
+composition behavior. Native `RegExp` rules still apply at runtime, including
+duplicate flag errors and `lastIndex` behavior for global or sticky regexes.
+
 ## Type Safety Contract
 
 `regex-wand` is strict by default. If the adapter cannot preserve the ArkRegex
@@ -59,12 +115,32 @@ error instead of silently degrading to a plain `RegExp`.
 
 See [docs/type-safety.md](docs/type-safety.md) for the longer version.
 
+## Verification
+
+The package test suite covers both runtime behavior and compile-time inference:
+
+- Vitest runtime tests for builders, exact/contains matching, escaped strings,
+  flags, indices, named groups, optional captures, lookarounds, backreferences,
+  string `RegExp` protocols, and `lastIndex`.
+- `tsd` tests for inferred strings, captures, named groups, flags, narrowing,
+  `RegexParts`, and compatibility errors.
+- A runtime import guard to ensure built browser code does not import ArkRegex.
+- A packed-consumer test that installs the generated tarball into a temporary
+  project and checks TypeScript plus runtime behavior.
+- TanStack Intent skill validation.
+
+Run everything from the monorepo root:
+
+```sh
+bun run release:check
+```
+
 ## Agent Skill
 
 This package ships a TanStack Intent skill under `skills/core/SKILL.md` so coding
 agents can load version-aligned usage guidance from the installed npm package.
 
-## Development
+## Development And Publishing
 
 ```sh
 bun install
@@ -72,7 +148,15 @@ bun run check
 bun run test:coverage
 ```
 
-The check suite runs Biome, TypeScript, tsup, a runtime import guard, Vitest
-runtime tests, `tsd` type tests, TanStack Intent validation, and a packed-consumer
-install check. The type tests are the main proof that this package adds value
-over plain Magic Regex output.
+Useful monorepo commands:
+
+```sh
+bun run release:check
+bun run publish:dry-run
+bun run publish:regex-wand
+bun run registry:check
+```
+
+`publish:regex-wand` runs `bun publish --access public` in the package
+workspace. Bump `packages/regex-wand/package.json` before publishing because npm
+does not allow republishing the same version.

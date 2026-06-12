@@ -61,6 +61,27 @@ describe("regex-wand", () => {
 		expect(idInsideText.test("prefix id: suffix")).toBe(false)
 	})
 
+	it("escapes plain string inputs while preserving Magic Regex fragments", () => {
+		const literalSyntax = createExactRegExp("[a-z]+", "?", "(", ")")
+		const mixed = createExactRegExp("item[", digit.times.atLeast(2).grouped(), "]")
+
+		expect(literalSyntax.test("[a-z]+?()")).toBe(true)
+		expect(literalSyntax.test("abc?()")).toBe(false)
+		expect(mixed.test("item[42]")).toBe(true)
+		expect(mixed.test("item[7]")).toBe(false)
+		expect(mixed.exec("item[42]")?.[1]).toBe("42")
+	})
+
+	it("keeps exact-match anchoring separate from contains-style matching", () => {
+		const contains = createRegExp("ok")
+		const exact = createExactRegExp("ok")
+
+		expect(contains.test("not ok yet")).toBe(true)
+		expect(exact.test("not ok yet")).toBe(false)
+		expect(exact.test("ok")).toBe(true)
+		expect(exact.source).toBe("^ok$")
+	})
+
 	it("supports named groups authored with Magic Regex fragments", () => {
 		const identifierChar = oneOrMore(digit).or("name")
 		const keyed = identifierChar.as("key")
@@ -110,11 +131,37 @@ describe("regex-wand", () => {
 		const unicodeWord = createRegExpWithFlags([wordChar], unicode)
 		expect(unicodeWord.flags).toBe("u")
 
+		const exactWithIndices = createExactRegExpWithFlags(
+			[digit.times.atLeast(1).as("id")],
+			withIndices,
+		)
+		const indexedMatch = exactWithIndices.exec("42")
+		expect(indexedMatch?.groups).toEqual({ id: "42" })
+		expect(indexedMatch?.indices?.groups).toEqual({ id: [0, 2] })
+
 		const stickyDigit = createRegExpWithFlags([digit], sticky)
 		stickyDigit.lastIndex = 1
 		expect(stickyDigit.test("a1")).toBe(true)
 		stickyDigit.lastIndex = 0
 		expect(stickyDigit.test("a1")).toBe(false)
+	})
+
+	it("surfaces native RegExp flag validation errors", () => {
+		expect(() => createRegExpWithFlags(["ok"], global, global)).toThrow(SyntaxError)
+		expect(() =>
+			createExactRegExpWithFlags(["ok"], caseInsensitive, caseInsensitive),
+		).toThrow(SyntaxError)
+	})
+
+	it("works with standard string RegExp protocols", () => {
+		const digits = createRegExpWithFlags([digit.times.atLeast(1).grouped()], global)
+		const exactWord = createExactRegExp(oneOrMore(letter.lowercase))
+
+		expect("a1b22".match(digits)).toEqual(["1", "22"])
+		expect("a1b22".replace(digits, "#")).toBe("a#b#")
+		expect("a1b22".split(digits)).toEqual(["a", "1", "b", "22", ""])
+		expect(exactWord[Symbol.match]("hello")?.[0]).toBe("hello")
+		expect(exactWord[Symbol.match]("hello!")).toBeNull()
 	})
 
 	it("keeps Magic Regex primitive composition available from one import", () => {
@@ -209,5 +256,20 @@ describe("regex-wand", () => {
 		expect(plain.source).toBe(wand.source)
 		expect(plain.flags).toBe(wand.flags)
 		expect([..."a1b2".matchAll(plain)].map((match) => match[0])).toEqual(["1", "2"])
+	})
+
+	it("keeps lastIndex state independent across magic, ark, and plain RegExp views", () => {
+		const wand = createRegExpWithFlags([digit.grouped()], global)
+		const plain = wand.toRegExp()
+
+		wand.lastIndex = 2
+		plain.lastIndex = 0
+
+		expect(wand.ark).toBe(wand)
+		expect(wand.magic.lastIndex).toBe(0)
+		expect(plain.lastIndex).toBe(0)
+		expect(wand.test("a1b2")).toBe(true)
+		expect(wand.lastIndex).toBe(4)
+		expect(plain.lastIndex).toBe(0)
 	})
 })

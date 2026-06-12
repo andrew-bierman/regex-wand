@@ -13,6 +13,10 @@
 		"dev": "bun run --filter './apps/playground' dev",
 		"format": "biome format --write .",
 		"lint": "biome check .",
+		"publish:dry-run": "bun run --filter './packages/regex-wand' publish:dry-run",
+		"publish:regex-wand": "bun run --filter './packages/regex-wand' publish:public",
+		"release:check": "bun run check && bun run test:coverage && bun run publish:dry-run && bun run registry:check",
+		"registry:check": "bun run --filter './packages/regex-wand' registry:check",
 		"test": "bun run --filter './packages/regex-wand' test",
 		"test:coverage": "bun run --filter './packages/regex-wand' test:coverage",
 		"typecheck": "bun run --filter './packages/regex-wand' typecheck && bun run --filter './apps/playground' typecheck"
