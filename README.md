@@ -68,7 +68,9 @@ Automated releases are tag-driven.
 
 The `Release` GitHub Actions workflow verifies that the pushed tag matches the
 package version, runs `bun run release:check`, publishes the package to npm with
-Bun, and creates a GitHub Release with generated release notes.
+provenance, and creates a GitHub Release with generated release notes. The
+release gate uses Bun; the final CI registry write uses `npm publish` because it
+has the most reliable token and provenance support in GitHub Actions.
 
 Manual publishing from a local machine should only be a fallback:
 
