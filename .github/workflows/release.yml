@@ -46,10 +46,13 @@ jobs:
 
       - name: Run release checks
         run: bun run release:check
+        env:
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to npm
         run: bun run publish:regex-wand
         env:
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
       - name: Create GitHub release
