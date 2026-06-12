@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 
-const tag = process.env.GITHUB_REF_NAME ?? process.argv[2]
+const tag = process.argv[2] ?? process.env.GITHUB_REF_NAME
 
 if (!tag) {
 	console.error("Expected a release tag from GITHUB_REF_NAME or the first argument.")
