@@ -39,13 +39,13 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
 
-      - name: Run release checks
-        run: bun run release:check
-
       - name: Configure npm authentication
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Run release checks
+        run: bun run release:check
 
       - name: Publish to npm
         run: bun run publish:regex-wand
