@@ -51,6 +51,7 @@
 		"pack:check": "bun run scripts/verify-packed-consumer.ts",
 		"publish:dry-run": "bun publish --access public --dry-run",
 		"publish:public": "bun publish --access public",
+		"release-tag:check": "bun run scripts/assert-release-tag.ts",
 		"registry:check": "bun pm view regex-wand name version dist-tags --json",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
