@@ -66,11 +66,12 @@ Automated releases are tag-driven.
    git push origin v0.1.1
    ```
 
-The `Release` GitHub Actions workflow verifies that the pushed tag matches the
-package version, runs `bun run release:check`, publishes the package to npm with
-provenance, and creates a GitHub Release with generated release notes. The
-release gate uses Bun; the final CI registry write uses `npm publish` because it
-has the most reliable token and provenance support in GitHub Actions.
+The `Release` GitHub Actions workflow runs when a GitHub Release is published.
+It verifies that the release tag matches the package version, runs the Bun check
+suite, verifies the npm package contents with an npm dry-run, and publishes the
+package to npm with provenance. This follows the same trusted-publishing pattern
+used in the other package repos: Bun owns install/build/test, npm 11 owns the
+final provenance publish in GitHub Actions.
 
 Manual publishing from a local machine should only be a fallback:
 
@@ -80,12 +81,16 @@ bun run publish:regex-wand
 
 ## Required GitHub Secrets And Settings
 
-Set this repository secret:
+Configure npm trusted publishing for `regex-wand`:
 
-- `NPM_TOKEN` - npm automation token with publish access to `regex-wand`.
+- Publisher: GitHub Actions
+- Organization/user: `andrew-bierman`
+- Repository: `regex-wand`
+- Workflow: `release.yml`
 
-The release workflow uses GitHub OIDC permissions for npm provenance. The package
-also has `"publishConfig": { "provenance": true }`.
+The release workflow uses GitHub OIDC permissions for npm provenance, so it does
+not require a long-lived npm token. The package also has
+`"publishConfig": { "provenance": true }`.
 
 For the playground, enable GitHub Pages with source set to **GitHub Actions**.
 The `Pages` workflow builds `apps/playground/dist` and deploys it automatically
