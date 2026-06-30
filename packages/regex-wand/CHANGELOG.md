@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4
+
+- Loosened direct dependency ranges to explicit compatibility windows:
+  `arkregex >=0.0.5 <0.1.0` and `magic-regexp >=0.11.0 <0.12.0`.
+
 ## 0.1.3
 
 - Moved `magic-regexp` and `arkregex` from peer dependencies to direct
