@@ -58,6 +58,8 @@ jobs:
       - name: Publish to npm
         working-directory: packages/regex-wand
         run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub release
         if: github.event_name == 'workflow_dispatch'
