@@ -81,7 +81,9 @@ bun run publish:regex-wand
 
 ## Required GitHub Secrets And Settings
 
-Configure npm trusted publishing for `regex-wand`:
+Configure npm publishing for `regex-wand`.
+
+Preferred: use npm trusted publishing:
 
 - Publisher: GitHub Actions
 - Organization/user: `andrew-bierman`
@@ -91,6 +93,10 @@ Configure npm trusted publishing for `regex-wand`:
 The release workflow uses GitHub OIDC permissions for npm provenance, so it does
 not require a long-lived npm token. The package also has
 `"publishConfig": { "provenance": true }`.
+
+Fallback: set the repository secret `NPM_TOKEN` to an npm automation or granular
+access token with read/write access to `regex-wand`. The release workflow passes
+that token to `npm publish`.
 
 For the playground, enable GitHub Pages with source set to **GitHub Actions**.
 The `Pages` workflow builds `apps/playground/dist` and deploys it automatically
