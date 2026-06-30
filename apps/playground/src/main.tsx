@@ -3,18 +3,20 @@ import {
 	AtSign,
 	BadgeCheck,
 	Braces,
-	ChevronRight,
-	CircleX,
+	CalendarDays,
 	Code2,
+	Fingerprint,
 	Hash,
+	Link,
 	Regex,
 	Route,
 	Search,
 	Sparkles,
+	Tag,
 	WandSparkles,
 } from "lucide-react"
 import { createRegExp as createMagicRegExp } from "magic-regexp"
-import { lazy, StrictMode, Suspense, useMemo, useState } from "react"
+import { lazy, StrictMode, Suspense, useEffect, useMemo, useState } from "react"
 import { createRoot } from "react-dom/client"
 import {
 	anyOf,
@@ -28,10 +30,14 @@ import {
 	global,
 	oneOrMore,
 } from "regex-wand"
+import { CopyButton } from "@/components/playground/copy-button"
+import { ExampleNav } from "@/components/playground/example-nav"
+import { SamplePanel } from "@/components/playground/sample-panel"
+import { TypeRow } from "@/components/playground/type-row"
+import { UseItPanel } from "@/components/playground/use-it-panel"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import type { CopyTarget, PatternEvaluation, PlaygroundExample } from "@/playground-types"
 import { monacoExtraLibs } from "./generated/monaco-extra-libs"
 import "./styles.css"
 
@@ -42,24 +48,6 @@ const templateType = (...parts: string[]) => `\`${parts.join("")}\``
 const numberSlot = templateSlot("number")
 const stringSlot = templateSlot("string")
 
-type PlaygroundExample = {
-	id: string
-	title: string
-	icon: typeof Hash
-	code: string
-	editorCode: string
-	hoverTarget: string
-	pattern: RegExp
-	defaultInput: string
-	invalidInput: string
-	types: {
-		infer: string
-		captures: string
-		namedCaptures: string
-		flags: string
-	}
-}
-
 const identifierChar = charIn
 	.from("a", "z")
 	.orChar.from("A", "Z")
@@ -67,6 +55,9 @@ const identifierChar = charIn
 	.orChar("_")
 
 const namedIdentifier = <K extends string>(key: K) => oneOrMore(identifierChar).as(key)
+const lowerAlpha = charIn.from("a", "z")
+const slugChar = lowerAlpha.orChar.from("0", "9").orChar("-")
+const hexChar = charIn.from("0", "9").orChar.from("a", "f").orChar.from("A", "F")
 
 const examples: PlaygroundExample[] = [
 	{
@@ -213,6 +204,156 @@ accepted.flags`,
 		},
 	},
 	{
+		id: "iso-date",
+		title: "ISO date",
+		icon: CalendarDays,
+		pattern: createExactRegExp(
+			digit.times.atLeast(4).as("year"),
+			"-",
+			digit.times.atLeast(2).as("month"),
+			"-",
+			digit.times.atLeast(2).as("day"),
+		),
+		defaultInput: "2026-06-30",
+		invalidInput: "06/30/2026",
+		code: `const isoDate = createExactRegExp(
+  digit.times.atLeast(4).as("year"),
+  "-",
+  digit.times.atLeast(2).as("month"),
+  "-",
+  digit.times.atLeast(2).as("day"),
+)`,
+		editorCode: `import { createExactRegExp, digit } from "regex-wand"
+
+const isoDate = createExactRegExp(
+  digit.times.atLeast(4).as("year"),
+  "-",
+  digit.times.atLeast(2).as("month"),
+  "-",
+  digit.times.atLeast(2).as("day"),
+)
+
+isoDate.inferNamedCaptures.year`,
+		hoverTarget: "isoDate.inferNamedCaptures.year",
+		types: {
+			infer: templateType(numberSlot, "-", numberSlot, "-", numberSlot),
+			captures: '["(?<year>\\\\d{4,})", "(?<month>\\\\d{2,})", "(?<day>\\\\d{2,})"]',
+			namedCaptures: `{ year: ${templateType(numberSlot)}; month: ${templateType(numberSlot)}; day: ${templateType(numberSlot)} }`,
+			flags: '""',
+		},
+	},
+	{
+		id: "hex-color",
+		title: "Hex color",
+		icon: Tag,
+		pattern: createExactRegExp("#", oneOrMore(hexChar).as("hex")),
+		defaultInput: "#38BDF8",
+		invalidInput: "38BDF8",
+		code: `const hexChar = charIn
+  .from("0", "9")
+  .orChar.from("a", "f")
+  .orChar.from("A", "F")
+
+const hexColor = createExactRegExp(
+  "#",
+  oneOrMore(hexChar).as("hex"),
+)`,
+		editorCode: `import { charIn, createExactRegExp, oneOrMore } from "regex-wand"
+
+const hexChar = charIn
+  .from("0", "9")
+  .orChar.from("a", "f")
+  .orChar.from("A", "F")
+
+const hexColor = createExactRegExp(
+  "#",
+  oneOrMore(hexChar).as("hex"),
+)
+
+hexColor.inferNamedCaptures.hex`,
+		hoverTarget: "hexColor.inferNamedCaptures.hex",
+		types: {
+			infer: templateType("#", stringSlot),
+			captures: '["(?<hex>[0-9a-fA-F]+)"]',
+			namedCaptures: "{ hex: string }",
+			flags: '""',
+		},
+	},
+	{
+		id: "slug",
+		title: "Slug",
+		icon: Link,
+		pattern: createExactRegExp(oneOrMore(slugChar).as("slug")),
+		defaultInput: "typed-regex-playground",
+		invalidInput: "Typed Regex Playground",
+		code: `const slugChar = charIn
+  .from("a", "z")
+  .orChar.from("0", "9")
+  .orChar("-")
+
+const slug = createExactRegExp(
+  oneOrMore(slugChar).as("slug"),
+)`,
+		editorCode: `import { charIn, createExactRegExp, oneOrMore } from "regex-wand"
+
+const slugChar = charIn
+  .from("a", "z")
+  .orChar.from("0", "9")
+  .orChar("-")
+
+const slug = createExactRegExp(
+  oneOrMore(slugChar).as("slug"),
+)
+
+slug.inferNamedCaptures.slug`,
+		hoverTarget: "slug.inferNamedCaptures.slug",
+		types: {
+			infer: templateType(stringSlot),
+			captures: '["(?<slug>[a-z0-9\\\\-]+)"]',
+			namedCaptures: "{ slug: string }",
+			flags: '""',
+		},
+	},
+	{
+		id: "feature-key",
+		title: "Feature key",
+		icon: Fingerprint,
+		pattern: createExactRegExp(
+			anyOf("prod", "staging", "dev").as("env"),
+			":",
+			namedIdentifier("feature"),
+		),
+		defaultInput: "prod:checkout_v2",
+		invalidInput: "local:checkout_v2",
+		code: `const featureKey = createExactRegExp(
+  anyOf("prod", "staging", "dev").as("env"),
+  ":",
+  oneOrMore(identifierChar).as("feature"),
+)`,
+		editorCode: `import { anyOf, charIn, createExactRegExp, oneOrMore } from "regex-wand"
+
+const identifierChar = charIn
+  .from("a", "z")
+  .orChar.from("A", "Z")
+  .orChar.from("0", "9")
+  .orChar("_")
+
+const featureKey = createExactRegExp(
+  anyOf("prod", "staging", "dev").as("env"),
+  ":",
+  oneOrMore(identifierChar).as("feature"),
+)
+
+featureKey.inferNamedCaptures.env`,
+		hoverTarget: "featureKey.inferNamedCaptures.env",
+		types: {
+			infer: templateType('"prod" | "staging" | "dev"', ":", stringSlot),
+			captures: '["(?<env>prod|staging|dev)", "(?<feature>[a-zA-Z0-9_]+)"]',
+			namedCaptures: '{ env: "prod" | "staging" | "dev"; feature: string }',
+			flags: '""',
+		},
+	},
+	{
 		id: "contains",
 		title: "Text search",
 		icon: Search,
@@ -277,20 +418,42 @@ adapted.flags`,
 ]
 
 function App() {
-	const [selectedId, setSelectedId] = useState(examples[0]?.id ?? "")
+	const [selectedId, setSelectedId] = useState(() => getInitialExampleId())
 	const selected = examples.find((example) => example.id === selectedId) ?? examples[0]
 	const [inputById, setInputById] = useState<Record<string, string>>({})
 	const [quickInfo, setQuickInfo] = useState("Hover-ready type info appears here.")
+	const [copiedTarget, setCopiedTarget] = useState<CopyTarget | null>(null)
 	const input = inputById[selected.id] ?? selected.defaultInput
 	const evaluation = useMemo(
 		() => evaluatePattern(selected.pattern, input),
 		[input, selected],
 	)
 	const Icon = selected.icon
+	const shareUrl = useMemo(() => createShareUrl(selected.id), [selected.id])
+
+	useEffect(() => {
+		if (typeof window === "undefined") return
+
+		const url = new URL(window.location.href)
+		url.searchParams.set("example", selected.id)
+		window.history.replaceState(null, "", url)
+	}, [selected.id])
+
+	useEffect(() => {
+		if (!copiedTarget) return
+
+		const timeout = window.setTimeout(() => setCopiedTarget(null), 1600)
+		return () => window.clearTimeout(timeout)
+	}, [copiedTarget])
 
 	const selectExample = (exampleId: string) => {
 		setQuickInfo("Loading quick info...")
 		setSelectedId(exampleId)
+	}
+
+	const copyValue = async (target: CopyTarget, value: string) => {
+		await copyText(value)
+		setCopiedTarget(target)
 	}
 
 	return (
@@ -308,32 +471,16 @@ function App() {
 					</div>
 					<Badge variant="secondary" className="w-fit gap-1.5">
 						<Sparkles className="size-3" />
-						<span>typed RegExp playground</span>
+						<span>{examples.length} typed examples</span>
 					</Badge>
 				</header>
 
 				<div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[220px_minmax(420px,1.35fr)_minmax(320px,0.8fr)]">
-					<nav
-						className="grid gap-1 border-b bg-muted/30 p-2 sm:grid-cols-2 lg:flex lg:flex-col lg:border-b-0 lg:border-r"
-						aria-label="Examples"
-					>
-						{examples.map((example) => {
-							const ExampleIcon = example.icon
-							return (
-								<Button
-									type="button"
-									variant={example.id === selected.id ? "secondary" : "ghost"}
-									className="h-10 justify-start gap-2 px-3"
-									key={example.id}
-									onClick={() => selectExample(example.id)}
-								>
-									<ExampleIcon className="size-4 text-muted-foreground" />
-									<span className="min-w-0 truncate">{example.title}</span>
-									<ChevronRight className="ml-auto size-4 text-muted-foreground" />
-								</Button>
-							)
-						})}
-					</nav>
+					<ExampleNav
+						examples={examples}
+						onSelect={selectExample}
+						selectedId={selected.id}
+					/>
 
 					<section
 						className="flex min-w-0 flex-col gap-4 border-b p-4 lg:border-b-0 lg:border-r"
@@ -342,9 +489,14 @@ function App() {
 						<div className="flex min-h-8 items-center gap-2">
 							<Icon className="size-4 text-muted-foreground" />
 							<h2 className="text-sm font-semibold">{selected.title}</h2>
-							<code className="ml-auto max-w-[52%] truncate rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+							<code className="ml-auto max-w-[42%] truncate rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground md:max-w-[52%]">
 								{String(selected.pattern)}
 							</code>
+							<CopyButton
+								title="Copy regex"
+								copied={copiedTarget === "regex"}
+								onClick={() => copyValue("regex", String(selected.pattern))}
+							/>
 						</div>
 						<div className="min-w-0 overflow-hidden rounded-lg border bg-zinc-950">
 							<Suspense
@@ -403,77 +555,23 @@ function App() {
 						<pre className="min-h-28 overflow-auto rounded-lg border bg-zinc-950 p-4 text-xs leading-6 text-zinc-100">
 							<code>{selected.code}</code>
 						</pre>
-						<Card className="gap-3 p-4 py-4">
-							<div className="flex items-center justify-between gap-3">
-								<label
-									htmlFor="sample-input"
-									className="text-sm font-medium text-muted-foreground"
-								>
-									Sample input
-								</label>
-								<Badge variant={evaluation.isMatch ? "default" : "destructive"}>
-									{evaluation.isMatch ? "match" : "no match"}
-								</Badge>
-							</div>
-							<div className="flex items-center gap-2">
-								<Input
-									id="sample-input"
-									value={input}
-									onChange={(event) =>
-										setInputById((current) => ({
-											...current,
-											[selected.id]: event.target.value,
-										}))
-									}
-								/>
-								<Button
-									type="button"
-									variant="outline"
-									size="icon"
-									title="Use matching sample"
-									onClick={() =>
-										setInputById((current) => ({
-											...current,
-											[selected.id]: selected.defaultInput,
-										}))
-									}
-								>
-									<BadgeCheck className="size-4" />
-								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									size="icon"
-									title="Use non-matching sample"
-									onClick={() =>
-										setInputById((current) => ({
-											...current,
-											[selected.id]: selected.invalidInput,
-										}))
-									}
-								>
-									<CircleX className="size-4" />
-								</Button>
-							</div>
-							<div className="grid gap-2 sm:grid-cols-2">
-								<div className="min-w-0 rounded-md bg-muted p-3">
-									<span className="text-xs font-medium uppercase text-muted-foreground">
-										captures
-									</span>
-									<code className="mt-2 block overflow-auto text-xs leading-5">
-										{JSON.stringify(evaluation.match?.slice(1) ?? [])}
-									</code>
-								</div>
-								<div className="min-w-0 rounded-md bg-muted p-3">
-									<span className="text-xs font-medium uppercase text-muted-foreground">
-										groups
-									</span>
-									<code className="mt-2 block overflow-auto text-xs leading-5">
-										{JSON.stringify(evaluation.match?.groups ?? {})}
-									</code>
-								</div>
-							</div>
-						</Card>
+						<SamplePanel
+							evaluation={evaluation}
+							input={input}
+							onInputChange={(value) =>
+								setInputById((current) => ({
+									...current,
+									[selected.id]: value,
+								}))
+							}
+							onUseSample={(value) =>
+								setInputById((current) => ({
+									...current,
+									[selected.id]: value,
+								}))
+							}
+							selected={selected}
+						/>
 					</section>
 
 					<aside
@@ -488,6 +586,12 @@ function App() {
 						<TypeRow label="inferCaptures" value={selected.types.captures} />
 						<TypeRow label="inferNamedCaptures" value={selected.types.namedCaptures} />
 						<TypeRow label="flags" value={selected.types.flags} />
+						<UseItPanel
+							copiedTarget={copiedTarget}
+							onCopy={copyValue}
+							shareUrl={shareUrl}
+							typescriptCode={selected.editorCode}
+						/>
 						<div className="mt-auto flex items-center gap-2 rounded-lg border bg-card p-3 text-sm text-muted-foreground">
 							<Braces className="size-4" />
 							<span>Displayed types are curated from the package type tests.</span>
@@ -499,7 +603,16 @@ function App() {
 	)
 }
 
-function evaluatePattern(pattern: RegExp, input: string) {
+function getInitialExampleId() {
+	if (typeof window === "undefined") return examples[0]?.id ?? ""
+
+	const requestedId = new URLSearchParams(window.location.search).get("example")
+	return examples.some((example) => example.id === requestedId)
+		? requestedId
+		: (examples[0]?.id ?? "")
+}
+
+function evaluatePattern(pattern: RegExp, input: string): PatternEvaluation {
 	const matcher = new RegExp(pattern.source, pattern.flags)
 	const match = matcher.exec(input)
 
@@ -507,6 +620,31 @@ function evaluatePattern(pattern: RegExp, input: string) {
 		isMatch: match !== null,
 		match,
 	}
+}
+
+function createShareUrl(exampleId: string) {
+	if (typeof window === "undefined") return `?example=${exampleId}`
+
+	const url = new URL(window.location.href)
+	url.searchParams.set("example", exampleId)
+	return url.toString()
+}
+
+async function copyText(value: string) {
+	if (navigator.clipboard) {
+		await navigator.clipboard.writeText(value)
+		return
+	}
+
+	const textarea = document.createElement("textarea")
+	textarea.value = value
+	textarea.setAttribute("readonly", "")
+	textarea.style.position = "fixed"
+	textarea.style.top = "-1000px"
+	document.body.append(textarea)
+	textarea.select()
+	document.execCommand("copy")
+	textarea.remove()
 }
 
 const configureMonaco: BeforeMount = (monaco) => {
@@ -570,17 +708,6 @@ const readQuickInfo = async (
 	)
 	const display = info?.displayParts?.map((part: { text: string }) => part.text).join("")
 	setQuickInfo(display || "No quick info returned yet. Try hovering in the editor.")
-}
-
-function TypeRow({ label, value }: { label: string; value: string }) {
-	return (
-		<Card className="gap-2 p-4 py-4">
-			<span className="text-xs font-medium uppercase text-muted-foreground">{label}</span>
-			<code className="overflow-auto rounded-md bg-muted px-3 py-2 text-xs leading-5">
-				{value}
-			</code>
-		</Card>
-	)
 }
 
 createRoot(document.getElementById("root") as HTMLElement).render(
