@@ -21,15 +21,16 @@ Magic Regex fragments and use `regex-wand` only at the compile boundary.
   inferred string shape.
 - Use `createRegExpWithFlags(inputs, ...flags)` or
   `createExactRegExpWithFlags(inputs, ...flags)` when flags must be part of the
-  inferred type.
+  inferred type. Flag arrays, flag strings, and flag Sets are also accepted.
 - Use `fromMagic(magic)` only when an existing Magic Regex value already exists.
+- Use `fromMagicAs<Pattern, Context>(magic)` only as an explicit manual typing
+  escape hatch for runtime-valid Magic Regex values ArkRegex cannot infer.
 
 ## Common Mistakes
 
 - Do not build a competing fragment DSL around `regex-wand`.
-- Do not hide a strict compatibility error by casting to `RegExp` in library code.
-  Casts are acceptable only in runtime tests that intentionally cover Magic Regex
-  fragments ArkRegex cannot currently infer.
+- Do not hide a strict compatibility error by casting to `RegExp` in library
+  code. Prefer `fromMagicAs` when you can state the result type.
 - Do not pass raw regex syntax as a string when Magic Regex would escape it. Use
   Magic Regex helpers for anchors, groups, boundaries, and alternatives.
 

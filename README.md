@@ -114,6 +114,9 @@ const magicRoute = createRegExp(
 const route = fromMagic(magicRoute)
 ```
 
+For complex runtime-valid expressions that ArkRegex cannot infer, `fromMagicAs`
+provides the same kind of manual type escape hatch as ArkRegex's `regex.as`.
+
 ## Development
 
 This repo uses Bun workspaces.

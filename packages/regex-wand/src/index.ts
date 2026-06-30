@@ -37,8 +37,11 @@ export {
 
 type MagicInput = string | Input<string, string, (string | undefined)[]>
 type RegexFlag = "d" | "g" | "i" | "m" | "s" | "u" | "v" | "y"
+type MagicFlagInput = Flag | readonly Flag[] | ReadonlySet<Flag> | string
 type ArkFlags =
 	`${"d" | ""}${"g" | ""}${"i" | ""}${"m" | ""}${"s" | ""}${"u" | "v" | ""}${"y" | ""}`
+type IndexedCaptures = Array<string | undefined>
+type NamedCaptures = Record<string, string | undefined>
 
 type MagicFromInputs<Inputs extends readonly MagicInput[]> = ReturnType<
 	typeof createMagicRegExp<[...Inputs]>
@@ -134,6 +137,33 @@ type FlagIfPresent<Flags extends readonly Flag[], Candidate extends string> =
 type CanonicalFlags<Flags extends readonly Flag[]> =
 	`${FlagIfPresent<Flags, "d">}${FlagIfPresent<Flags, "g">}${FlagIfPresent<Flags, "i">}${FlagIfPresent<Flags, "m">}${FlagIfPresent<Flags, "s">}${FlagIfPresent<Flags, "u">}${FlagIfPresent<Flags, "v">}${FlagIfPresent<Flags, "y">}`
 
+type FlagTextFromUnion<Flags extends string> =
+	`${Extract<Flags, "d"> extends never ? "" : "d"}${Extract<Flags, "g"> extends never ? "" : "g"}${Extract<Flags, "i"> extends never ? "" : "i"}${Extract<Flags, "m"> extends never ? "" : "m"}${Extract<Flags, "s"> extends never ? "" : "s"}${Extract<Flags, "u"> extends never ? "" : "u"}${Extract<Flags, "v"> extends never ? "" : "v"}${Extract<Flags, "y"> extends never ? "" : "y"}`
+
+type FlagTextFromInput<Flags extends MagicFlagInput> = Flags extends string
+	? NormalizeRegexFlags<Flags>
+	: Flags extends readonly Flag[]
+		? CanonicalFlags<Flags>
+		: Flags extends ReadonlySet<infer FlagUnion extends Flag>
+			? FlagTextFromUnion<FlagUnion>
+			: Flags extends Flag
+				? Flags
+				: never
+
+type FlagUnionFromInput<Flags extends MagicFlagInput> = Flags extends string
+	? NormalizeRegexFlags<Flags> extends infer FlagText extends string
+		? FlagText extends `${infer First}${infer Rest}`
+			? First | FlagUnionFromInput<Rest>
+			: never
+		: never
+	: Flags extends readonly Flag[]
+		? Flags[number]
+		: Flags extends ReadonlySet<infer FlagUnion extends Flag>
+			? FlagUnion
+			: Flags extends Flag
+				? Flags
+				: never
+
 type WithFlags<R, Flags extends readonly Flag[]> =
 	R extends MagicRegExp<
 		`/${infer Source}/`,
@@ -142,6 +172,21 @@ type WithFlags<R, Flags extends readonly Flag[]> =
 		string
 	>
 		? MagicRegExp<`/${Source}/${CanonicalFlags<Flags>}`, Groups, Captures, Flags[number]>
+		: never
+
+type WithFlagInput<R, Flags extends MagicFlagInput> =
+	R extends MagicRegExp<
+		`/${infer Source}/`,
+		infer Groups extends string,
+		infer Captures extends (string | undefined)[],
+		string
+	>
+		? MagicRegExp<
+				`/${Source}/${FlagTextFromInput<Flags>}`,
+				Groups,
+				Captures,
+				FlagUnionFromInput<Flags>
+			>
 		: never
 
 type Anchored<R> =
@@ -153,6 +198,13 @@ type Anchored<R> =
 	>
 		? MagicRegExp<`/^${Source}$/`, Groups, Captures, never>
 		: never
+
+export type WandManualContext = {
+	flags?: ArkFlags
+	captures?: IndexedCaptures
+	names?: NamedCaptures
+}
+type EmptyManualContext = { flags?: never; captures?: never; names?: never }
 
 export type WandRegExp<
 	R extends MagicRegExp<string, string, (string | undefined)[], string>,
@@ -185,6 +237,26 @@ export function fromMagic<
 }
 
 /**
+ * Adapt an existing Magic Regex value and manually provide ArkRegex result
+ * types.
+ *
+ * This mirrors ArkRegex's `regex.as` escape hatch for expressions that are valid
+ * at runtime but too complex or dynamic for type-level inference.
+ */
+export function fromMagicAs<
+	const Pattern extends string,
+	const Context extends WandManualContext = EmptyManualContext,
+	const R extends MagicRegExp<
+		string,
+		string,
+		(string | undefined)[],
+		string
+	> = MagicRegExp<string, string, (string | undefined)[], string>,
+>(magic: R): WandRegExp<R> & Regex<Pattern, Context> {
+	return fromMagic(magic) as WandRegExp<R> & Regex<Pattern, Context>
+}
+
+/**
  * Compile Magic Regex inputs into an ArkRegex-powered contains-style `RegExp`.
  *
  * This mirrors Magic Regex authoring: strings are escaped by Magic Regex, and
@@ -208,12 +280,18 @@ export function createRegExp<const Inputs extends readonly MagicInput[]>(
 export function createRegExpWithFlags<
 	const Inputs extends readonly MagicInput[],
 	const Flags extends readonly Flag[],
->(
-	inputs: Inputs,
-	...flags: Flags
-): WandRegExp<WithFlags<MagicFromInputs<Inputs>, Flags>> {
-	const magic = createMagicRegExp(...inputs, [...flags])
-	return fromMagic(magic as unknown as WithFlags<MagicFromInputs<Inputs>, Flags>)
+>(inputs: Inputs, ...flags: Flags): WandRegExp<WithFlags<MagicFromInputs<Inputs>, Flags>>
+export function createRegExpWithFlags<
+	const Inputs extends readonly MagicInput[],
+	const Flags extends MagicFlagInput,
+>(inputs: Inputs, flags: Flags): WandRegExp<WithFlagInput<MagicFromInputs<Inputs>, Flags>>
+export function createRegExpWithFlags(
+	inputs: readonly MagicInput[],
+	...flags: readonly MagicFlagInput[]
+): unknown {
+	const flagInput = normalizeFlagInput(flags)
+	const magic = createMagicRegExpWithFlagInput(inputs, flagInput)
+	return fromMagic(magic)
 }
 
 /**
@@ -246,14 +324,49 @@ export function createExactRegExpWithFlags<
 >(
 	inputs: Inputs,
 	...flags: Flags
-): WandRegExp<WithFlags<Anchored<MagicFromInputs<Inputs>>, Flags>> {
+): WandRegExp<WithFlags<Anchored<MagicFromInputs<Inputs>>, Flags>>
+export function createExactRegExpWithFlags<
+	const Inputs extends readonly MagicInput[],
+	const Flags extends MagicFlagInput,
+>(
+	inputs: Inputs,
+	flags: Flags,
+): WandRegExp<WithFlagInput<Anchored<MagicFromInputs<Inputs>>, Flags>>
+export function createExactRegExpWithFlags(
+	inputs: readonly MagicInput[],
+	...flags: readonly MagicFlagInput[]
+): unknown {
 	const anchored = magicExactly(...inputs)
 		.at.lineStart()
 		.at.lineEnd()
-	const unflagged = createMagicRegExp(anchored)
-	const magic = createMagicRegExp(anchored, [...flags])
+	const flagInput = normalizeFlagInput(flags)
+	const magic = createMagicRegExpWithFlagInput([anchored], flagInput)
 
-	return fromMagic(magic as unknown as WithFlags<typeof unflagged, Flags>) as WandRegExp<
-		WithFlags<Anchored<MagicFromInputs<Inputs>>, Flags>
-	>
+	return fromMagic(magic)
+}
+
+function normalizeFlagInput(
+	flags: readonly MagicFlagInput[],
+): readonly Flag[] | ReadonlySet<Flag> {
+	if (flags.length !== 1) {
+		return [...flags] as Flag[]
+	}
+
+	const candidate = flags[0] as MagicFlagInput
+	if (typeof candidate === "string") {
+		return [...candidate] as Flag[]
+	}
+
+	return candidate as readonly Flag[] | ReadonlySet<Flag>
+}
+
+function createMagicRegExpWithFlagInput(
+	inputs: readonly MagicInput[],
+	flagInput: readonly Flag[] | ReadonlySet<Flag>,
+) {
+	return (
+		createMagicRegExp as (
+			...inputs: readonly [...MagicInput[], MagicFlagInput]
+		) => MagicRegExp<string, string, (string | undefined)[], string>
+	)(...inputs, flagInput)
 }

@@ -183,13 +183,32 @@ With Magic Regex's transform enabled, the `createRegExp(...)` call can compile
 away, leaving only the `regex-wand` boundary adapter. ArkRegex remains type-only
 in `regex-wand`'s built JavaScript.
 
+For expressions that are valid at runtime but too complex or dynamic for
+ArkRegex to infer, use `fromMagicAs` to provide the result type manually:
+
+```ts
+import { createRegExp, digit } from "magic-regexp"
+import { fromMagicAs } from "regex-wand"
+
+const magicRoute = createRegExp("/users/", digit.times.atLeast(1).as("userId"))
+
+const route = fromMagicAs<
+	`${string}/users/${number}${string}`,
+	{ names: { userId: `${number}` } }
+>(magicRoute)
+```
+
 ## API
 
 - `createRegExp(...inputs)` compiles Magic Regex inputs as a contains-style regex.
 - `createExactRegExp(...inputs)` compiles a start/end anchored regex.
 - `createRegExpWithFlags(inputs, ...flags)` compiles with Magic Regex flag helpers.
+- `createRegExpWithFlags(inputs, flags)` also accepts flag arrays, flag strings,
+  and flag Sets.
 - `createExactRegExpWithFlags(inputs, ...flags)` combines anchoring and flags.
 - `fromMagic(magic)` adapts an existing `MagicRegExp`.
+- `fromMagicAs<Pattern, Context>(magic)` adapts an existing `MagicRegExp` with
+  manually supplied ArkRegex result types.
 - `WandCompatibilityError` marks strict type-level conversion failures.
 
 All Magic Regex primitives are re-exported from the package.
@@ -219,10 +238,11 @@ See [docs/type-safety.md](docs/type-safety.md) for the longer version.
 The package test suite covers both runtime behavior and compile-time inference:
 
 - Vitest runtime tests for builders, exact/contains matching, escaped strings,
-  flags, indices, named groups, optional captures, lookarounds, backreferences,
-  string `RegExp` protocols, and `lastIndex`.
+  flag helpers/arrays/strings/Sets, indices, named groups, optional captures,
+  lookarounds, backreferences, manual typing, string `RegExp` protocols, and
+  `lastIndex`.
 - `tsd` tests for inferred strings, captures, named groups, flags, narrowing,
-  `RegexParts`, and compatibility errors.
+  manual typing, `RegexParts`, and compatibility errors.
 - A runtime import guard to ensure built browser code does not import ArkRegex.
 - A packed-consumer test that installs the generated tarball into a temporary
   project and checks TypeScript plus runtime behavior.

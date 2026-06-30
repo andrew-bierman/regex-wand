@@ -94,6 +94,19 @@ const accepted = createExactRegExpWithFlags(["ok"], global, caseInsensitive)
 accepted.flags satisfies "gi"
 ```
 
+The flag helpers also accept Magic Regex's documented flag container forms:
+
+```ts
+import { caseInsensitive, createRegExpWithFlags, global } from "regex-wand"
+
+createRegExpWithFlags(["ok"], "ig").flags satisfies "gi"
+createRegExpWithFlags(["ok"], [global, caseInsensitive]).flags satisfies "gi"
+createRegExpWithFlags(
+	["ok"],
+	new Set<typeof global | typeof caseInsensitive>([global, caseInsensitive]),
+).flags satisfies "gi"
+```
+
 Duplicate flags are native `RegExp` errors at runtime. Keep flag composition
 centralized when passing dynamic flag lists.
 
@@ -113,4 +126,21 @@ type Invalid = WandRegExp<MagicRegExp<"/(/", never, [], never>>
 
 This is deliberate. Runtime JavaScript may still support a pattern that the
 type-level parser cannot prove. If you need one of those runtime-only patterns,
-cast locally at the call site so the loss of inference remains visible.
+prefer `fromMagicAs` to provide the ArkRegex result type manually:
+
+```ts
+import { createRegExp, digit } from "magic-regexp"
+import { fromMagicAs } from "regex-wand"
+
+const magic = createRegExp("feature:", digit.times.atLeast(1).as("id"))
+
+const feature = fromMagicAs<
+	`${string}feature:${number}${string}`,
+	{ names: { id: `${number}` } }
+>(magic)
+
+feature.inferNamedCaptures.id satisfies `${number}`
+```
+
+Use local casts only for runtime tests or when you intentionally want to give up
+the typed surface.

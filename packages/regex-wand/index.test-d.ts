@@ -9,6 +9,7 @@ import {
 	digit,
 	dotAll,
 	fromMagic,
+	fromMagicAs,
 	global,
 	letter,
 	maybe,
@@ -68,6 +69,18 @@ expectType<"d">(indexed.flags)
 const multilineDotAll = createRegExpWithFlags(["a", "b"], multiline, dotAll)
 expectType<"ms">(multilineDotAll.flags)
 expectType<`${string}ab${string}`>(multilineDotAll.infer)
+
+const stringFlags = createRegExpWithFlags(["ok"], "ig")
+expectType<"gi">(stringFlags.flags)
+
+const arrayFlags = createRegExpWithFlags(["ok"], [global, caseInsensitive])
+expectType<"gi">(arrayFlags.flags)
+
+const setFlags = createExactRegExpWithFlags(
+	["ok"],
+	new Set<typeof global | typeof caseInsensitive>([global, caseInsensitive]),
+)
+expectType<"gi">(setFlags.flags)
 
 const namedIdentifier = <K extends string>(key: K) => oneOrMore(digit).or("name").as(key)
 
@@ -162,3 +175,12 @@ expectType<
 >(adaptedMagicWithFlags.infer)
 expectType<"gi">(adaptedMagicWithFlags.flags)
 expectAssignable<RegExp>(adaptedMagicWithFlags)
+
+const manualMagic = createMagicRegExp("feature:", digit.times.atLeast(1).as("id"))
+const manualWand = fromMagicAs<
+	`${string}feature:${number}${string}`,
+	{ names: { id: `${number}` } }
+>(manualMagic)
+expectType<`${string}feature:${number}${string}`>(manualWand.infer)
+expectType<{ id: `${number}` }>(manualWand.inferNamedCaptures)
+expectAssignable<string | undefined>(manualWand.exec("feature:42")?.groups.id)

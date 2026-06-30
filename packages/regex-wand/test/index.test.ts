@@ -1,3 +1,4 @@
+import type { Flag } from "magic-regexp"
 import { createRegExp as createMagicRegExp } from "magic-regexp"
 import { describe, expect, it } from "vitest"
 import {
@@ -15,6 +16,7 @@ import {
 	dotAll,
 	exactly,
 	fromMagic,
+	fromMagicAs,
 	global,
 	letter,
 	linefeed,
@@ -96,6 +98,12 @@ describe("regex-wand", () => {
 		const loose = createRegExpWithFlags(["ok"], caseInsensitive)
 		const exact = createExactRegExpWithFlags(["ok"], caseInsensitive)
 		const globalInsensitive = createRegExpWithFlags(["ok"], global, caseInsensitive)
+		const stringFlags = createRegExpWithFlags(["ok"], "ig")
+		const arrayFlags = createRegExpWithFlags(["ok"], [global, caseInsensitive])
+		const setFlags = createExactRegExpWithFlags(
+			["ok"],
+			new Set<Flag>([global, caseInsensitive]),
+		)
 
 		expect(loose.flags).toBe("i")
 		expect(loose.test("OK then")).toBe(true)
@@ -107,6 +115,10 @@ describe("regex-wand", () => {
 			"ok",
 			"OK",
 		])
+		expect(stringFlags.flags).toBe("gi")
+		expect(arrayFlags.flags).toBe("gi")
+		expect(setFlags.flags).toBe("gi")
+		expect(setFlags.test("OK")).toBe(true)
 	})
 
 	it("passes through native RegExp flag behavior", () => {
@@ -248,6 +260,17 @@ describe("regex-wand", () => {
 		expect(wand.flags).toBe("gi")
 		expect([..."ok OK".matchAll(wand)].map((match) => match[0])).toEqual(["ok", "OK"])
 		expect(wand.toRegExp().flags).toBe("gi")
+	})
+
+	it("allows manual ArkRegex result typing for complex Magic Regex values", () => {
+		const magic = createMagicRegExp("feature:", digit.times.atLeast(1).as("id"))
+		const wand = fromMagicAs<
+			`${string}feature:${number}${string}`,
+			{ names: { id: `${number}` } }
+		>(magic)
+
+		expect(wand.test("feature:42")).toBe(true)
+		expect(wand.exec("feature:42")?.groups).toEqual({ id: "42" })
 	})
 
 	it("handles escaped slash sources in Magic Regex output", () => {

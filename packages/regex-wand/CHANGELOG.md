@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0
+
+- Added `fromMagicAs<Pattern, Context>(magic)` as an ArkRegex-style manual type
+  escape hatch for Magic Regex values that are valid at runtime but too complex
+  or dynamic for type-level inference.
+- Expanded `createRegExpWithFlags` and `createExactRegExpWithFlags` to accept
+  Magic Regex's documented flag forms: rest flag helpers, flag arrays, flag
+  strings, and flag Sets.
+- Added runtime and `tsd` coverage for manual typing and expanded flag inputs.
+- Documented Magic Regex build-time transform constraints and the
+  build-time-friendly `fromMagic(createRegExp(...))` boundary pattern.
+
 ## 0.1.4
 
 - Loosened direct dependency ranges to explicit compatibility windows:
