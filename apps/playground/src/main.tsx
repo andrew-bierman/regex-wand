@@ -4,14 +4,16 @@ import {
 	BadgeCheck,
 	Braces,
 	ChevronRight,
+	CircleX,
 	Code2,
-	Copy,
 	Hash,
 	Regex,
 	Route,
 	Search,
 	Sparkles,
+	WandSparkles,
 } from "lucide-react"
+import { createRegExp as createMagicRegExp } from "magic-regexp"
 import { StrictMode, useMemo, useState } from "react"
 import { createRoot } from "react-dom/client"
 import {
@@ -22,6 +24,8 @@ import {
 	createExactRegExpWithFlags,
 	createRegExp,
 	digit,
+	fromMagic,
+	global,
 	oneOrMore,
 } from "regex-wand"
 import { Badge } from "@/components/ui/badge"
@@ -217,20 +221,55 @@ accepted.flags`,
   "id:",
   digit.times.atLeast(1).grouped(),
 )`,
-		editorCode: `import { createExactRegExp, digit } from "regex-wand"
+		editorCode: `import { createRegExp, digit } from "regex-wand"
 
-const route = createExactRegExp(
-  "/users/",
-  digit.times.atLeast(1).as("userId"),
+const idInsideText = createRegExp(
+  "id:",
+  digit.times.atLeast(1).grouped(),
 )
 
-route.exec("/users/42")?.groups.userId`,
-		hoverTarget: "groups.userId",
+idInsideText.infer`,
+		hoverTarget: "idInsideText.infer",
 		types: {
 			infer: templateType(stringSlot, "id:", numberSlot, stringSlot),
 			captures: `[${templateType(numberSlot)}]`,
 			namedCaptures: "{}",
 			flags: '""',
+		},
+	},
+	{
+		id: "from-magic",
+		title: "Existing Magic Regex",
+		icon: WandSparkles,
+		pattern: fromMagic(createMagicRegExp("ok", [caseInsensitive, global])),
+		defaultInput: "queued: OK",
+		invalidInput: "queued: no",
+		code: `const magic = createMagicRegExp("ok", [
+  caseInsensitive,
+  global,
+])
+
+const adapted = fromMagic(magic)`,
+		editorCode: `import { createRegExp as createMagicRegExp } from "magic-regexp"
+import { caseInsensitive, fromMagic, global } from "regex-wand"
+
+const magic = createMagicRegExp("ok", [
+  caseInsensitive,
+  global,
+])
+
+const adapted = fromMagic(magic)
+
+adapted.flags`,
+		hoverTarget: "adapted.flags",
+		types: {
+			infer:
+				`${templateType(stringSlot, "ok", stringSlot)} | ` +
+				`${templateType(stringSlot, "oK", stringSlot)} | ` +
+				`${templateType(stringSlot, "Ok", stringSlot)} | ...`,
+			captures: "[]",
+			namedCaptures: "{}",
+			flags: '"gi"',
 		},
 	},
 ]
@@ -241,8 +280,10 @@ function App() {
 	const [inputById, setInputById] = useState<Record<string, string>>({})
 	const [quickInfo, setQuickInfo] = useState("Hover-ready type info appears here.")
 	const input = inputById[selected.id] ?? selected.defaultInput
-	const match = useMemo(() => selected.pattern.exec(input), [input, selected])
-	const isMatch = selected.pattern.test(input)
+	const evaluation = useMemo(
+		() => evaluatePattern(selected.pattern, input),
+		[input, selected],
+	)
 	const Icon = selected.icon
 
 	return (
@@ -355,8 +396,8 @@ function App() {
 								>
 									Sample input
 								</label>
-								<Badge variant={isMatch ? "default" : "destructive"}>
-									{isMatch ? "match" : "no match"}
+								<Badge variant={evaluation.isMatch ? "default" : "destructive"}>
+									{evaluation.isMatch ? "match" : "no match"}
 								</Badge>
 							</div>
 							<div className="flex items-center gap-2">
@@ -396,7 +437,7 @@ function App() {
 										}))
 									}
 								>
-									<Copy className="size-4" />
+									<CircleX className="size-4" />
 								</Button>
 							</div>
 							<div className="grid gap-2 sm:grid-cols-2">
@@ -405,7 +446,7 @@ function App() {
 										captures
 									</span>
 									<code className="mt-2 block overflow-auto text-xs leading-5">
-										{JSON.stringify(match?.slice(1) ?? [])}
+										{JSON.stringify(evaluation.match?.slice(1) ?? [])}
 									</code>
 								</div>
 								<div className="min-w-0 rounded-md bg-muted p-3">
@@ -413,7 +454,7 @@ function App() {
 										groups
 									</span>
 									<code className="mt-2 block overflow-auto text-xs leading-5">
-										{JSON.stringify(match?.groups ?? {})}
+										{JSON.stringify(evaluation.match?.groups ?? {})}
 									</code>
 								</div>
 							</div>
@@ -441,6 +482,16 @@ function App() {
 			</section>
 		</main>
 	)
+}
+
+function evaluatePattern(pattern: RegExp, input: string) {
+	const matcher = new RegExp(pattern.source, pattern.flags)
+	const match = matcher.exec(input)
+
+	return {
+		isMatch: match !== null,
+		match,
+	}
 }
 
 const configureMonaco: BeforeMount = (monaco) => {

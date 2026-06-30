@@ -7,6 +7,7 @@ playground for trying examples in the browser.
 
 - npm package: `packages/regex-wand`
 - playground app: `apps/playground`
+- CI action: `.github/workflows/ci.yml`
 - release action: `.github/workflows/release.yml`
 - GitHub Pages action: `.github/workflows/pages.yml`
 
@@ -91,8 +92,10 @@ are as important as line coverage.
 
 ## GitHub Actions
 
-There are two workflows:
+There are three workflows:
 
+- [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the full Bun
+  release gate on pull requests and relevant `main` pushes.
 - [`.github/workflows/release.yml`](.github/workflows/release.yml) publishes the
   npm package. It runs on GitHub Release publish and supports manual
   `workflow_dispatch` with a tag.
