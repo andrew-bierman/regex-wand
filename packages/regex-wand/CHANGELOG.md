@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2
+
+- Normalized regex flag order at the type level so Magic Regex values using
+  non-canonical flag order still preserve ArkRegex inference.
+- Added runtime and `tsd` coverage for adapting existing Magic Regex values with
+  flags through `fromMagic`.
+- Added a package testing strategy doc and clarified release workflow, GitHub
+  Pages, private-repo publishing, and provenance behavior in the monorepo docs.
+
 ## 0.1.1
 
 - Expanded runtime coverage for escaping, exact matching, flags, indices,
