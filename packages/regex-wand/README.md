@@ -2,12 +2,27 @@
 
 Magic Regex authoring with ArkRegex-powered type inference.
 
+[![npm version](https://img.shields.io/npm/v/regex-wand.svg)](https://www.npmjs.com/package/regex-wand)
+[![CI](https://github.com/andrew-bierman/regex-wand/actions/workflows/ci.yml/badge.svg)](https://github.com/andrew-bierman/regex-wand/actions/workflows/ci.yml)
+[![Playground](https://github.com/andrew-bierman/regex-wand/actions/workflows/pages.yml/badge.svg)](https://andrew-bierman.github.io/regex-wand/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 `regex-wand` is intentionally a thin adapter. You keep composing patterns with
 `magic-regexp`; the final compiled value has ArkRegex-powered types for string
 inference, captures, named groups, flags, `exec`, and `test` narrowing.
 
 At runtime, `regex-wand` constructs a native `RegExp`. ArkRegex is used for the
 published type surface, so browser bundlers do not need to execute ArkRegex code.
+
+## Links
+
+- [npm package](https://www.npmjs.com/package/regex-wand)
+- [Playground](https://andrew-bierman.github.io/regex-wand/)
+- [Monorepo README](https://github.com/andrew-bierman/regex-wand#readme)
+- [Type-safety guide](docs/type-safety.md)
+- [Testing strategy](docs/testing.md)
+- [Changelog](CHANGELOG.md)
+- [GitHub releases](https://github.com/andrew-bierman/regex-wand/releases)
 
 ## Install
 

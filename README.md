@@ -2,14 +2,34 @@
 
 Magic Regex authoring with ArkRegex-powered TypeScript inference.
 
+[![npm version](https://img.shields.io/npm/v/regex-wand.svg)](https://www.npmjs.com/package/regex-wand)
+[![CI](https://github.com/andrew-bierman/regex-wand/actions/workflows/ci.yml/badge.svg)](https://github.com/andrew-bierman/regex-wand/actions/workflows/ci.yml)
+[![Release](https://github.com/andrew-bierman/regex-wand/actions/workflows/release.yml/badge.svg)](https://github.com/andrew-bierman/regex-wand/actions/workflows/release.yml)
+[![Playground](https://github.com/andrew-bierman/regex-wand/actions/workflows/pages.yml/badge.svg)](https://andrew-bierman.github.io/regex-wand/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 This monorepo contains the published `regex-wand` npm package and a static
 playground for trying examples in the browser.
 
-- npm package: `packages/regex-wand`
-- playground app: `apps/playground`
-- CI action: `.github/workflows/ci.yml`
-- release action: `.github/workflows/release.yml`
-- GitHub Pages action: `.github/workflows/pages.yml`
+## Links
+
+- [npm package](https://www.npmjs.com/package/regex-wand)
+- [Playground](https://andrew-bierman.github.io/regex-wand/)
+- [Package docs](packages/regex-wand/README.md)
+- [Type-safety guide](packages/regex-wand/docs/type-safety.md)
+- [Testing strategy](packages/regex-wand/docs/testing.md)
+- [Changelog](packages/regex-wand/CHANGELOG.md)
+- [GitHub releases](https://github.com/andrew-bierman/regex-wand/releases)
+
+## Workspaces
+
+| Workspace | Purpose |
+| --- | --- |
+| `packages/regex-wand` | Published npm package. |
+| `apps/playground` | Static React playground deployed to GitHub Pages. |
+| `.github/workflows/ci.yml` | Auth-free CI gate for PRs and relevant `main` pushes. |
+| `.github/workflows/release.yml` | npm release automation. |
+| `.github/workflows/pages.yml` | Playground deployment. |
 
 ## What This Library Does
 
