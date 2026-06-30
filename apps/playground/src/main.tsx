@@ -1,4 +1,4 @@
-import Editor, { type BeforeMount, type OnMount } from "@monaco-editor/react"
+import type { BeforeMount, OnMount } from "@monaco-editor/react"
 import {
 	AtSign,
 	BadgeCheck,
@@ -14,7 +14,7 @@ import {
 	WandSparkles,
 } from "lucide-react"
 import { createRegExp as createMagicRegExp } from "magic-regexp"
-import { StrictMode, useMemo, useState } from "react"
+import { lazy, StrictMode, Suspense, useMemo, useState } from "react"
 import { createRoot } from "react-dom/client"
 import {
 	anyOf,
@@ -34,6 +34,8 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { monacoExtraLibs } from "./generated/monaco-extra-libs"
 import "./styles.css"
+
+const Editor = lazy(() => import("@monaco-editor/react"))
 
 const templateSlot = (name: string) => `$${`{${name}}`}`
 const templateType = (...parts: string[]) => `\`${parts.join("")}\``
@@ -340,42 +342,50 @@ function App() {
 							</code>
 						</div>
 						<div className="min-w-0 overflow-hidden rounded-lg border bg-zinc-950">
-							<Editor
-								key={selected.id}
-								width="100%"
-								height="260px"
-								language="typescript"
-								path={`file:///${selected.id}.ts`}
-								theme="regex-wand-dark"
-								value={selected.editorCode}
-								beforeMount={configureMonaco}
-								onMount={(editor, monaco) =>
-									void handleEditorMount(
-										editor,
-										monaco,
-										selected.hoverTarget,
-										setQuickInfo,
-									)
+							<Suspense
+								fallback={
+									<div className="flex h-[260px] items-center justify-center text-sm text-zinc-400">
+										Loading editor...
+									</div>
 								}
-								options={{
-									automaticLayout: true,
-									folding: false,
-									fontSize: 13,
-									fontLigatures: true,
-									lineNumbersMinChars: 3,
-									minimap: { enabled: false },
-									overviewRulerLanes: 0,
-									renderLineHighlight: "none",
-									scrollBeyondLastLine: false,
-									scrollbar: {
-										alwaysConsumeMouseWheel: false,
-										horizontalScrollbarSize: 8,
-										verticalScrollbarSize: 8,
-									},
-									tabSize: 2,
-									wordWrap: "on",
-								}}
-							/>
+							>
+								<Editor
+									key={selected.id}
+									width="100%"
+									height="260px"
+									language="typescript"
+									path={`file:///${selected.id}.ts`}
+									theme="regex-wand-dark"
+									value={selected.editorCode}
+									beforeMount={configureMonaco}
+									onMount={(editor, monaco) =>
+										void handleEditorMount(
+											editor,
+											monaco,
+											selected.hoverTarget,
+											setQuickInfo,
+										)
+									}
+									options={{
+										automaticLayout: true,
+										folding: false,
+										fontSize: 13,
+										fontLigatures: true,
+										lineNumbersMinChars: 3,
+										minimap: { enabled: false },
+										overviewRulerLanes: 0,
+										renderLineHighlight: "none",
+										scrollBeyondLastLine: false,
+										scrollbar: {
+											alwaysConsumeMouseWheel: false,
+											horizontalScrollbarSize: 8,
+											verticalScrollbarSize: 8,
+										},
+										tabSize: 2,
+										wordWrap: "on",
+									}}
+								/>
+							</Suspense>
 						</div>
 						<Card className="grid gap-0 overflow-hidden py-0 sm:grid-cols-[150px_minmax(0,1fr)]">
 							<span className="flex items-center border-b bg-muted px-3 py-2 text-xs font-medium uppercase text-muted-foreground sm:border-b-0 sm:border-r">
