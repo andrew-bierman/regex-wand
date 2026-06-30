@@ -163,3 +163,10 @@ bun run --filter './apps/playground' build
 The Pages workflow uploads `apps/playground/dist`. The live site is:
 
 https://andrew-bierman.github.io/regex-wand/
+
+## Contributing And Security
+
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and pull request
+  expectations.
+- See [SECURITY.md](SECURITY.md) for private vulnerability reporting guidance.
+- This repository and package are MIT licensed.
