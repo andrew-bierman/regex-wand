@@ -56,7 +56,6 @@ jobs:
         run: npm publish --access public --dry-run
 
       - name: Publish to npm
-        if: github.event_name == 'release'
         working-directory: packages/regex-wand
         run: npm publish --access public --provenance
 
