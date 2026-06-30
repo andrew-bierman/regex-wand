@@ -381,6 +381,42 @@ idInsideText.infer`,
 		},
 	},
 	{
+		id: "comparison",
+		title: "Library comparison",
+		icon: Braces,
+		pattern: createExactRegExp("/users/", digit.times.atLeast(1).as("userId")),
+		defaultInput: "/users/42",
+		invalidInput: "users/42",
+		code: `// Magic Regex: composable authoring.
+// ArkRegex: typed raw regex strings.
+// regex-wand: Magic Regex authoring + ArkRegex result types.`,
+		editorCode: `import { regex } from "arkregex"
+import { createRegExp as createMagicRegExp, digit as magicDigit } from "magic-regexp"
+import { createExactRegExp, digit } from "regex-wand"
+
+const rawArkRegex = regex("^/users/(?<userId>\\\\d{1,})$")
+rawArkRegex.inferNamedCaptures.userId
+
+const rawMagicRegex = createMagicRegExp(
+  "/users/",
+  magicDigit.times.atLeast(1).as("userId"),
+)
+rawMagicRegex.test("/users/42")
+
+const wand = createExactRegExp(
+  "/users/",
+  digit.times.atLeast(1).as("userId"),
+)
+wand.inferNamedCaptures.userId`,
+		hoverTarget: "wand.inferNamedCaptures.userId",
+		types: {
+			infer: templateType("/users/", numberSlot),
+			captures: '["(?<userId>\\\\d{1,})"]',
+			namedCaptures: `{ userId: ${templateType(numberSlot)} }`,
+			flags: '""',
+		},
+	},
+	{
 		id: "from-magic",
 		title: "Existing Magic Regex",
 		icon: WandSparkles,

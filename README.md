@@ -70,6 +70,33 @@ if (semver.test(value)) {
 Full package docs live in
 [`packages/regex-wand/README.md`](packages/regex-wand/README.md).
 
+## Comparison
+
+Raw `magic-regexp` is best when you want readable regex composition. Raw
+`arkregex` is best when you already have a regex string and want TypeScript to
+infer its accepted strings, captures, and named groups. `regex-wand` combines the
+two: write Magic Regex-style expressions and get the ArkRegex-powered result
+type surface.
+
+```ts
+import { regex } from "arkregex"
+import { createRegExp as createMagicRegExp, digit as magicDigit } from "magic-regexp"
+import { createExactRegExp, digit } from "regex-wand"
+
+const rawMagic = createMagicRegExp(
+	"/users/",
+	magicDigit.times.atLeast(1).as("userId"),
+)
+rawMagic.test("/users/42")
+
+const rawArk = regex("^/users/(?<userId>\\d{1,})$")
+rawArk.inferNamedCaptures.userId satisfies `${number}`
+
+const wand = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))
+wand.inferNamedCaptures.userId satisfies `${number}`
+wand.test("/users/42")
+```
+
 ## Development
 
 This repo uses Bun workspaces.

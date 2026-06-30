@@ -100,6 +100,52 @@ accepted.flags satisfies "gi"
 accepted.infer satisfies "ok" | "oK" | "Ok" | "OK"
 ```
 
+## Why Not Just Magic Regex Or ArkRegex?
+
+`regex-wand` exists because Magic Regex and ArkRegex solve different parts of
+the problem.
+
+Raw Magic Regex gives you readable, composable authoring:
+
+```ts
+import { createRegExp, digit } from "magic-regexp"
+
+const route = createRegExp("/users/", digit.times.atLeast(1).as("userId"))
+
+route.test("/users/42")
+```
+
+Raw ArkRegex gives you strong result types from a raw regex string:
+
+```ts
+import { regex } from "arkregex"
+
+const route = regex("^/users/(?<userId>\\d{1,})$")
+
+route.infer satisfies `/users/${number}`
+route.inferNamedCaptures.userId satisfies `${number}`
+```
+
+`regex-wand` keeps the Magic Regex authoring style and returns the ArkRegex-type
+surface:
+
+```ts
+import { createExactRegExp, digit } from "regex-wand"
+
+const route = createExactRegExp(
+	"/users/",
+	digit.times.atLeast(1).as("userId"),
+)
+
+route.infer satisfies `/users/${number}`
+route.inferNamedCaptures.userId satisfies `${number}`
+route.test("/users/42")
+```
+
+Use raw `magic-regexp` when you only need composable regex construction. Use raw
+`arkregex` when you already have a regex string and want type inference for it.
+Use `regex-wand` when you want both in one API.
+
 ## API
 
 - `createRegExp(...inputs)` compiles Magic Regex inputs as a contains-style regex.
