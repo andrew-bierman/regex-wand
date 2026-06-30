@@ -10,6 +10,7 @@
 	"scripts": {
 		"build": "bun run --filter './packages/regex-wand' build && bun run --filter './apps/playground' build",
 		"check": "bun run lint && bun run --filter './packages/regex-wand' check && bun run --filter './apps/playground' check",
+		"ci:check": "bun run check && bun run test:coverage",
 		"dev": "bun run --filter './apps/playground' dev",
 		"format": "biome format --write .",
 		"lint": "biome check .",

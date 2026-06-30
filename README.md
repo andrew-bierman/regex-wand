@@ -67,6 +67,7 @@ bun run build
 bun run test
 bun run test:coverage
 bun run typecheck
+bun run ci:check
 bun run release:check
 bun run publish:dry-run
 ```
@@ -76,6 +77,10 @@ lint checks, TypeScript checks, package build, runtime tests, type tests, Intent
 skill validation, publish-file assertions, packed-consumer verification,
 playground checks, coverage, npm dry-run, and registry lookup.
 
+`bun run ci:check` is the unauthenticated GitHub Actions gate. It runs the same
+build, lint, type, runtime, type-test, packed-consumer, playground, and coverage
+checks, but skips npm registry operations that require publish credentials.
+
 ## Test Coverage
 
 The package has three layers of verification:
@@ -84,7 +89,8 @@ The package has three layers of verification:
 | --- | --- | --- |
 | Runtime behavior | `bun run test:coverage` | Builders, exact vs contains matching, escaped strings, flags, native `RegExp` protocols, captures, named groups, lookarounds, backreferences, optional captures, `lastIndex`, and `toRegExp()` behavior. |
 | Type safety | `bun run --filter './packages/regex-wand' type-test` | Inferred strings, captures, named captures, flags, narrowing, escaped slash parsing, and compatibility-error types. |
-| Package integrity | `bun run release:check` | Build output, no runtime ArkRegex import, npm tarball contents, install-from-packed-tarball consumer behavior, playground build, and registry state. |
+| Package integrity | `bun run ci:check` | Build output, no runtime ArkRegex import, npm tarball contents, install-from-packed-tarball consumer behavior, playground build, and coverage. |
+| Release readiness | `bun run release:check` | Everything in CI plus npm dry-run and registry state. |
 
 Current runtime coverage is 100% statements/functions/lines for the adapter
 source. The adapter is intentionally small, so `tsd` and packed-consumer tests
@@ -94,8 +100,8 @@ are as important as line coverage.
 
 There are three workflows:
 
-- [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the full Bun
-  release gate on pull requests and relevant `main` pushes.
+- [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the auth-free Bun
+  CI gate on pull requests and relevant `main` pushes.
 - [`.github/workflows/release.yml`](.github/workflows/release.yml) publishes the
   npm package. It runs on GitHub Release publish and supports manual
   `workflow_dispatch` with a tag.
