@@ -288,6 +288,11 @@ function App() {
 	)
 	const Icon = selected.icon
 
+	const selectExample = (exampleId: string) => {
+		setQuickInfo("Loading quick info...")
+		setSelectedId(exampleId)
+	}
+
 	return (
 		<main className="min-h-screen bg-muted/40 p-4 text-foreground lg:p-6">
 			<section className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1500px] flex-col overflow-hidden rounded-xl border bg-background shadow-sm lg:min-h-[calc(100vh-3rem)]">
@@ -320,7 +325,7 @@ function App() {
 									variant={example.id === selected.id ? "secondary" : "ghost"}
 									className="h-10 justify-start gap-2 px-3"
 									key={example.id}
-									onClick={() => setSelectedId(example.id)}
+									onClick={() => selectExample(example.id)}
 								>
 									<ExampleIcon className="size-4 text-muted-foreground" />
 									<span className="min-w-0 truncate">{example.title}</span>
