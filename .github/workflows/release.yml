@@ -59,7 +59,7 @@ jobs:
         working-directory: packages/regex-wand
         run: |
           if [ "${REPOSITORY_PRIVATE}" = "true" ]; then
-            npm publish --access public
+            npm publish --access public --provenance=false
           else
             npm publish --access public --provenance
           fi
