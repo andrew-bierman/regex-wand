@@ -115,6 +115,9 @@ const route = createRegExp("/users/", digit.times.atLeast(1).as("userId"))
 route.test("/users/42")
 ```
 
+Magic Regex also ships a build-time transform that can compile those
+`createRegExp(...)` calls to plain `RegExp` literals.
+
 Raw ArkRegex gives you strong result types from a raw regex string:
 
 ```ts
@@ -145,6 +148,40 @@ route.test("/users/42")
 Use raw `magic-regexp` when you only need composable regex construction. Use raw
 `arkregex` when you already have a regex string and want type inference for it.
 Use `regex-wand` when you want both in one API.
+
+### Build-Time Transform Note
+
+Magic Regex's transform only recognizes imports from `magic-regexp` and
+`magic-regexp/further-magic`. That means direct `regex-wand` builders are small
+runtime adapters today:
+
+```ts
+import { createExactRegExp, digit } from "regex-wand"
+
+const route = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))
+```
+
+If you want Magic Regex's build-time transform in an app, compose with raw Magic
+Regex and adapt at the boundary:
+
+```ts
+import { createRegExp, digit, exactly } from "magic-regexp"
+import { fromMagic } from "regex-wand"
+
+const magicRoute = createRegExp(
+	exactly("/users/", digit.times.atLeast(1).as("userId"))
+		.at.lineStart()
+		.at.lineEnd(),
+)
+
+const route = fromMagic(magicRoute)
+
+route.inferNamedCaptures.userId satisfies `${number}`
+```
+
+With Magic Regex's transform enabled, the `createRegExp(...)` call can compile
+away, leaving only the `regex-wand` boundary adapter. ArkRegex remains type-only
+in `regex-wand`'s built JavaScript.
 
 ## API
 

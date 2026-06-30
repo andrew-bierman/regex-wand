@@ -76,7 +76,8 @@ Raw `magic-regexp` is best when you want readable regex composition. Raw
 `arkregex` is best when you already have a regex string and want TypeScript to
 infer its accepted strings, captures, and named groups. `regex-wand` combines the
 two: write Magic Regex-style expressions and get the ArkRegex-powered result
-type surface.
+type surface. Magic Regex also has a build-time transform that can compile raw
+Magic Regex calls to plain `RegExp` literals.
 
 ```ts
 import { regex } from "arkregex"
@@ -95,6 +96,22 @@ rawArk.inferNamedCaptures.userId satisfies `${number}`
 const wand = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))
 wand.inferNamedCaptures.userId satisfies `${number}`
 wand.test("/users/42")
+```
+
+Direct `regex-wand` builders are small runtime adapters. For build-time-friendly
+app code, use Magic Regex directly and adapt at the boundary:
+
+```ts
+import { createRegExp, digit, exactly } from "magic-regexp"
+import { fromMagic } from "regex-wand"
+
+const magicRoute = createRegExp(
+	exactly("/users/", digit.times.atLeast(1).as("userId"))
+		.at.lineStart()
+		.at.lineEnd(),
+)
+
+const route = fromMagic(magicRoute)
 ```
 
 ## Development
