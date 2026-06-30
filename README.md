@@ -1,16 +1,57 @@
-# regex-wand monorepo
+# regex-wand
 
-Magic Regex authoring with ArkRegex-powered type inference.
+Magic Regex authoring with ArkRegex-powered TypeScript inference.
 
-This repo contains the published npm package and a static playground that shows
-the inferred TypeScript surface in Monaco.
+This monorepo contains the published `regex-wand` npm package and a static
+playground for trying examples in the browser.
 
-## Workspaces
+- npm package: `packages/regex-wand`
+- playground app: `apps/playground`
+- release action: `.github/workflows/release.yml`
+- GitHub Pages action: `.github/workflows/pages.yml`
 
-- `packages/regex-wand` - npm package published as `regex-wand`.
-- `apps/playground` - static React playground for examples and type inspection.
+## What This Library Does
+
+`regex-wand` is a thin adapter between two libraries:
+
+- `magic-regexp` gives a readable, composable regex authoring API.
+- `arkregex` gives strongly inferred regex types.
+
+The package keeps runtime behavior native. A `regex-wand` result is still a
+`RegExp`; it just carries the ArkRegex-powered type surface for `.infer`,
+`.inferCaptures`, `.inferNamedCaptures`, `test()` narrowing, and typed `exec()`
+groups.
+
+## Quick Start
+
+```sh
+bun add regex-wand magic-regexp arkregex
+```
+
+```ts
+import { createExactRegExp, digit } from "regex-wand"
+
+const semver = createExactRegExp(
+	digit.times.any().grouped(),
+	".",
+	digit.times.any().grouped(),
+	".",
+	digit.times.any().grouped(),
+)
+
+declare const value: string
+
+if (semver.test(value)) {
+	value satisfies `${number}.${number}.${number}`
+}
+```
+
+Full package docs live in
+[`packages/regex-wand/README.md`](packages/regex-wand/README.md).
 
 ## Development
+
+This repo uses Bun workspaces.
 
 ```sh
 bun install
@@ -24,16 +65,49 @@ Useful commands:
 bun run build
 bun run test
 bun run test:coverage
+bun run typecheck
 bun run release:check
 bun run publish:dry-run
 ```
 
-`bun run release:check` is the required pre-release gate. It runs lint,
-TypeScript, package build, runtime tests, type tests, intent validation, publish
-file assertions, packed-consumer verification, playground checks, coverage, an
-npm publish dry-run, and a registry lookup.
+`bun run release:check` is the required pre-release gate. It runs formatting and
+lint checks, TypeScript checks, package build, runtime tests, type tests, Intent
+skill validation, publish-file assertions, packed-consumer verification,
+playground checks, coverage, npm dry-run, and registry lookup.
 
-## Versioning
+## Test Coverage
+
+The package has three layers of verification:
+
+| Layer | Command | What it proves |
+| --- | --- | --- |
+| Runtime behavior | `bun run test:coverage` | Builders, exact vs contains matching, escaped strings, flags, native `RegExp` protocols, captures, named groups, lookarounds, backreferences, optional captures, `lastIndex`, and `toRegExp()` behavior. |
+| Type safety | `bun run --filter './packages/regex-wand' type-test` | Inferred strings, captures, named captures, flags, narrowing, escaped slash parsing, and compatibility-error types. |
+| Package integrity | `bun run release:check` | Build output, no runtime ArkRegex import, npm tarball contents, install-from-packed-tarball consumer behavior, playground build, and registry state. |
+
+Current runtime coverage is 100% statements/functions/lines for the adapter
+source. The adapter is intentionally small, so `tsd` and packed-consumer tests
+are as important as line coverage.
+
+## GitHub Actions
+
+There are two workflows:
+
+- [`.github/workflows/release.yml`](.github/workflows/release.yml) publishes the
+  npm package. It runs on GitHub Release publish and supports manual
+  `workflow_dispatch` with a tag.
+- [`.github/workflows/pages.yml`](.github/workflows/pages.yml) builds and deploys
+  the playground to GitHub Pages.
+
+The current release workflow supports both private and public repository modes:
+
+- Private repo: publishes with `npm publish --access public --provenance=false`.
+- Public repo: publishes with `npm publish --access public --provenance`.
+
+npm only accepts provenance from public GitHub source repositories. Once this
+repo is public, the workflow will automatically use provenance.
+
+## Versioning And Releases
 
 `regex-wand` uses semver.
 
@@ -41,83 +115,42 @@ npm publish dry-run, and a registry lookup.
 - Minor: new compatible APIs or broader supported Magic Regex/ArkRegex behavior.
 - Major: breaking runtime API changes or intentional type-surface breaks.
 
-The package version lives in `packages/regex-wand/package.json`. Update
-`packages/regex-wand/CHANGELOG.md` in the same PR as the version bump.
+Release checklist:
 
-## Release Flow
-
-Automated releases are tag-driven.
-
-1. Update `packages/regex-wand/package.json` to the next version.
+1. Update `packages/regex-wand/package.json`.
 2. Update `packages/regex-wand/CHANGELOG.md`.
-3. Run:
+3. Run `bun run release:check`.
+4. Merge to `main`.
+5. Create a matching GitHub Release, or manually dispatch the Release workflow
+   with the matching tag.
 
-   ```sh
-   bun run release:check
-   ```
+The release workflow validates that the tag matches the package version before
+publishing.
 
-4. Merge the release PR to `main`.
-5. Create and push a matching version tag:
+## Required npm Setup
 
-   ```sh
-   git checkout main
-   git pull --ff-only origin main
-   git tag v0.1.1
-   git push origin v0.1.1
-   ```
+While the repo is private, set the repository secret `NPM_TOKEN` to an npm
+automation or granular access token with publish access to `regex-wand`.
 
-The `Release` GitHub Actions workflow runs when a GitHub Release is published.
-It verifies that the release tag matches the package version, runs the Bun check
-suite, verifies the npm package contents with an npm dry-run, and publishes the
-package to npm with provenance. This follows the same trusted-publishing pattern
-used in the other package repos: Bun owns install/build/test, npm 11 owns the
-final provenance publish in GitHub Actions.
-
-Manual publishing from a local machine should only be a fallback:
-
-```sh
-bun run publish:regex-wand
-```
-
-## Required GitHub Secrets And Settings
-
-Configure npm publishing for `regex-wand`.
-
-Preferred: use npm trusted publishing:
+Once the repo is public, npm trusted publishing can replace the long-lived token:
 
 - Publisher: GitHub Actions
-- Organization/user: `andrew-bierman`
+- Owner/user: `andrew-bierman`
 - Repository: `regex-wand`
 - Workflow: `release.yml`
+- Environment: blank
 
-The release workflow uses GitHub OIDC permissions for npm provenance, so it does
-not require a long-lived npm token. The package also has
-`"publishConfig": { "provenance": true }`.
+After trusted publishing is confirmed, remove the `NPM_TOKEN` fallback if you no
+longer want token-based publishing.
 
-Fallback: set the repository secret `NPM_TOKEN` to an npm automation or granular
-access token with read/write access to `regex-wand`. The release workflow passes
-that token to `npm publish`.
+## Playground
 
-For the playground, enable GitHub Pages with source set to **GitHub Actions**.
-The `Pages` workflow builds `apps/playground/dist` and deploys it automatically
-on pushes to `main` that affect the playground, package, lockfile, or workflow.
-
-## Playground / Examples
-
-Yes, the examples can be static GitHub Pages. The playground build emits plain
-static files:
+The playground is a static React app and can be hosted on GitHub Pages.
 
 ```sh
 bun run --filter './apps/playground' build
 ```
 
-The output is `apps/playground/dist`, and the Pages workflow uploads that
-directory. The app uses relative asset paths, so it works under the repository
-Pages URL path.
+The Pages workflow uploads `apps/playground/dist`. The live site is:
 
-## Package Docs
-
-Package-level usage and type-safety docs live in:
-
-- `packages/regex-wand/README.md`
-- `packages/regex-wand/docs/type-safety.md`
+https://andrew-bierman.github.io/regex-wand/

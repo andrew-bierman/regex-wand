@@ -129,6 +129,9 @@ The package test suite covers both runtime behavior and compile-time inference:
   project and checks TypeScript plus runtime behavior.
 - TanStack Intent skill validation.
 
+See [docs/testing.md](docs/testing.md) for the test matrix and what each layer
+proves.
+
 Run everything from the monorepo root:
 
 ```sh
@@ -157,6 +160,14 @@ bun run publish:regex-wand
 bun run registry:check
 ```
 
-`publish:regex-wand` runs `bun publish --access public` in the package
-workspace. Bump `packages/regex-wand/package.json` before publishing because npm
-does not allow republishing the same version.
+Automated publishing lives in the monorepo release workflow:
+`.github/workflows/release.yml`.
+
+While the GitHub repo is private, the workflow publishes with provenance
+disabled because npm rejects GitHub Actions provenance from private source
+repositories. Once the repo is public, the same workflow publishes with npm
+provenance enabled.
+
+`publish:regex-wand` runs `bun publish --access public` in the package workspace
+and should only be used as a local fallback. Bump `packages/regex-wand/package.json`
+before publishing because npm does not allow republishing the same version.

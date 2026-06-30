@@ -240,6 +240,16 @@ describe("regex-wand", () => {
 		expect(wand.magic).toBe(magic)
 	})
 
+	it("adapts existing Magic Regex values with native flags", () => {
+		const magic = createMagicRegExp("ok", [caseInsensitive, global])
+		const wand = fromMagic(magic)
+
+		expect(wand.source).toBe("ok")
+		expect(wand.flags).toBe("gi")
+		expect([..."ok OK".matchAll(wand)].map((match) => match[0])).toEqual(["ok", "OK"])
+		expect(wand.toRegExp().flags).toBe("gi")
+	})
+
 	it("handles escaped slash sources in Magic Regex output", () => {
 		const slashy = createExactRegExp("api/v1", "/", "users")
 

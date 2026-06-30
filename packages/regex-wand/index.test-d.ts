@@ -1,4 +1,4 @@
-import type { MagicRegExp } from "magic-regexp"
+import { createRegExp as createMagicRegExp, type MagicRegExp } from "magic-regexp"
 import {
 	anyOf,
 	caseInsensitive,
@@ -8,6 +8,7 @@ import {
 	createRegExpWithFlags,
 	digit,
 	dotAll,
+	fromMagic,
 	global,
 	letter,
 	maybe,
@@ -46,6 +47,10 @@ const exactGlobalInsensitive = createExactRegExpWithFlags(["ok"], global, caseIn
 expectType<"gi">(exactGlobalInsensitive.flags)
 expectType<"ok" | "oK" | "Ok" | "OK">(exactGlobalInsensitive.infer)
 
+const exactInsensitiveGlobal = createExactRegExpWithFlags(["ok"], caseInsensitive, global)
+expectType<"gi">(exactInsensitiveGlobal.flags)
+expectType<"ok" | "oK" | "Ok" | "OK">(exactInsensitiveGlobal.infer)
+
 const answer = createExactRegExp(anyOf("yes", "no"))
 expectType<"yes" | "no">(answer.infer)
 
@@ -53,6 +58,9 @@ const repeated = createRegExpWithFlags([digit.grouped()], global)
 expectType<`${number}`>(repeated.infer)
 expectType<"g">(repeated.flags)
 expectType<[`${number}`]>(repeated.inferCaptures)
+expectAssignable<RegExp>(repeated.toRegExp())
+expectType<typeof repeated.magic>(repeated.magic)
+expectType<typeof repeated.ark>(repeated.ark)
 
 const indexed = createRegExpWithFlags([digit.grouped()], withIndices)
 expectType<"d">(indexed.flags)
@@ -109,6 +117,7 @@ if (lowerWordMatch?.groups) {
 const slashy = createExactRegExp("api/v1")
 expectType<"api/v1">(slashy.infer)
 expectType<[source: "a/b", flags: "i"]>(null as never as RegexParts<"/a\\/b/i">)
+expectType<[source: "ok", flags: "gi"]>(null as never as RegexParts<"/ok/ig">)
 expectType<[source: "api/v1/users", flags: "g"]>(
 	null as never as RegexParts<"/api\\/v1\\/users/g">,
 )
@@ -135,3 +144,21 @@ expectAssignable<
 		"not-a-regex-literal"
 	>
 >(null as never as InvalidMagicLiteral)
+
+const existingMagic = createMagicRegExp("id:", digit.times.atLeast(1).as("id"))
+const adaptedMagic = fromMagic(existingMagic)
+expectType<`${string}id:${number}${string}`>(adaptedMagic.infer)
+expectType<{ id: `${number}` }>(adaptedMagic.inferNamedCaptures)
+expectType<typeof existingMagic>(adaptedMagic.magic)
+expectAssignable<RegExp>(adaptedMagic.toRegExp())
+
+const existingMagicWithFlags = createMagicRegExp("ok", [caseInsensitive, global])
+const adaptedMagicWithFlags = fromMagic(existingMagicWithFlags)
+expectType<
+	| `${string}ok${string}`
+	| `${string}oK${string}`
+	| `${string}Ok${string}`
+	| `${string}OK${string}`
+>(adaptedMagicWithFlags.infer)
+expectType<"gi">(adaptedMagicWithFlags.flags)
+expectAssignable<RegExp>(adaptedMagicWithFlags)

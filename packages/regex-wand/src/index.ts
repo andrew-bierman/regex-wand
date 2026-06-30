@@ -36,8 +36,9 @@ export {
 } from "magic-regexp"
 
 type MagicInput = string | Input<string, string, (string | undefined)[]>
+type RegexFlag = "d" | "g" | "i" | "m" | "s" | "u" | "v" | "y"
 type ArkFlags =
-	`${"d" | ""}${"g" | ""}${"i" | ""}${"m" | ""}${"s" | ""}${"v" | "u" | ""}${"y" | ""}`
+	`${"d" | ""}${"g" | ""}${"i" | ""}${"m" | ""}${"s" | ""}${"u" | "v" | ""}${"y" | ""}`
 
 type MagicFromInputs<Inputs extends readonly MagicInput[]> = ReturnType<
 	typeof createMagicRegExp<[...Inputs]>
@@ -54,7 +55,29 @@ type SplitMagicBody<
 > = Rest extends `${infer Before}\\/${infer After}`
 	? SplitMagicBody<After, `${Source}${Before}/`>
 	: Rest extends `${infer Before}/${infer Flags}`
-		? [source: `${Source}${Before}`, flags: Flags]
+		? [NormalizeRegexFlags<Flags>] extends [never]
+			? never
+			: NormalizeRegexFlags<Flags> extends infer NormalizedFlags extends ArkFlags
+				? [source: `${Source}${Before}`, flags: NormalizedFlags]
+				: never
+		: never
+
+type AreRegexFlags<Flags extends string> = Flags extends ""
+	? true
+	: Flags extends `${infer First}${infer Rest}`
+		? First extends RegexFlag
+			? AreRegexFlags<Rest>
+			: false
+		: false
+
+type FlagTextIfPresent<
+	Flags extends string,
+	Candidate extends RegexFlag,
+> = Flags extends `${string}${Candidate}${string}` ? Candidate : ""
+
+type NormalizeRegexFlags<Flags extends string> =
+	AreRegexFlags<Flags> extends true
+		? `${FlagTextIfPresent<Flags, "d">}${FlagTextIfPresent<Flags, "g">}${FlagTextIfPresent<Flags, "i">}${FlagTextIfPresent<Flags, "m">}${FlagTextIfPresent<Flags, "s">}${FlagTextIfPresent<Flags, "u">}${FlagTextIfPresent<Flags, "v">}${FlagTextIfPresent<Flags, "y">}`
 		: never
 
 /**
@@ -94,22 +117,22 @@ type WandParseError<Source extends string> = WandCompatibilityError<
 	Source
 >
 
-type ArkFromMagic<R> =
-	RegexParts<MagicLiteral<R>> extends [
-		infer Source extends string,
-		infer FlagText extends ArkFlags,
-	]
+type ArkFromMagic<R> = [RegexParts<MagicLiteral<R>>] extends [never]
+	? WandExtractionError<R>
+	: RegexParts<MagicLiteral<R>> extends [
+				infer Source extends string,
+				infer FlagText extends ArkFlags,
+			]
 		? regex.parse<Source, FlagText> extends Regex
 			? regex.parse<Source, FlagText>
 			: WandParseError<Source>
 		: WandExtractionError<R>
 
-type JoinFlags<Flags extends readonly Flag[]> = Flags extends readonly [
-	infer First extends Flag,
-	...infer Rest extends readonly Flag[],
-]
-	? `${First}${JoinFlags<Rest>}`
-	: ""
+type FlagIfPresent<Flags extends readonly Flag[], Candidate extends string> =
+	Extract<Flags[number], Candidate> extends never ? "" : Candidate
+
+type CanonicalFlags<Flags extends readonly Flag[]> =
+	`${FlagIfPresent<Flags, "d">}${FlagIfPresent<Flags, "g">}${FlagIfPresent<Flags, "i">}${FlagIfPresent<Flags, "m">}${FlagIfPresent<Flags, "s">}${FlagIfPresent<Flags, "u">}${FlagIfPresent<Flags, "v">}${FlagIfPresent<Flags, "y">}`
 
 type WithFlags<R, Flags extends readonly Flag[]> =
 	R extends MagicRegExp<
@@ -118,7 +141,7 @@ type WithFlags<R, Flags extends readonly Flag[]> =
 		infer Captures extends (string | undefined)[],
 		string
 	>
-		? MagicRegExp<`/${Source}/${JoinFlags<Flags>}`, Groups, Captures, Flags[number]>
+		? MagicRegExp<`/${Source}/${CanonicalFlags<Flags>}`, Groups, Captures, Flags[number]>
 		: never
 
 type Anchored<R> =

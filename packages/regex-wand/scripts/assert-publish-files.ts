@@ -14,6 +14,7 @@ const expectedFiles = [
 	"package/dist/index.d.ts",
 	"package/dist/index.js",
 	"package/dist/index.js.map",
+	"package/docs/testing.md",
 	"package/docs/type-safety.md",
 	"package/package.json",
 	"package/skills/core/SKILL.md",
