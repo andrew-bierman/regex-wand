@@ -46,7 +46,7 @@ groups.
 ## Quick Start
 
 ```sh
-bun add regex-wand magic-regexp arkregex
+bun add regex-wand
 ```
 
 ```ts

@@ -27,15 +27,16 @@ published type surface, so browser bundlers do not need to execute ArkRegex code
 ## Install
 
 ```sh
-bun add regex-wand magic-regexp arkregex
+bun add regex-wand
 ```
 
 ```sh
-npm install regex-wand magic-regexp arkregex
+npm install regex-wand
 ```
 
-`magic-regexp` and `arkregex` are peer dependencies so projects can control the
-versions they use.
+`magic-regexp` and `arkregex` are installed with `regex-wand`. They remain part
+of the public type surface because Magic Regex primitives are re-exported and
+ArkRegex powers the inferred `RegExp` types.
 
 ## Usage
 

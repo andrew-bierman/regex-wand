@@ -35,22 +35,20 @@
     },
     "packages/regex-wand": {
       "name": "regex-wand",
-      "version": "0.1.0",
+      "version": "0.1.2",
+      "dependencies": {
+        "arkregex": "^0.0.5",
+        "magic-regexp": "^0.11.0",
+      },
       "devDependencies": {
         "@biomejs/biome": "2.4.16",
         "@tanstack/intent": "0.0.41",
         "@types/node": "^24.10.1",
         "@vitest/coverage-v8": "^4.0.14",
-        "arkregex": "0.0.5",
-        "magic-regexp": "0.11.0",
         "tsd": "^0.33.0",
         "tsup": "^8.5.1",
         "typescript": "^5.9.3",
         "vitest": "^4.0.14",
-      },
-      "peerDependencies": {
-        "arkregex": "^0.0.5",
-        "magic-regexp": "^0.11.0",
       },
     },
   },

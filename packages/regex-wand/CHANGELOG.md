@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.3
+
+- Moved `magic-regexp` and `arkregex` from peer dependencies to direct
+  dependencies so consumers only need to install `regex-wand`.
+- Updated install docs to show `bun add regex-wand` and
+  `npm install regex-wand`.
+- Hardened packed-consumer verification to prove the published tarball works
+  without explicitly installing the underlying libraries.
+
 ## 0.1.2
 
 - Normalized regex flag order at the type level so Magic Regex values using

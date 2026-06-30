@@ -30,8 +30,6 @@ try {
 			{
 				type: "module",
 				dependencies: {
-					arkregex: "0.0.5",
-					"magic-regexp": "0.11.0",
 					"regex-wand": tarball,
 					typescript: "^5.9.3",
 				},
