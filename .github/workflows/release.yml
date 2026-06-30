@@ -57,9 +57,15 @@ jobs:
 
       - name: Publish to npm
         working-directory: packages/regex-wand
-        run: npm publish --access public --provenance
+        run: |
+          if [ "${REPOSITORY_PRIVATE}" = "true" ]; then
+            npm publish --access public
+          else
+            npm publish --access public --provenance
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
 
       - name: Create GitHub release
         if: github.event_name == 'workflow_dispatch'
