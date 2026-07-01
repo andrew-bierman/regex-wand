@@ -23,6 +23,9 @@ Runtime tests use Vitest and cover:
 - `lastIndex` behavior for global and sticky regexes.
 - Magic Regex lookarounds and backreferences at runtime.
 - `magic`, `ark`, and `toRegExp()` interop behavior.
+- Static direct and namespaced `regex-wand` builder calls through
+  `RegexWandTransformPlugin`.
+- Dynamic transform expressions are left unchanged instead of guessed.
 
 The current adapter source reports 100% statement, function, and line coverage.
 Line coverage is not the only quality bar here because most of the package value

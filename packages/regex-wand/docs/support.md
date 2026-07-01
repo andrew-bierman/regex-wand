@@ -21,21 +21,21 @@ technical gap.
 | ArkRegex typed surface | `.infer`, `.inferCaptures`, `.inferNamedCaptures`, `.flags`, `test()` narrowing, and typed `exec()`. |
 | Runtime RegExp protocols | Native `match`, `matchAll`, `replace`, `split`, `lastIndex`, `indices`, sticky, global, and `toRegExp()`. |
 | ArkRegex runtime cost | ArkRegex is type-only in built `regex-wand` JavaScript. |
+| Direct build-time transform | `regex-wand/transform` recognizes static direct and namespaced `regex-wand` builder calls. |
 
 ## Supported With Escape Hatches
 
 | Area | Path |
 | --- | --- |
 | Complex Magic Regex patterns ArkRegex cannot infer | Use `fromMagicAs<Pattern, Context>(magic)` to provide the ArkRegex result type manually. |
-| Build-time-friendly app code | Use Magic Regex directly, enable `magic-regexp/transform`, then adapt with `fromMagic(magic)` at the boundary. |
+| Magic Regex transform compatibility | Use Magic Regex directly, enable `magic-regexp/transform`, then adapt with `fromMagic(magic)` at the boundary. |
 | Broad dynamic flag Sets | Runtime works, but type precision depends on the Set element type. Use `new Set<typeof global \| typeof caseInsensitive>(...)` for narrow `.flags`. |
 
 ## Not Yet Supported Directly
 
 | Area | Why |
 | --- | --- |
-| Direct `regex-wand/transform` | Magic Regex's transform only recognizes imports from `magic-regexp` and `magic-regexp/further-magic`. Direct `regex-wand` builders are small runtime adapters today. |
-| Compiling direct `createExactRegExp(...)` calls away | This needs a regex-wand-aware transform that can preserve the runtime `magic`, `ark`, and `toRegExp()` contract or intentionally emit a plain typed `RegExp` shape. |
+| Dynamic builder expressions | Like Magic Regex's transform, `regex-wand/transform` only compiles expressions it can evaluate safely at build time. Dynamic expressions stay as runtime builder calls. |
 | Magic Regex `further-magic` string method augmentation | `regex-wand` focuses on the returned `RegExp` typed surface. Use `magic-regexp/further-magic` directly when you want its augmented `String.match`, `replace`, and iterator helper types. |
 | Native `v` flag through Magic Regex builders | ArkRegex can model `v`, but Magic Regex 0.11's public `Flag` type does not expose `v`. |
 
@@ -48,5 +48,5 @@ If runtime support exists but inference cannot be proven, `regex-wand` should
 make the gap explicit with `WandCompatibilityError` or a manual `fromMagicAs`
 escape hatch.
 
-If support would require build-time code rewriting, it belongs in a future
-`regex-wand/transform` package entry rather than hidden runtime behavior.
+If support requires build-time code rewriting, it belongs in
+`regex-wand/transform` rather than hidden runtime behavior.

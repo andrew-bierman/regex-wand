@@ -120,6 +120,9 @@ const route = fromMagic(magicRoute)
 For complex runtime-valid expressions that ArkRegex cannot infer, `fromMagicAs`
 provides the same kind of manual type escape hatch as ArkRegex's `regex.as`.
 
+For direct build-time compilation of static `regex-wand` builders, use
+`RegexWandTransformPlugin` from `regex-wand/transform`.
+
 ## Development
 
 This repo uses Bun workspaces.

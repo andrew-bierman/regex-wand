@@ -184,6 +184,24 @@ With Magic Regex's transform enabled, the `createRegExp(...)` call can compile
 away, leaving only the `regex-wand` boundary adapter. ArkRegex remains type-only
 in `regex-wand`'s built JavaScript.
 
+If you want direct `regex-wand` builder calls to compile, use
+`regex-wand/transform`:
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite"
+import { RegexWandTransformPlugin } from "regex-wand/transform"
+
+export default defineConfig({
+	plugins: [RegexWandTransformPlugin.vite()],
+})
+```
+
+The transform recognizes static `createRegExp`, `createExactRegExp`,
+`createRegExpWithFlags`, and `createExactRegExpWithFlags` calls imported from
+`regex-wand`. Dynamic expressions are left unchanged. The emitted code preserves
+the adapter shape, so `.magic`, `.ark`, and `.toRegExp()` keep working.
+
 For expressions that are valid at runtime but too complex or dynamic for
 ArkRegex to infer, use `fromMagicAs` to provide the result type manually:
 
@@ -210,6 +228,8 @@ const route = fromMagicAs<
 - `fromMagic(magic)` adapts an existing `MagicRegExp`.
 - `fromMagicAs<Pattern, Context>(magic)` adapts an existing `MagicRegExp` with
   manually supplied ArkRegex result types.
+- `RegexWandTransformPlugin` from `regex-wand/transform` compiles static
+  `regex-wand` builder calls at build time.
 - `WandCompatibilityError` marks strict type-level conversion failures.
 
 All Magic Regex primitives are re-exported from the package.
@@ -244,6 +264,8 @@ The package test suite covers both runtime behavior and compile-time inference:
   flag helpers/arrays/strings/Sets, indices, named groups, optional captures,
   lookarounds, backreferences, manual typing, string `RegExp` protocols, and
   `lastIndex`.
+- Vitest transform tests for direct builder calls, namespaced builder calls, and
+  dynamic expressions that must be left untouched.
 - `tsd` tests for inferred strings, captures, named groups, flags, narrowing,
   manual typing, `RegexParts`, and compatibility errors.
 - A runtime import guard to ensure built browser code does not import ArkRegex.

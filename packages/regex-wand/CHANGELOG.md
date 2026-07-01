@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0
+
+- Added `regex-wand/transform` with `RegexWandTransformPlugin`, an unplugin
+  compatible with Vite, Rollup, Webpack, Rspack, esbuild, and other unplugin
+  hosts.
+- The transform recognizes static direct and namespaced `regex-wand` builder
+  calls and emits native `RegExp` literals while preserving the adapter runtime
+  shape: `magic`, `ark`, and `toRegExp()`.
+- Added transform tests for direct builder calls, namespaced calls, and dynamic
+  expressions that must be left unchanged.
+
 ## 0.2.1
 
 - Added an explicit support matrix covering direct support, escape hatches, and
