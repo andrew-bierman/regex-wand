@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- Added an explicit support matrix covering direct support, escape hatches, and
+  known technical gaps.
+
 ## 0.2.0
 
 - Added `fromMagicAs<Pattern, Context>(magic)` as an ArkRegex-style manual type

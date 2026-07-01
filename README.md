@@ -17,6 +17,7 @@ playground for trying examples in the browser.
 - [Playground](https://andrew-bierman.github.io/regex-wand/)
 - [Package docs](packages/regex-wand/README.md)
 - [Type-safety guide](packages/regex-wand/docs/type-safety.md)
+- [Support matrix](packages/regex-wand/docs/support.md)
 - [Testing strategy](packages/regex-wand/docs/testing.md)
 - [Changelog](packages/regex-wand/CHANGELOG.md)
 - [GitHub releases](https://github.com/andrew-bierman/regex-wand/releases)
@@ -69,6 +70,8 @@ if (semver.test(value)) {
 
 Full package docs live in
 [`packages/regex-wand/README.md`](packages/regex-wand/README.md).
+The explicit support boundary lives in
+[`packages/regex-wand/docs/support.md`](packages/regex-wand/docs/support.md).
 
 ## Comparison
 

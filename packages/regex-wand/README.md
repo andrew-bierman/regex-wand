@@ -20,6 +20,7 @@ published type surface, so browser bundlers do not need to execute ArkRegex code
 - [Playground](https://andrew-bierman.github.io/regex-wand/)
 - [Monorepo README](https://github.com/andrew-bierman/regex-wand#readme)
 - [Type-safety guide](docs/type-safety.md)
+- [Support matrix](docs/support.md)
 - [Testing strategy](docs/testing.md)
 - [Changelog](CHANGELOG.md)
 - [GitHub releases](https://github.com/andrew-bierman/regex-wand/releases)
@@ -232,6 +233,8 @@ type benefit for a Magic Regex value, the return type carries a compatibility
 error instead of silently degrading to a plain `RegExp`.
 
 See [docs/type-safety.md](docs/type-safety.md) for the longer version.
+See [docs/support.md](docs/support.md) for the explicit support matrix and known
+technical gaps.
 
 ## Verification
 
