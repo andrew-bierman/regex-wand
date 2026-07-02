@@ -100,17 +100,26 @@ export const ok = route.test("/users/42")`,
 			const result = await build({
 				entryPoints: [entry],
 				bundle: true,
-				format: "esm",
+				format: "iife",
+				globalName: "RegexWandBundle",
 				platform: "node",
 				write: false,
 				plugins: [RegexWandTransformPlugin.esbuild()],
 			})
 
 			const bundled = result.outputFiles[0]?.text ?? ""
+			const exports = new Function(`${bundled}\nreturn RegexWandBundle`)() as {
+				ok: boolean
+				route: RegExp & { ark: RegExp; magic: RegExp; toRegExp: () => RegExp }
+			}
 
 			expect(bundled).toContain("/^\\/users\\/(?<userId>\\d{1,})$/")
 			expect(bundled).toContain("Object.assign")
 			expect(bundled).not.toContain("createExactRegExp(")
+			expect(exports.ok).toBe(true)
+			expect(exports.route.exec("/users/42")?.groups).toEqual({ userId: "42" })
+			expect(exports.route.ark).toBe(exports.route)
+			expect(exports.route.toRegExp()).not.toBe(exports.route)
 		} finally {
 			await rm(workspace, { force: true, recursive: true })
 		}
