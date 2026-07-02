@@ -166,9 +166,8 @@ The package has three layers of verification:
 | Package integrity | `bun run ci:check` | Build output, no runtime ArkRegex import, npm tarball contents, install-from-packed-tarball consumer behavior, playground build, and coverage. |
 | Release readiness | `bun run release:check` | Everything in CI plus npm dry-run and registry state. |
 
-Current runtime coverage is 100% statements/functions/lines for the adapter
-source. The adapter is intentionally small, so `tsd` and packed-consumer tests
-are as important as line coverage.
+Runtime coverage is kept high. The adapter is intentionally small, so `tsd`,
+host-transform, and packed-consumer tests are as important as line coverage.
 
 ## GitHub Actions
 

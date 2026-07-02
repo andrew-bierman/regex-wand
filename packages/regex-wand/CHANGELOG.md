@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2
+
+- Fixed `regex-wand/transform` in esbuild hosts by falling back to Acorn when a
+  host parser is unavailable.
+- Added an esbuild host-adapter test for the transform.
+- Documented that Magic Regex converter interop remains docs-only because the
+  upstream API returns generated source text.
+
 ## 0.3.1
 
 - Added a public roadmap documenting upstream Magic Regex, ArkRegex, and ArkType

@@ -1,4 +1,5 @@
 import { createContext, runInContext } from "node:vm"
+import { parse as parseAcorn } from "acorn"
 import { createUnplugin } from "unplugin"
 import * as regexWand from "./index.js"
 
@@ -55,7 +56,7 @@ export const RegexWandTransformPlugin = createUnplugin(() => {
 		transform(code) {
 			if (!code.includes(REGEX_WAND_SPECIFIER)) return
 
-			const ast = this.parse(code) as AstNode
+			const ast = parseCode(code, this.parse) as AstNode
 			const contextMap = { ...REGEX_WAND_CONTEXT }
 			const wrapperNames = new Set<string>()
 			const namespaceNames = new Set<string>()
@@ -151,6 +152,24 @@ function isAstNode(value: unknown): value is AstNode {
 		"type" in value &&
 		typeof (value as { type?: unknown }).type === "string"
 	)
+}
+
+function parseCode(code: string, parse: (code: string) => unknown) {
+	try {
+		return parse(code)
+	} catch (error) {
+		if (
+			!(error instanceof Error) ||
+			!error.message.includes("Parse implementation is not set")
+		) {
+			throw error
+		}
+	}
+
+	return parseAcorn(code, {
+		ecmaVersion: "latest",
+		sourceType: "module",
+	})
 }
 
 function getImportedName(specifier: ImportSpecifierNode) {

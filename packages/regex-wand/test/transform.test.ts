@@ -1,4 +1,8 @@
+import { mkdtemp, rm, writeFile } from "node:fs/promises"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
 import { parse } from "acorn"
+import { build } from "esbuild"
 import { describe, expect, it } from "vitest"
 import { RegexWandTransformPlugin } from "../src/transform.js"
 
@@ -11,7 +15,7 @@ type TransformHandler = (
 	| { code: string; map: null }
 	| undefined
 
-const rawPlugin = RegexWandTransformPlugin.raw({}, { framework: "rollup" })
+const rawPlugin = RegexWandTransformPlugin.raw({}, { framework: "rollup", versions: {} })
 if (Array.isArray(rawPlugin)) {
 	throw new TypeError("RegexWandTransformPlugin should return a single plugin")
 }
@@ -77,6 +81,38 @@ const route = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))`
 		expect(route.magic).toBeInstanceOf(RegExp)
 		expect(route.toRegExp()).not.toBe(route)
 		expect(route.toRegExp().source).toBe(route.source)
+	})
+
+	it("runs through the esbuild host adapter", async () => {
+		const workspace = await mkdtemp(join(tmpdir(), "regex-wand-esbuild-"))
+		const entry = join(workspace, "entry.ts")
+
+		try {
+			await writeFile(
+				entry,
+				`import { createExactRegExp, digit } from "regex-wand"
+
+export const route = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))
+export const ok = route.test("/users/42")`,
+			)
+
+			const result = await build({
+				entryPoints: [entry],
+				bundle: true,
+				format: "esm",
+				platform: "node",
+				write: false,
+				plugins: [RegexWandTransformPlugin.esbuild()],
+			})
+
+			const bundled = result.outputFiles[0]?.text ?? ""
+
+			expect(bundled).toContain("/^\\/users\\/(?<userId>\\d{1,})$/")
+			expect(bundled).toContain("Object.assign")
+			expect(bundled).not.toContain("createExactRegExp(")
+		} finally {
+			await rm(workspace, { force: true, recursive: true })
+		}
 	})
 
 	it("compiles namespaced builder calls", async () => {

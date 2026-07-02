@@ -27,11 +27,12 @@ Runtime tests use Vitest and cover:
   `RegexWandTransformPlugin`.
 - Executed transform output that still behaves like a native `RegExp` plus the
   `regex-wand` adapter shape.
+- `RegexWandTransformPlugin.esbuild()` through a real esbuild bundle.
 - Dynamic transform expressions are left unchanged instead of guessed.
 
-The current adapter source reports 100% statement, function, and line coverage.
-Line coverage is not the only quality bar here because most of the package value
-is in TypeScript inference.
+Coverage is kept high, but line coverage is not the only quality bar here
+because most of the package value is in TypeScript inference and published
+package shape.
 
 ## Type Tests
 
