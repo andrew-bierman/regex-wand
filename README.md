@@ -18,6 +18,7 @@ playground for trying examples in the browser.
 - [Package docs](packages/regex-wand/README.md)
 - [Type-safety guide](packages/regex-wand/docs/type-safety.md)
 - [Support matrix](packages/regex-wand/docs/support.md)
+- [Roadmap](packages/regex-wand/docs/roadmap.md)
 - [Testing strategy](packages/regex-wand/docs/testing.md)
 - [Changelog](packages/regex-wand/CHANGELOG.md)
 - [GitHub releases](https://github.com/andrew-bierman/regex-wand/releases)
@@ -72,6 +73,8 @@ Full package docs live in
 [`packages/regex-wand/README.md`](packages/regex-wand/README.md).
 The explicit support boundary lives in
 [`packages/regex-wand/docs/support.md`](packages/regex-wand/docs/support.md).
+The compatibility roadmap lives in
+[`packages/regex-wand/docs/roadmap.md`](packages/regex-wand/docs/roadmap.md).
 
 ## Comparison
 
@@ -101,8 +104,9 @@ wand.inferNamedCaptures.userId satisfies `${number}`
 wand.test("/users/42")
 ```
 
-Direct `regex-wand` builders are small runtime adapters. For build-time-friendly
-app code, use Magic Regex directly and adapt at the boundary:
+For direct build-time compilation of static `regex-wand` builders, use
+`RegexWandTransformPlugin` from `regex-wand/transform`. You can also use Magic
+Regex directly and adapt at the boundary:
 
 ```ts
 import { createRegExp, digit, exactly } from "magic-regexp"
@@ -119,9 +123,6 @@ const route = fromMagic(magicRoute)
 
 For complex runtime-valid expressions that ArkRegex cannot infer, `fromMagicAs`
 provides the same kind of manual type escape hatch as ArkRegex's `regex.as`.
-
-For direct build-time compilation of static `regex-wand` builders, use
-`RegexWandTransformPlugin` from `regex-wand/transform`.
 
 ## Development
 

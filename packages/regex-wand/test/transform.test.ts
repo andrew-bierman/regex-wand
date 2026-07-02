@@ -52,6 +52,33 @@ route.toRegExp()`,
 		expect(result?.code).not.toContain("createExactRegExp(")
 	})
 
+	it("emits executable adapters that preserve native RegExp behavior", async () => {
+		const result = await transformHandler.call(
+			context,
+			`import { createExactRegExp, digit } from "regex-wand"
+
+const route = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))`,
+			"execute.ts",
+		)
+
+		expect(result?.code).toBeDefined()
+
+		const executableCode = `${result?.code.replace(/^import .*$/m, "")}\nreturn route`
+		const route = new Function(executableCode)() as RegExp & {
+			ark: RegExp
+			magic: RegExp
+			toRegExp: () => RegExp
+		}
+
+		expect(route.test("/users/42")).toBe(true)
+		expect(route.test("/teams/42")).toBe(false)
+		expect(route.exec("/users/42")?.groups).toEqual({ userId: "42" })
+		expect(route.ark).toBe(route)
+		expect(route.magic).toBeInstanceOf(RegExp)
+		expect(route.toRegExp()).not.toBe(route)
+		expect(route.toRegExp().source).toBe(route.source)
+	})
+
 	it("compiles namespaced builder calls", async () => {
 		const result = await transformHandler.call(
 			context,

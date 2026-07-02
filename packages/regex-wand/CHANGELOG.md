@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added a public roadmap documenting upstream Magic Regex, ArkRegex, and ArkType
+  compatibility gaps.
+- Added transform-output execution coverage so the build-time plugin is tested
+  beyond emitted-code string checks.
+
 ## 0.3.0
 
 - Added `regex-wand/transform` with `RegexWandTransformPlugin`, an unplugin

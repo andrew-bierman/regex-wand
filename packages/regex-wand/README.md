@@ -21,6 +21,7 @@ published type surface, so browser bundlers do not need to execute ArkRegex code
 - [Monorepo README](https://github.com/andrew-bierman/regex-wand#readme)
 - [Type-safety guide](docs/type-safety.md)
 - [Support matrix](docs/support.md)
+- [Roadmap](docs/roadmap.md)
 - [Testing strategy](docs/testing.md)
 - [Changelog](CHANGELOG.md)
 - [GitHub releases](https://github.com/andrew-bierman/regex-wand/releases)
@@ -255,6 +256,8 @@ error instead of silently degrading to a plain `RegExp`.
 See [docs/type-safety.md](docs/type-safety.md) for the longer version.
 See [docs/support.md](docs/support.md) for the explicit support matrix and known
 technical gaps.
+See [docs/roadmap.md](docs/roadmap.md) for the upstream compatibility audit and
+future support plan.
 
 ## Verification
 

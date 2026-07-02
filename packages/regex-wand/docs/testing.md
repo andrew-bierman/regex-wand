@@ -25,6 +25,8 @@ Runtime tests use Vitest and cover:
 - `magic`, `ark`, and `toRegExp()` interop behavior.
 - Static direct and namespaced `regex-wand` builder calls through
   `RegexWandTransformPlugin`.
+- Executed transform output that still behaves like a native `RegExp` plus the
+  `regex-wand` adapter shape.
 - Dynamic transform expressions are left unchanged instead of guessed.
 
 The current adapter source reports 100% statement, function, and line coverage.
