@@ -28,6 +28,8 @@ Runtime tests use Vitest and cover:
 - Executed transform output that still behaves like a native `RegExp` plus the
   `regex-wand` adapter shape.
 - `RegexWandTransformPlugin.esbuild()` through a real esbuild bundle.
+- A workspace Vite fixture that builds `regex-wand/transform` and verifies the
+  compiled output.
 - Dynamic transform expressions are left unchanged instead of guessed.
 
 Coverage is kept high, but line coverage is not the only quality bar here

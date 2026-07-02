@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.4
+
+- Added a Vite fixture app that builds `regex-wand/transform` through a real
+  Vite production build and verifies compiled output.
+- Added an ArkType interop guide documenting when to use ArkType regex schemas
+  and `x/.../` parsing directly.
+- Marked Magic Regex `further-magic` as an intentional non-goal with direct
+  `magic-regexp/further-magic` usage as the escape hatch.
+- Expanded the playground with build-time transform and manual typing examples,
+  plus a copyable Vite config snippet.
+
 ## 0.3.3
 
 - Removed fully-unused `regex-wand` imports after transform compilation so

@@ -27,6 +27,7 @@ import {
 	createRegExp,
 	digit,
 	fromMagic,
+	fromMagicAs,
 	global,
 	oneOrMore,
 } from "regex-wand"
@@ -417,6 +418,33 @@ wand.inferNamedCaptures.userId`,
 		},
 	},
 	{
+		id: "transform",
+		title: "Build-time transform",
+		icon: Code2,
+		pattern: createExactRegExp("/users/", digit.times.atLeast(1).as("userId")),
+		defaultInput: "/users/42",
+		invalidInput: "/users/me",
+		code: `// vite.config.ts
+plugins: [RegexWandTransformPlugin.vite()]
+
+// Static regex-wand builders compile to native RegExp literals.`,
+		editorCode: `import { createExactRegExp, digit } from "regex-wand"
+
+const route = createExactRegExp(
+  "/users/",
+  digit.times.atLeast(1).as("userId"),
+)
+
+route.toRegExp()`,
+		hoverTarget: "route.toRegExp",
+		types: {
+			infer: templateType("/users/", numberSlot),
+			captures: '["(?<userId>\\\\d{1,})"]',
+			namedCaptures: `{ userId: ${templateType(numberSlot)} }`,
+			flags: '""',
+		},
+	},
+	{
 		id: "from-magic",
 		title: "Existing Magic Regex",
 		icon: WandSparkles,
@@ -449,6 +477,42 @@ adapted.flags`,
 			captures: "[]",
 			namedCaptures: "{}",
 			flags: '"gi"',
+		},
+	},
+	{
+		id: "manual-type",
+		title: "Manual typing",
+		icon: Sparkles,
+		pattern: fromMagicAs<
+			`${string}feature:${number}${string}`,
+			{ names: { id: `${number}` } }
+		>(createMagicRegExp("feature:", digit.times.atLeast(1).as("id"))),
+		defaultInput: "rollout feature:42",
+		invalidInput: "rollout feature:x",
+		code: `const manual = fromMagicAs<
+  \`\${string}feature:\${number}\${string}\`,
+  { names: { id: \`\${number}\` } }
+>(magic)`,
+		editorCode: `import { createRegExp as createMagicRegExp } from "magic-regexp"
+import { digit, fromMagicAs } from "regex-wand"
+
+const magic = createMagicRegExp(
+  "feature:",
+  digit.times.atLeast(1).as("id"),
+)
+
+const manual = fromMagicAs<
+  \`\${string}feature:\${number}\${string}\`,
+  { names: { id: \`\${number}\` } }
+>(magic)
+
+manual.inferNamedCaptures.id`,
+		hoverTarget: "manual.inferNamedCaptures.id",
+		types: {
+			infer: templateType(stringSlot, "feature:", numberSlot, stringSlot),
+			captures: "[]",
+			namedCaptures: `{ id: ${templateType(numberSlot)} }`,
+			flags: '""',
 		},
 	},
 ]

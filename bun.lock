@@ -33,9 +33,19 @@
         "@types/react-dom": "^19.2.3",
       },
     },
+    "apps/vite-fixture": {
+      "name": "@regex-wand/vite-fixture",
+      "dependencies": {
+        "regex-wand": "workspace:*",
+      },
+      "devDependencies": {
+        "typescript": "^5.9.3",
+        "vite": "^8.1.2",
+      },
+    },
     "packages/regex-wand": {
       "name": "regex-wand",
-      "version": "0.3.3",
+      "version": "0.3.4",
       "dependencies": {
         "acorn": "^8.16.0",
         "arkregex": ">=0.0.5 <0.1.0",
@@ -333,6 +343,8 @@
     "@radix-ui/rect": ["@radix-ui/rect@1.1.2", "", {}, "sha512-xnXE7wG13PI+cxieVssYXlQJuYVRhH9NBoxt3KNwzghDIA69GMm7d4wXRouHIYjE+KvS6U/MsMO73NdS2MH9ZA=="],
 
     "@regex-wand/playground": ["@regex-wand/playground@workspace:apps/playground"],
+
+    "@regex-wand/vite-fixture": ["@regex-wand/vite-fixture@workspace:apps/vite-fixture"],
 
     "@rolldown/binding-android-arm64": ["@rolldown/binding-android-arm64@1.1.4", "", { "os": "android", "cpu": "arm64" }, "sha512-EZLpf/8y7GXkkra90ML47kzik/GMP3EMcE9bPyHmRfxLC6z9+aW5A8poCsoxjrT5GfEcNAAvWwUHjvP1pUQkfw=="],
 

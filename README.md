@@ -17,6 +17,7 @@ playground for trying examples in the browser.
 - [Playground](https://andrew-bierman.github.io/regex-wand/)
 - [Package docs](packages/regex-wand/README.md)
 - [Type-safety guide](packages/regex-wand/docs/type-safety.md)
+- [ArkType interop](packages/regex-wand/docs/arktype-interop.md)
 - [Support matrix](packages/regex-wand/docs/support.md)
 - [Roadmap](packages/regex-wand/docs/roadmap.md)
 - [Testing strategy](packages/regex-wand/docs/testing.md)
@@ -28,6 +29,7 @@ playground for trying examples in the browser.
 | Workspace | Purpose |
 | --- | --- |
 | `packages/regex-wand` | Published npm package. |
+| `apps/vite-fixture` | Static Vite fixture proving `regex-wand/transform` works in a real Vite build. |
 | `apps/playground` | Static React playground deployed to GitHub Pages. |
 | `.github/workflows/ci.yml` | Auth-free CI gate for PRs and relevant `main` pushes. |
 | `.github/workflows/release.yml` | npm release automation. |
@@ -163,7 +165,7 @@ The package has three layers of verification:
 | --- | --- | --- |
 | Runtime behavior | `bun run test:coverage` | Builders, exact vs contains matching, escaped strings, flags, native `RegExp` protocols, captures, named groups, lookarounds, backreferences, optional captures, `lastIndex`, and `toRegExp()` behavior. |
 | Type safety | `bun run --filter './packages/regex-wand' type-test` | Inferred strings, captures, named captures, flags, narrowing, escaped slash parsing, and compatibility-error types. |
-| Package integrity | `bun run ci:check` | Build output, no runtime ArkRegex import, npm tarball contents, install-from-packed-tarball consumer behavior, playground build, and coverage. |
+| Package integrity | `bun run ci:check` | Build output, no runtime ArkRegex import, npm tarball contents, install-from-packed-tarball consumer behavior, Vite fixture, playground build, and coverage. |
 | Release readiness | `bun run release:check` | Everything in CI plus npm dry-run and registry state. |
 
 Runtime coverage is kept high. The adapter is intentionally small, so `tsd`,

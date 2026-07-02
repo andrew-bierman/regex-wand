@@ -39,9 +39,9 @@ feature audit.
 | Area | Why |
 | --- | --- |
 | Dynamic builder expressions | Like Magic Regex's transform, `regex-wand/transform` only compiles expressions it can evaluate safely at build time. Dynamic expressions stay as runtime builder calls. |
-| Magic Regex `further-magic` string method augmentation | `regex-wand` focuses on the returned `RegExp` typed surface. Use `magic-regexp/further-magic` directly when you want its augmented `String.match`, `replace`, and iterator helper types. |
+| Magic Regex `further-magic` string method augmentation | Intentional non-goal. It augments string methods around Magic Regex's own branded type; use `magic-regexp/further-magic` directly when you want augmented `String.match`, `replace`, and iterator helper types. |
 | Magic Regex converter wrapper | Use `magic-regexp/converter` directly. `regex-wand` does not currently add value around the converter output. |
-| ArkType schema regex literals and `x/.../` exec mode | Use ArkType directly. `regex-wand` operates at the `RegExp` construction/adaptation layer, not the schema-validation layer. |
+| ArkType schema regex literals and `x/.../` exec mode | Use ArkType directly. `regex-wand` operates at the `RegExp` construction/adaptation layer, not the schema-validation layer. See [arktype-interop.md](arktype-interop.md). |
 | Native `v` flag through Magic Regex builders | ArkRegex can model `v`, but Magic Regex 0.11's public `Flag` type does not expose `v`. |
 
 ## Design Rule

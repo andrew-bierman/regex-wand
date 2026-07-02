@@ -52,6 +52,29 @@ export function UseItPanel({
 					type="button"
 					variant="outline"
 					className="justify-start"
+					onClick={() =>
+						onCopy(
+							"config",
+							`import { defineConfig } from "vite"
+import { RegexWandTransformPlugin } from "regex-wand/transform"
+
+export default defineConfig({
+  plugins: [RegexWandTransformPlugin.vite()],
+})`,
+						)
+					}
+				>
+					{copiedTarget === "config" ? (
+						<Check className="size-4" />
+					) : (
+						<Copy className="size-4" />
+					)}
+					<span>Copy Vite config</span>
+				</Button>
+				<Button
+					type="button"
+					variant="outline"
+					className="justify-start"
 					onClick={() => onCopy("share", shareUrl)}
 				>
 					{copiedTarget === "share" ? (

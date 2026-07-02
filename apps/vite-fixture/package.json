@@ -1,0 +1,17 @@
+{
+	"name": "@regex-wand/vite-fixture",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "vite build && bun run scripts/verify-build.ts",
+		"check": "bun run typecheck && bun run build",
+		"typecheck": "tsc -p tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"regex-wand": "workspace:*"
+	},
+	"devDependencies": {
+		"typescript": "^5.9.3",
+		"vite": "^8.1.2"
+	}
+}

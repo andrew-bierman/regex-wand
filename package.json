@@ -8,8 +8,8 @@
 		"apps/*"
 	],
 	"scripts": {
-		"build": "bun run --filter './packages/regex-wand' build && bun run --filter './apps/playground' build",
-		"check": "bun run lockfile:check && bun run lint && bun run --filter './packages/regex-wand' check && bun run --filter './apps/playground' check",
+		"build": "bun run --filter './packages/regex-wand' build && bun run --filter './apps/vite-fixture' build && bun run --filter './apps/playground' build",
+		"check": "bun run lockfile:check && bun run lint && bun run --filter './packages/regex-wand' check && bun run --filter './apps/vite-fixture' check && bun run --filter './apps/playground' check",
 		"ci:check": "bun run check && bun run test:coverage",
 		"dev": "bun run --filter './apps/playground' dev",
 		"format": "biome format --write .",
@@ -21,7 +21,7 @@
 		"registry:check": "bun run --filter './packages/regex-wand' registry:check",
 		"test": "bun run --filter './packages/regex-wand' test",
 		"test:coverage": "bun run --filter './packages/regex-wand' test:coverage",
-		"typecheck": "bun run --filter './packages/regex-wand' typecheck && bun run --filter './apps/playground' typecheck"
+		"typecheck": "bun run --filter './packages/regex-wand' typecheck && bun run --filter './apps/vite-fixture' typecheck && bun run --filter './apps/playground' typecheck"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16"
