@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.1
 
 - Added a public roadmap documenting upstream Magic Regex, ArkRegex, and ArkType
   compatibility gaps.
