@@ -35,7 +35,7 @@
     },
     "packages/regex-wand": {
       "name": "regex-wand",
-      "version": "0.3.1",
+      "version": "0.3.3",
       "dependencies": {
         "acorn": "^8.16.0",
         "arkregex": ">=0.0.5 <0.1.0",

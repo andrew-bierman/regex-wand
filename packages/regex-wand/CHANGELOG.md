@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.3
+
+- Removed fully-unused `regex-wand` imports after transform compilation so
+  static-only modules do not keep a runtime package import.
+- Added a lockfile consistency check to keep the Bun workspace package version
+  aligned with `packages/regex-wand/package.json`.
+
 ## 0.3.2
 
 - Fixed `regex-wand/transform` in esbuild hosts by falling back to Acorn when a

@@ -20,6 +20,12 @@ type ImportDeclarationNode = AstNode & {
 	specifiers?: ImportSpecifierNode[]
 }
 
+type RegexWandImport = {
+	end: number
+	localNames: string[]
+	start: number
+}
+
 type CallExpressionNode = AstNode & {
 	callee?: AstNode
 }
@@ -60,6 +66,7 @@ export const RegexWandTransformPlugin = createUnplugin(() => {
 			const contextMap = { ...REGEX_WAND_CONTEXT }
 			const wrapperNames = new Set<string>()
 			const namespaceNames = new Set<string>()
+			const regexWandImports: RegexWandImport[] = []
 			let hasRelevantImport = false
 
 			walkAST(ast, (node) => {
@@ -69,6 +76,17 @@ export const RegexWandTransformPlugin = createUnplugin(() => {
 				if (declaration.source?.value !== REGEX_WAND_SPECIFIER) return
 
 				hasRelevantImport = true
+				const localNames = declaration.specifiers
+					?.map((specifier) => specifier.local?.name)
+					.filter((name): name is string => Boolean(name))
+				if (declaration.start != null && declaration.end != null && localNames?.length) {
+					regexWandImports.push({
+						start: declaration.start,
+						end: declaration.end,
+						localNames,
+					})
+				}
+
 				for (const specifier of declaration.specifiers ?? []) {
 					if (specifier.type === "ImportNamespaceSpecifier" && specifier.local?.name) {
 						namespaceNames.add(specifier.local.name)
@@ -119,7 +137,10 @@ export const RegexWandTransformPlugin = createUnplugin(() => {
 			if (replacements.length === 0) return
 
 			return {
-				code: applyReplacements(code, replacements),
+				code: cleanupUnusedRegexWandImports(
+					applyReplacements(code, replacements),
+					regexWandImports,
+				),
 				map: null,
 			}
 		},
@@ -220,4 +241,49 @@ function applyReplacements(
 			result.slice(replacement.end)
 	}
 	return result
+}
+
+function cleanupUnusedRegexWandImports(code: string, imports: RegexWandImport[]) {
+	const codeWithoutImports = blankRanges(code, imports)
+	const removals = imports.filter((declaration) =>
+		declaration.localNames.every(
+			(localName) => !hasIdentifier(codeWithoutImports, localName),
+		),
+	)
+
+	if (removals.length === 0) return code
+
+	return applyReplacements(
+		code,
+		removals.map((declaration) => ({
+			start: declaration.start,
+			end: includeTrailingLineBreak(code, declaration.end),
+			value: "",
+		})),
+	)
+}
+
+function blankRanges(code: string, ranges: Array<{ end: number; start: number }>) {
+	let result = code
+	for (const range of ranges.sort((left, right) => right.start - left.start)) {
+		result =
+			result.slice(0, range.start) +
+			" ".repeat(range.end - range.start) +
+			result.slice(range.end)
+	}
+	return result
+}
+
+function hasIdentifier(code: string, identifier: string) {
+	return new RegExp(`\\b${escapeRegExp(identifier)}\\b`).test(code)
+}
+
+function escapeRegExp(value: string) {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+function includeTrailingLineBreak(code: string, end: number) {
+	if (code[end] === "\r" && code[end + 1] === "\n") return end + 2
+	if (code[end] === "\n") return end + 1
+	return end
 }

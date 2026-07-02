@@ -9,11 +9,12 @@
 	],
 	"scripts": {
 		"build": "bun run --filter './packages/regex-wand' build && bun run --filter './apps/playground' build",
-		"check": "bun run lint && bun run --filter './packages/regex-wand' check && bun run --filter './apps/playground' check",
+		"check": "bun run lockfile:check && bun run lint && bun run --filter './packages/regex-wand' check && bun run --filter './apps/playground' check",
 		"ci:check": "bun run check && bun run test:coverage",
 		"dev": "bun run --filter './apps/playground' dev",
 		"format": "biome format --write .",
 		"lint": "biome check .",
+		"lockfile:check": "bun run scripts/assert-lockfile-version.ts",
 		"publish:dry-run": "bun run --filter './packages/regex-wand' publish:dry-run",
 		"publish:regex-wand": "bun run --filter './packages/regex-wand' publish:public",
 		"release:check": "bun run check && bun run test:coverage && bun run publish:dry-run && bun run registry:check",

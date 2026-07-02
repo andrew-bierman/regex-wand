@@ -54,6 +54,7 @@ route.toRegExp()`,
 		expect(result?.code).toContain("toRegExp")
 		expect(result?.code).toContain("/^\\/users\\/(?<userId>\\d{1,})$/")
 		expect(result?.code).not.toContain("createExactRegExp(")
+		expect(result?.code).not.toContain('from "regex-wand"')
 	})
 
 	it("emits executable adapters that preserve native RegExp behavior", async () => {
@@ -126,6 +127,22 @@ const id = wand.createRegExp("id:", wand.digit.times.atLeast(1).grouped())`,
 
 		expect(result?.code).toContain("/id:(\\d{1,})/")
 		expect(result?.code).not.toContain("wand.createRegExp(")
+		expect(result?.code).not.toContain('from "regex-wand"')
+	})
+
+	it("keeps mixed regex-wand imports when a runtime binding remains", async () => {
+		const result = await transformHandler.call(
+			context,
+			`import { createRegExp, digit, fromMagic } from "regex-wand"
+
+const id = createRegExp("id:", digit.times.atLeast(1).grouped())
+export { fromMagic }`,
+			"mixed.ts",
+		)
+
+		expect(result?.code).toContain('from "regex-wand"')
+		expect(result?.code).toContain("fromMagic")
+		expect(result?.code).not.toContain("createRegExp(")
 	})
 
 	it("compiles multiple calls from string-named import specifiers", async () => {
