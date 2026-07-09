@@ -73,6 +73,9 @@ expectType<`${string}ab${string}`>(multilineDotAll.infer)
 const stringFlags = createRegExpWithFlags(["ok"], "ig")
 expectType<"gi">(stringFlags.flags)
 
+const unicodeSetFlags = createRegExpWithFlags(["ok"], "v")
+expectType<"v">(unicodeSetFlags.flags)
+
 const arrayFlags = createRegExpWithFlags(["ok"], [global, caseInsensitive])
 expectType<"gi">(arrayFlags.flags)
 

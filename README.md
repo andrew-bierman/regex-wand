@@ -150,8 +150,9 @@ bun run publish:dry-run
 
 `bun run release:check` is the required pre-release gate. It runs formatting and
 lint checks, TypeScript checks, package build, runtime tests, type tests, Intent
-skill validation, publish-file assertions, packed-consumer verification,
-playground checks, coverage, npm dry-run, and registry lookup.
+skill validation, publish-file assertions, packed-consumer verification of the
+root export and `regex-wand/transform`, playground checks, coverage, npm dry-run,
+and registry lookup.
 
 `bun run ci:check` is the unauthenticated GitHub Actions gate. It runs the same
 build, lint, type, runtime, type-test, packed-consumer, playground, and coverage

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.5
+
+- Expanded packed-consumer verification to install the generated tarball and
+  build a Vite fixture through the published `regex-wand/transform` subpath.
+- Added runtime and type coverage for native string `"v"` flags.
+- Aligned Bun versions across package metadata and GitHub Actions.
+- Clarified transform, support, and testing docs for public-readiness.
+
 ## 0.3.4
 
 - Added a Vite fixture app that builds `regex-wand/transform` through a real

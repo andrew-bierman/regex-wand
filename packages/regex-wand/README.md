@@ -155,8 +155,8 @@ Use `regex-wand` when you want both in one API.
 ### Build-Time Transform Note
 
 Magic Regex's transform only recognizes imports from `magic-regexp` and
-`magic-regexp/further-magic`. That means direct `regex-wand` builders are small
-runtime adapters today:
+`magic-regexp/further-magic`. If you do not enable `regex-wand/transform`, direct
+`regex-wand` builders are small runtime adapters:
 
 ```ts
 import { createExactRegExp, digit } from "regex-wand"
@@ -182,9 +182,9 @@ const route = fromMagic(magicRoute)
 route.inferNamedCaptures.userId satisfies `${number}`
 ```
 
-With Magic Regex's transform enabled, the `createRegExp(...)` call can compile
-away, leaving only the `regex-wand` boundary adapter. ArkRegex remains type-only
-in `regex-wand`'s built JavaScript.
+With Magic Regex's transform enabled, the raw `createRegExp(...)` call can
+compile away, leaving only the `regex-wand` boundary adapter. ArkRegex remains
+type-only in `regex-wand`'s built JavaScript.
 
 If you want direct `regex-wand` builder calls to compile, use
 `regex-wand/transform`:

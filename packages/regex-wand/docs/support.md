@@ -19,7 +19,7 @@ feature audit.
 | Existing Magic Regex values | `fromMagic(magic)` adapts a `MagicRegExp` at the compile boundary. |
 | Flag helpers | `createRegExpWithFlags(inputs, global, caseInsensitive)` and exact equivalent. |
 | Flag arrays | `createRegExpWithFlags(inputs, [global, caseInsensitive])`. |
-| Flag strings | `createRegExpWithFlags(inputs, "ig")`; normalized to native canonical order. |
+| Flag strings | `createRegExpWithFlags(inputs, "ig")`; normalized to native canonical order, including `"v"` on runtimes that support it. |
 | Flag Sets | `createRegExpWithFlags(inputs, new Set([...]))`; narrow Set types preserve flag precision. |
 | ArkRegex typed surface | `.infer`, `.inferCaptures`, `.inferNamedCaptures`, `.flags`, `test()` narrowing, and typed `exec()`. |
 | Runtime RegExp protocols | Native `match`, `matchAll`, `replace`, `split`, `lastIndex`, `indices`, sticky, global, and `toRegExp()`. |
@@ -42,7 +42,7 @@ feature audit.
 | Magic Regex `further-magic` string method augmentation | Intentional non-goal. It augments string methods around Magic Regex's own branded type; use `magic-regexp/further-magic` directly when you want augmented `String.match`, `replace`, and iterator helper types. |
 | Magic Regex converter wrapper | Use `magic-regexp/converter` directly. `regex-wand` does not currently add value around the converter output. |
 | ArkType schema regex literals and `x/.../` exec mode | Use ArkType directly. `regex-wand` operates at the `RegExp` construction/adaptation layer, not the schema-validation layer. See [arktype-interop.md](arktype-interop.md). |
-| Native `v` flag through Magic Regex builders | ArkRegex can model `v`, but Magic Regex 0.11's public `Flag` type does not expose `v`. |
+| Native `v` flag helper | Use the string form, for example `createRegExpWithFlags(inputs, "v")`. Magic Regex 0.11's public `Flag` helper type does not expose a named `v` helper. |
 
 ## Design Rule
 

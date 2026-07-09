@@ -1,6 +1,6 @@
 {
 	"name": "regex-wand",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"description": "Magic Regex authoring with ArkRegex-powered type inference.",
 	"type": "module",
 	"license": "MIT",
@@ -14,7 +14,7 @@
 		"url": "https://github.com/andrew-bierman/regex-wand/issues"
 	},
 	"homepage": "https://github.com/andrew-bierman/regex-wand/tree/main/packages/regex-wand#readme",
-	"packageManager": "bun@1.3.9",
+	"packageManager": "bun@1.3.14",
 	"sideEffects": false,
 	"keywords": [
 		"arkregex",
