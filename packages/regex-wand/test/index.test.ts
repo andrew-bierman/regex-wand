@@ -99,6 +99,7 @@ describe("regex-wand", () => {
 		const exact = createExactRegExpWithFlags(["ok"], caseInsensitive)
 		const globalInsensitive = createRegExpWithFlags(["ok"], global, caseInsensitive)
 		const stringFlags = createRegExpWithFlags(["ok"], "ig")
+		const unicodeSets = createRegExpWithFlags([charIn("a")], "v")
 		const arrayFlags = createRegExpWithFlags(["ok"], [global, caseInsensitive])
 		const setFlags = createExactRegExpWithFlags(
 			["ok"],
@@ -116,6 +117,8 @@ describe("regex-wand", () => {
 			"OK",
 		])
 		expect(stringFlags.flags).toBe("gi")
+		expect(unicodeSets.flags).toBe("v")
+		expect(unicodeSets.test("a")).toBe(true)
 		expect(arrayFlags.flags).toBe("gi")
 		expect(setFlags.flags).toBe("gi")
 		expect(setFlags.test("OK")).toBe(true)

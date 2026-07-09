@@ -31,7 +31,7 @@ provide one of three things:
 | P1 | `further-magic` string method typing | Use `magic-regexp/further-magic` directly. | Intentional non-goal unless Magic Regex exposes an adapter-friendly extension point. |
 | P1 | ArkType `x/.../` exec mode | Use ArkType directly for schema-level regex capture parsing. | Documented in `docs/arktype-interop.md`. |
 | P2 | Dynamic transform expressions | Runtime builders work; transform intentionally skips dynamic inputs. | Consider opt-in partial evaluation only if it can stay predictable and safe. |
-| P2 | Native `v` flag through Magic Regex | ArkRegex can model `v`; Magic Regex 0.11's public `Flag` type does not expose it. | Add support when upstream Magic Regex exposes `v`, or add a deliberate low-level escape hatch. |
+| P2 | Native `v` flag helper | String flags support `"v"` when the JavaScript runtime supports it. Magic Regex 0.11's public `Flag` type does not expose a named helper. | Add a named helper path if upstream Magic Regex exposes one. |
 
 ## Upstream Feature Audit
 

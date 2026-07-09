@@ -15,7 +15,8 @@ Runtime tests use Vitest and cover:
 
 - `createRegExp` contains-style matching.
 - `createExactRegExp` start/end anchoring.
-- Flag helpers, duplicate flag errors, and native flag behavior.
+- Flag helpers, string flags including `"v"`, duplicate flag errors, and native
+  flag behavior.
 - Anonymous captures, named captures, optional captures, and `groups`.
 - Escaped plain strings and escaped slash sources.
 - Existing Magic Regex values adapted with `fromMagic`.
@@ -70,8 +71,8 @@ The package check adds:
 - TanStack Intent skill validation.
 - npm publish file assertions.
 - A packed-consumer test that installs the generated tarball into a temporary
-  project and verifies TypeScript plus runtime behavior from the package that
-  would be published.
+  project and verifies TypeScript, runtime behavior, and the
+  `regex-wand/transform` Vite subpath from the package that would be published.
 
 From the monorepo root, use:
 
