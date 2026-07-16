@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.8
+
+- Added CI compatibility coverage across Bun and TypeScript versions.
+- Added runtime parity tests comparing representative `regex-wand` patterns
+  against raw Magic Regex behavior.
+- Added playground comparison snippets for raw Magic Regex, raw ArkRegex, and
+  `regex-wand`.
+
 ## 0.3.7
 
 - Updated package metadata and public descriptions to match the launch README.

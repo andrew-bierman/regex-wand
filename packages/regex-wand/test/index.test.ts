@@ -36,6 +36,49 @@ import {
 
 describe("regex-wand", () => {
 	const runtimeOnly = (value: unknown) => value as RegExp
+	const exactMagicRegExp = (...inputs: unknown[]) =>
+		(createMagicRegExp as (...args: unknown[]) => RegExp)(
+			(exactly as (...args: unknown[]) => ReturnType<typeof exactly>)(...inputs)
+				.at.lineStart()
+				.at.lineEnd(),
+		)
+	const exactMagicRegExpWithFlags = (
+		inputs: readonly unknown[],
+		flags: readonly Flag[],
+	) =>
+		(createMagicRegExp as (...args: unknown[]) => RegExp)(
+			(exactly as (...args: unknown[]) => ReturnType<typeof exactly>)(...inputs)
+				.at.lineStart()
+				.at.lineEnd(),
+			flags,
+		)
+
+	const expectRegExpParity = ({
+		samples,
+		upstream,
+		wand,
+	}: {
+		samples: readonly string[]
+		upstream: RegExp
+		wand: RegExp
+	}) => {
+		expect(wand.source).toBe(upstream.source)
+		expect(wand.flags).toBe(upstream.flags)
+
+		for (const sample of samples) {
+			const upstreamMatcher = new RegExp(upstream.source, upstream.flags)
+			const wandMatcher = new RegExp(wand.source, wand.flags)
+			const upstreamTester = new RegExp(upstream.source, upstream.flags)
+			const wandTester = new RegExp(wand.source, wand.flags)
+			const upstreamMatch = upstreamMatcher.exec(sample)
+			const wandMatch = wandMatcher.exec(sample)
+
+			expect(wandTester.test(sample)).toBe(upstreamTester.test(sample))
+			expect(wandMatch?.[0]).toBe(upstreamMatch?.[0])
+			expect(wandMatch?.slice(1)).toEqual(upstreamMatch?.slice(1))
+			expect(wandMatch?.groups ?? {}).toEqual(upstreamMatch?.groups ?? {})
+		}
+	}
 
 	it("preserves Magic Regex source and exposes ArkRegex behavior", () => {
 		const semver = createExactRegExp(
@@ -307,5 +350,68 @@ describe("regex-wand", () => {
 		expect(wand.test("a1b2")).toBe(true)
 		expect(wand.lastIndex).toBe(4)
 		expect(plain.lastIndex).toBe(0)
+	})
+
+	it("matches raw Magic Regex runtime behavior for representative patterns", () => {
+		const cases: Array<{
+			samples: string[]
+			upstream: RegExp
+			wand: RegExp
+		}> = [
+			{
+				upstream: createMagicRegExp("id:", digit.times.atLeast(1).grouped()),
+				wand: createRegExp("id:", digit.times.atLeast(1).grouped()),
+				samples: ["ticket id:42", "ticket id:", "id:8042"],
+			},
+			{
+				upstream: exactMagicRegExp("/users/", digit.times.atLeast(1).as("userId")),
+				wand: createExactRegExp("/users/", digit.times.atLeast(1).as("userId")),
+				samples: ["/users/42", "/teams/42", "prefix /users/42"],
+			},
+			{
+				upstream: exactMagicRegExp(anyOf("prod", "staging", "dev").as("env")),
+				wand: createExactRegExp(anyOf("prod", "staging", "dev").as("env")),
+				samples: ["prod", "staging", "local"],
+			},
+			{
+				upstream: exactMagicRegExp(maybe(digit.times(3).grouped(), "-"), word),
+				wand: createExactRegExp(maybe(digit.times(3).grouped(), "-"), word),
+				samples: ["303-hello", "hello", "303-"],
+			},
+			{
+				upstream: createMagicRegExp(exactly("foo").before("bar")),
+				wand: runtimeOnly(createRegExp(exactly("foo").before("bar"))),
+				samples: ["foobar", "foobaz", "barfoo"],
+			},
+			{
+				upstream: exactMagicRegExp(
+					oneOrMore(letter.lowercase).as("word").and.referenceTo("word"),
+				),
+				wand: runtimeOnly(
+					createExactRegExp(
+						oneOrMore(letter.lowercase).as("word").and.referenceTo("word"),
+					),
+				),
+				samples: ["haha", "haho", "abab"],
+			},
+		]
+
+		for (const parityCase of cases) {
+			expectRegExpParity(parityCase)
+		}
+	})
+
+	it("matches raw Magic Regex runtime behavior for flag containers", () => {
+		expectRegExpParity({
+			upstream: createMagicRegExp("ok", [global, caseInsensitive]),
+			wand: createRegExpWithFlags(["ok"], global, caseInsensitive),
+			samples: ["ok OK", "no", "OK"],
+		})
+
+		expectRegExpParity({
+			upstream: exactMagicRegExpWithFlags(["ok"], [caseInsensitive]),
+			wand: createExactRegExpWithFlags(["ok"], "i"),
+			samples: ["ok", "OK", "ok then"],
+		})
 	})
 })

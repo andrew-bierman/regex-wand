@@ -15,6 +15,8 @@ Runtime tests use Vitest and cover:
 
 - `createRegExp` contains-style matching.
 - `createExactRegExp` start/end anchoring.
+- Runtime parity with raw Magic Regex for representative contains, exact,
+  alternation, optional capture, lookaround, backreference, and flag cases.
 - Flag helpers, string flags including `"v"`, duplicate flag errors, and native
   flag behavior.
 - Anonymous captures, named captures, optional captures, and `groups`.
@@ -81,3 +83,9 @@ bun run release:check
 ```
 
 That adds playground checks, coverage, npm dry-run, and registry lookup.
+
+## Compatibility Matrix
+
+Pull request CI also runs focused package compatibility checks across multiple
+Bun and TypeScript versions. The matrix runs package typecheck, `tsd`, and
+runtime tests so inference regressions show up before release.

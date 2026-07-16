@@ -1,6 +1,6 @@
 {
 	"name": "regex-wand",
-	"version": "0.3.7",
+	"version": "0.3.8",
 	"description": "Typed regular expressions without giving up readable regex authoring.",
 	"type": "module",
 	"license": "MIT",
