@@ -11,7 +11,7 @@ import { defineRegex, digit } from "regex-wand"
 
 const userRoute = defineRegex({
 	match: "exact",
-	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+	inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 
 userRoute.inferNamedCaptures.userId satisfies `${number}`

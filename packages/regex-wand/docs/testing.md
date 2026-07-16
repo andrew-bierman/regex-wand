@@ -13,7 +13,7 @@ bun run test:coverage
 
 Runtime tests use Vitest and cover:
 
-- `defineRegex({ pattern, match, flags })` for contains, exact, helper flags,
+- `defineRegex({ inputs, match, flags })` for contains, exact, helper flags,
   string flags, and Set flags.
 - `createRegExp` contains-style matching.
 - `createExactRegExp` start/end anchoring.

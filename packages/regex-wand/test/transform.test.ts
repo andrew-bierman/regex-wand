@@ -64,7 +64,7 @@ route.toRegExp()`,
 
 const route = defineRegex({
   match: "exact",
-  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+  inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })`,
 			"object-api.ts",
 		)

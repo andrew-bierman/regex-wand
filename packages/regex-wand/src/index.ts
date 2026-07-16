@@ -204,30 +204,51 @@ export type DefineRegexOptions<
 	Inputs extends readonly MagicInput[] = readonly MagicInput[],
 	Match extends RegexMatchMode = RegexMatchMode,
 	Flags extends MagicFlagInput | undefined = MagicFlagInput | undefined,
-> = {
-	/**
-	 * Magic Regex-compatible pieces. Plain strings are escaped and Magic Regex
-	 * fragments keep their capture, group, and composition behavior.
-	 */
-	readonly pattern: Inputs
-	/**
-	 * `contains` keeps Magic Regex's default search-style behavior. `exact` adds
-	 * start/end anchors at runtime and in the inferred type.
-	 */
-	readonly match?: Match
-	/** Native RegExp flags as Magic Regex helpers, an array/Set, or a flag string. */
-	readonly flags?: Flags
-}
+> =
+	| {
+			/**
+			 * Magic Regex-compatible inputs. Plain strings are escaped and Magic Regex
+			 * fragments keep their capture, group, and composition behavior.
+			 */
+			readonly inputs: Inputs
+			/** Legacy alias for `inputs`; kept for compatibility with 0.4.0. */
+			readonly pattern?: never
+			/**
+			 * `contains` keeps Magic Regex's default search-style behavior. `exact` adds
+			 * start/end anchors at runtime and in the inferred type.
+			 */
+			readonly match?: Match
+			/** Native RegExp flags as Magic Regex helpers, an array/Set, or a flag string. */
+			readonly flags?: Flags
+	  }
+	| {
+			/**
+			 * @deprecated Use `inputs` instead. `pattern` is kept as a compatibility
+			 * alias for 0.4.0 callers.
+			 */
+			readonly pattern: Inputs
+			readonly inputs?: never
+			readonly match?: Match
+			readonly flags?: Flags
+	  }
 
 type DefineRegexBase<
 	Inputs extends readonly MagicInput[],
-	Options extends DefineRegexOptions<Inputs>,
+	Options extends { readonly match?: RegexMatchMode },
 > = Options extends { readonly match: "exact" }
 	? Anchored<MagicFromInputs<Inputs>>
 	: MagicFromInputs<Inputs>
 
+type DefineRegexInputs<Options extends DefineRegexOptions> = Options extends {
+	readonly inputs: infer Inputs extends readonly MagicInput[]
+}
+	? Inputs
+	: Options extends { readonly pattern: infer Inputs extends readonly MagicInput[] }
+		? Inputs
+		: never
+
 type DefineRegexMagic<Options extends DefineRegexOptions> =
-	Options extends DefineRegexOptions<infer Inputs>
+	DefineRegexInputs<Options> extends infer Inputs extends readonly MagicInput[]
 		? Options extends { readonly flags: infer Flags extends MagicFlagInput }
 			? WithFlagInput<DefineRegexBase<Inputs, Options>, Flags>
 			: DefineRegexBase<Inputs, Options>
@@ -300,18 +321,17 @@ export function fromMagicAs<
 export function defineRegex<const Options extends DefineRegexOptions>(
 	options: Options,
 ): WandRegExp<DefineRegexMagic<Options>>
-export function defineRegex({
-	flags,
-	match = "contains",
-	pattern,
-}: DefineRegexOptions): unknown {
+export function defineRegex(options: DefineRegexOptions): unknown {
+	const { flags, match = "contains" } = options
+	const inputs = "inputs" in options ? options.inputs : options.pattern
+
 	if (flags !== undefined) {
 		return match === "exact"
-			? createExactRegExpWithFlags(pattern, flags)
-			: createRegExpWithFlags(pattern, flags)
+			? createExactRegExpWithFlags(inputs, flags)
+			: createRegExpWithFlags(inputs, flags)
 	}
 
-	return match === "exact" ? createExactRegExp(...pattern) : createRegExp(...pattern)
+	return match === "exact" ? createExactRegExp(...inputs) : createRegExp(...inputs)
 }
 
 /**
