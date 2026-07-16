@@ -1,20 +1,21 @@
 # regex-wand
 
-Magic Regex authoring with ArkRegex-powered type inference.
+Typed regular expressions without giving up readable regex authoring.
 
 [![npm version](https://img.shields.io/npm/v/regex-wand.svg)](https://www.npmjs.com/package/regex-wand)
 [![CI](https://github.com/andrew-bierman/regex-wand/actions/workflows/ci.yml/badge.svg)](https://github.com/andrew-bierman/regex-wand/actions/workflows/ci.yml)
 [![Playground](https://github.com/andrew-bierman/regex-wand/actions/workflows/pages.yml/badge.svg)](https://andrew-bierman.github.io/regex-wand/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-`regex-wand` is intentionally a thin adapter. You keep composing patterns with
-`magic-regexp`; the final compiled value has ArkRegex-powered types for string
-inference, captures, named groups, flags, `exec`, and `test` narrowing.
+`regex-wand` lets you write patterns with the composable `magic-regexp` API and
+get ArkRegex-powered TypeScript inference on the final `RegExp`.
 
-At runtime, `regex-wand` constructs a native `RegExp`. ArkRegex is used for the
-published type surface, so browser bundlers do not need to execute ArkRegex code.
+At runtime, the result is still a native `RegExp`. The extra value is the typed
+surface: `.infer`, `.inferCaptures`, `.inferNamedCaptures`, typed `exec()`
+groups, literal flags, and `test()` narrowing. ArkRegex is type-only in the
+built JavaScript.
 
-## Links
+## Try It
 
 - [npm package](https://www.npmjs.com/package/regex-wand)
 - [Playground](https://andrew-bierman.github.io/regex-wand/)
@@ -41,7 +42,32 @@ npm install regex-wand
 of the public type surface because Magic Regex primitives are re-exported and
 ArkRegex powers the inferred `RegExp` types.
 
-## Usage
+## Quick Start
+
+```ts
+import { createExactRegExp, digit } from "regex-wand"
+
+const route = createExactRegExp(
+	"/users/",
+	digit.times.atLeast(1).as("userId"),
+)
+
+route.infer satisfies `/users/${number}`
+route.inferNamedCaptures.userId satisfies `${number}`
+
+const match = route.exec("/users/42")
+match?.groups.userId satisfies string | undefined
+
+declare const value: string
+
+if (route.test(value)) {
+	value satisfies `/users/${number}`
+}
+```
+
+## Common Patterns
+
+Exact semver-style match:
 
 ```ts
 import { createExactRegExp, digit } from "regex-wand"
@@ -54,16 +80,11 @@ const semver = createExactRegExp(
 	digit.times.any().grouped(),
 )
 
-declare const value: string
-
-if (semver.test(value)) {
-	value satisfies `${number}.${number}.${number}`
-}
-
+semver.infer satisfies `${number}.${number}.${number}`
 semver.inferCaptures satisfies [`${number}`, `${number}`, `${number}`]
 ```
 
-Use `createRegExp` when the pattern can appear inside a larger string:
+Contains-style text search:
 
 ```ts
 import { createRegExp, digit } from "regex-wand"
@@ -74,21 +95,7 @@ ticketId.infer satisfies `${string}id:${number}${string}`
 ticketId.test("ticket id:8042 is ready")
 ```
 
-Use named captures when you want `exec()` group types:
-
-```ts
-import { createExactRegExp, digit } from "regex-wand"
-
-const userRoute = createExactRegExp(
-	"/users/",
-	digit.times.atLeast(1).as("userId"),
-)
-
-const match = userRoute.exec("/users/42")
-match?.groups.userId satisfies string | undefined
-```
-
-Use flag helpers from the same import:
+Flags:
 
 ```ts
 import {
@@ -107,6 +114,12 @@ accepted.infer satisfies "ok" | "oK" | "Ok" | "OK"
 
 `regex-wand` exists because Magic Regex and ArkRegex solve different parts of
 the problem.
+
+Raw regex strings are compact but hard to safely compose:
+
+```ts
+const route = /^\/users\/(?<userId>\d{1,})$/
+```
 
 Raw Magic Regex gives you readable, composable authoring:
 
@@ -150,7 +163,7 @@ route.test("/users/42")
 
 Use raw `magic-regexp` when you only need composable regex construction. Use raw
 `arkregex` when you already have a regex string and want type inference for it.
-Use `regex-wand` when you want both in one API.
+Use `regex-wand` when you want both authoring ergonomics and result inference.
 
 ### Build-Time Transform Note
 
@@ -276,7 +289,8 @@ The package test suite covers both runtime behavior and compile-time inference:
   manual typing, `RegexParts`, and compatibility errors.
 - A runtime import guard to ensure built browser code does not import ArkRegex.
 - A packed-consumer test that installs the generated tarball into a temporary
-  project and checks TypeScript plus runtime behavior.
+  project and verifies TypeScript, runtime behavior, and the
+  `regex-wand/transform` Vite subpath.
 - TanStack Intent skill validation.
 
 See [docs/testing.md](docs/testing.md) for the test matrix and what each layer

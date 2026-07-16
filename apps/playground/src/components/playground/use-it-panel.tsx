@@ -1,4 +1,4 @@
-import { Check, Copy, ExternalLink, Link, Package } from "lucide-react"
+import { BookOpen, Check, Copy, ExternalLink, Github, Link, Package } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -34,6 +34,19 @@ export function UseItPanel({
 						<Copy className="size-4" />
 					)}
 					<span>Copy install</span>
+				</Button>
+				<Button
+					type="button"
+					variant="outline"
+					className="justify-start"
+					onClick={() => onCopy("npm", "npm install regex-wand")}
+				>
+					{copiedTarget === "npm" ? (
+						<Check className="size-4" />
+					) : (
+						<Copy className="size-4" />
+					)}
+					<span>Copy npm install</span>
 				</Button>
 				<Button
 					type="button"
@@ -88,6 +101,26 @@ export default defineConfig({
 					<a href="https://www.typescriptlang.org/play" target="_blank" rel="noreferrer">
 						<ExternalLink className="size-4" />
 						<span>Open in TS Playground</span>
+					</a>
+				</Button>
+				<Button asChild variant="outline" className="justify-start">
+					<a
+						href="https://github.com/andrew-bierman/regex-wand"
+						target="_blank"
+						rel="noreferrer"
+					>
+						<Github className="size-4" />
+						<span>GitHub repo</span>
+					</a>
+				</Button>
+				<Button asChild variant="outline" className="justify-start">
+					<a
+						href="https://github.com/andrew-bierman/regex-wand/tree/main/packages/regex-wand#readme"
+						target="_blank"
+						rel="noreferrer"
+					>
+						<BookOpen className="size-4" />
+						<span>Read docs</span>
 					</a>
 				</Button>
 			</div>

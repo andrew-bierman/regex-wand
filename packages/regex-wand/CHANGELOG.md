@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.6
+
+- Reworked the GitHub and npm README opening sections for public launch.
+- Improved playground first-run experience with install, npm, GitHub, docs, and
+  stronger inferred-type context.
+- Added clearer public-facing examples for why to use `regex-wand` over raw
+  Magic Regex or raw ArkRegex.
+
 ## 0.3.5
 
 - Expanded packed-consumer verification to install the generated tarball and

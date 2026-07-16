@@ -14,16 +14,19 @@ export function ExampleNav({
 }) {
 	return (
 		<nav
-			className="grid gap-1 border-b bg-muted/30 p-2 sm:grid-cols-2 lg:flex lg:flex-col lg:border-b-0 lg:border-r"
+			className="flex gap-1 overflow-x-auto border-b bg-muted/30 p-2 lg:flex-col lg:overflow-visible lg:border-b-0 lg:border-r"
 			aria-label="Examples"
 		>
+			<div className="hidden px-2 pb-2 pt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground lg:block">
+				Examples
+			</div>
 			{examples.map((example) => {
 				const ExampleIcon = example.icon
 				return (
 					<Button
 						type="button"
 						variant={example.id === selectedId ? "secondary" : "ghost"}
-						className="h-10 justify-start gap-2 px-3"
+						className="h-10 min-w-max justify-start gap-2 px-3 lg:min-w-0"
 						key={example.id}
 						onClick={() => onSelect(example.id)}
 					>

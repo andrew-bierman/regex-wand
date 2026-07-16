@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react"
 
-export type CopyTarget = "code" | "config" | "install" | "regex" | "share"
+export type CopyTarget = "code" | "config" | "install" | "npm" | "regex" | "share"
 
 export type PlaygroundExample = {
 	id: string
