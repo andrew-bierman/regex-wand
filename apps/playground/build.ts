@@ -1,4 +1,4 @@
-import { rm } from "node:fs/promises"
+import { copyFile, rm } from "node:fs/promises"
 import tailwind from "bun-plugin-tailwind"
 
 await rm("./dist", { force: true, recursive: true })
@@ -17,3 +17,5 @@ if (!result.success) {
 
 	process.exit(1)
 }
+
+await copyFile("./og-image.svg", "./dist/og-image.svg")
