@@ -14,6 +14,7 @@ feature audit.
 | --- | --- |
 | Magic Regex base primitives | Re-exported from `regex-wand` and supported in builders. |
 | Plain string inputs | Escaped by Magic Regex, matching Magic Regex behavior. |
+| Object-shaped definitions | `defineRegex({ pattern, match, flags })` is the recommended API for readable options. |
 | Contains matching | `createRegExp(...inputs)` preserves surrounding `${string}` inference. |
 | Exact matching | `createExactRegExp(...inputs)` adds start/end anchors at runtime and in types. |
 | Existing Magic Regex values | `fromMagic(magic)` adapts a `MagicRegExp` at the compile boundary. |
@@ -24,7 +25,7 @@ feature audit.
 | ArkRegex typed surface | `.infer`, `.inferCaptures`, `.inferNamedCaptures`, `.flags`, `test()` narrowing, and typed `exec()`. |
 | Runtime RegExp protocols | Native `match`, `matchAll`, `replace`, `split`, `lastIndex`, `indices`, sticky, global, and `toRegExp()`. |
 | ArkRegex runtime cost | ArkRegex is type-only in built `regex-wand` JavaScript. |
-| Direct build-time transform | `regex-wand/transform` recognizes static direct and namespaced `regex-wand` builder calls. |
+| Direct build-time transform | `regex-wand/transform` recognizes static direct and namespaced `regex-wand` builder calls, including `defineRegex`. |
 
 ## Supported With Escape Hatches
 

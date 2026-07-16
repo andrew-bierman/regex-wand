@@ -68,9 +68,12 @@ try {
 	await writeFile(
 		join(workspace, "index.ts"),
 		[
-			'import { createExactRegExp, digit } from "regex-wand"',
+			'import { defineRegex, digit } from "regex-wand"',
 			"",
-			'const semver = createExactRegExp(digit.grouped(), ".", digit.grouped(), ".", digit.grouped())',
+			"const semver = defineRegex({",
+			'\tmatch: "exact",',
+			'\tpattern: [digit.grouped(), ".", digit.grouped(), ".", digit.grouped()],',
+			"})",
 			`const inferred: ${semverType} = semver.infer`,
 			"void inferred",
 			'if (!semver.test("1.2.3")) throw new Error("packed package did not match")',
@@ -82,9 +85,12 @@ try {
 	await writeFile(
 		join(workspace, "src/entry.ts"),
 		[
-			'import { createExactRegExp, digit } from "regex-wand"',
+			'import { defineRegex, digit } from "regex-wand"',
 			"",
-			'export const route = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))',
+			"export const route = defineRegex({",
+			'\tmatch: "exact",',
+			'\tpattern: ["/users/", digit.times.atLeast(1).as("userId")],',
+			"})",
 			'export const acceptsUserRoute = route.test("/users/42")',
 			"",
 		].join("\n"),
@@ -115,7 +121,7 @@ try {
 			'const built = await readFile("dist/regex-wand-packed.js", "utf8")',
 			'if (!built.includes("/^\\\\/users\\\\/(?<userId>\\\\d{1,})$/")) throw new Error("packed transform did not emit the route literal")',
 			'if (!built.includes("Object.assign")) throw new Error("packed transform did not preserve adapter shape")',
-			'if (built.includes("createExactRegExp(")) throw new Error("packed transform left a static builder call behind")',
+			'if (built.includes("defineRegex(")) throw new Error("packed transform left a static builder call behind")',
 			'if (built.includes("from \\"regex-wand\\"")) throw new Error("packed transform left a root regex-wand import behind")',
 			"",
 		].join("\n"),

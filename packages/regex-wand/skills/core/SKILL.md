@@ -16,9 +16,11 @@ Magic Regex fragments and use `regex-wand` only at the compile boundary.
 
 - Import Magic Regex fragments from `regex-wand` when possible so examples use
   one package import.
-- Use `createRegExp(...inputs)` for contains-style matching.
-- Use `createExactRegExp(...inputs)` when `test()` should narrow to the exact
-  inferred string shape.
+- Prefer `defineRegex({ pattern, match, flags })` for new code. Omit `match`
+  for contains-style matching; use `match: "exact"` when `test()` should narrow
+  to the exact inferred string shape.
+- Use `createRegExp(...inputs)` and `createExactRegExp(...inputs)` when matching
+  Magic Regex's positional builder style is clearer for a small local pattern.
 - Use `createRegExpWithFlags(inputs, ...flags)` or
   `createExactRegExpWithFlags(inputs, ...flags)` when flags must be part of the
   inferred type. Flag arrays, flag strings, and flag Sets are also accepted.
@@ -37,15 +39,18 @@ Magic Regex fragments and use `regex-wand` only at the compile boundary.
 ## Example
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const semver = createExactRegExp(
-	digit.times.any().grouped(),
-	".",
-	digit.times.any().grouped(),
-	".",
-	digit.times.any().grouped(),
-)
+const semver = defineRegex({
+	match: "exact",
+	pattern: [
+		digit.times.any().grouped(),
+		".",
+		digit.times.any().grouped(),
+		".",
+		digit.times.any().grouped(),
+	],
+})
 
 declare const value: string
 

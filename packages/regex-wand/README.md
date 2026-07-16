@@ -45,12 +45,12 @@ ArkRegex powers the inferred `RegExp` types.
 ## Quick Start
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const route = createExactRegExp(
-	"/users/",
-	digit.times.atLeast(1).as("userId"),
-)
+const route = defineRegex({
+	match: "exact",
+	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 
 route.infer satisfies `/users/${number}`
 route.inferNamedCaptures.userId satisfies `${number}`
@@ -70,15 +70,18 @@ if (route.test(value)) {
 Exact semver-style match:
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const semver = createExactRegExp(
-	digit.times.any().grouped(),
-	".",
-	digit.times.any().grouped(),
-	".",
-	digit.times.any().grouped(),
-)
+const semver = defineRegex({
+	match: "exact",
+	pattern: [
+		digit.times.any().grouped(),
+		".",
+		digit.times.any().grouped(),
+		".",
+		digit.times.any().grouped(),
+	],
+})
 
 semver.infer satisfies `${number}.${number}.${number}`
 semver.inferCaptures satisfies [`${number}`, `${number}`, `${number}`]
@@ -87,9 +90,11 @@ semver.inferCaptures satisfies [`${number}`, `${number}`, `${number}`]
 Contains-style text search:
 
 ```ts
-import { createRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const ticketId = createRegExp("id:", digit.times.atLeast(1).grouped())
+const ticketId = defineRegex({
+	pattern: ["id:", digit.times.atLeast(1).grouped()],
+})
 
 ticketId.infer satisfies `${string}id:${number}${string}`
 ticketId.test("ticket id:8042 is ready")
@@ -100,11 +105,15 @@ Flags:
 ```ts
 import {
 	caseInsensitive,
-	createExactRegExpWithFlags,
+	defineRegex,
 	global,
 } from "regex-wand"
 
-const accepted = createExactRegExpWithFlags(["ok"], global, caseInsensitive)
+const accepted = defineRegex({
+	flags: [global, caseInsensitive],
+	match: "exact",
+	pattern: ["ok"],
+})
 
 accepted.flags satisfies "gi"
 accepted.infer satisfies "ok" | "oK" | "Ok" | "OK"
@@ -145,16 +154,16 @@ route.infer satisfies `/users/${number}`
 route.inferNamedCaptures.userId satisfies `${number}`
 ```
 
-`regex-wand` keeps the Magic Regex authoring style and returns the ArkRegex-type
-surface:
+`regex-wand` keeps the Magic Regex authoring style, adds readable object params,
+and returns the ArkRegex-type surface:
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const route = createExactRegExp(
-	"/users/",
-	digit.times.atLeast(1).as("userId"),
-)
+const route = defineRegex({
+	match: "exact",
+	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 
 route.infer satisfies `/users/${number}`
 route.inferNamedCaptures.userId satisfies `${number}`
@@ -172,9 +181,12 @@ Magic Regex's transform only recognizes imports from `magic-regexp` and
 `regex-wand` builders are small runtime adapters:
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const route = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))
+const route = defineRegex({
+	match: "exact",
+	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 ```
 
 If you want Magic Regex's build-time transform in an app, compose with raw Magic
@@ -212,10 +224,11 @@ export default defineConfig({
 })
 ```
 
-The transform recognizes static `createRegExp`, `createExactRegExp`,
-`createRegExpWithFlags`, and `createExactRegExpWithFlags` calls imported from
-`regex-wand`. Dynamic expressions are left unchanged. The emitted code preserves
-the adapter shape, so `.magic`, `.ark`, and `.toRegExp()` keep working.
+The transform recognizes static `defineRegex`, `createRegExp`,
+`createExactRegExp`, `createRegExpWithFlags`, and
+`createExactRegExpWithFlags` calls imported from `regex-wand`. Dynamic
+expressions are left unchanged. The emitted code preserves the adapter shape, so
+`.magic`, `.ark`, and `.toRegExp()` keep working.
 
 For expressions that are valid at runtime but too complex or dynamic for
 ArkRegex to infer, use `fromMagicAs` to provide the result type manually:
@@ -234,6 +247,10 @@ const route = fromMagicAs<
 
 ## API
 
+- `defineRegex({ pattern, match, flags })` is the recommended object-shaped API.
+  `pattern` is a Magic Regex-compatible tuple, `match` is `"contains"` by
+  default or `"exact"` for start/end anchoring, and `flags` accepts helper
+  values, arrays, strings, or Sets.
 - `createRegExp(...inputs)` compiles Magic Regex inputs as a contains-style regex.
 - `createExactRegExp(...inputs)` compiles a start/end anchored regex.
 - `createRegExpWithFlags(inputs, ...flags)` compiles with Magic Regex flag helpers.
@@ -327,10 +344,8 @@ bun run registry:check
 Automated publishing lives in the monorepo release workflow:
 `.github/workflows/release.yml`.
 
-While the GitHub repo is private, the workflow publishes with provenance
-disabled because npm rejects GitHub Actions provenance from private source
-repositories. Once the repo is public, the same workflow publishes with npm
-provenance enabled.
+The workflow publishes public GitHub releases to npm with provenance through npm
+trusted publishing. Local publishing remains a fallback for emergencies.
 
 `publish:regex-wand` runs `bun publish --access public` in the package workspace
 and should only be used as a local fallback. Bump `packages/regex-wand/package.json`

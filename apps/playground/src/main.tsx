@@ -28,9 +28,7 @@ import {
 	anyOf,
 	caseInsensitive,
 	charIn,
-	createExactRegExp,
-	createExactRegExpWithFlags,
-	createRegExp,
+	defineRegex,
 	digit,
 	fromMagic,
 	fromMagicAs,
@@ -71,31 +69,40 @@ const examples: PlaygroundExample[] = [
 		id: "semver",
 		title: "Semver",
 		icon: Hash,
-		pattern: createExactRegExp(
-			digit.times.any().grouped(),
-			".",
-			digit.times.any().grouped(),
-			".",
-			digit.times.any().grouped(),
-		),
+		pattern: defineRegex({
+			match: "exact",
+			pattern: [
+				digit.times.any().grouped(),
+				".",
+				digit.times.any().grouped(),
+				".",
+				digit.times.any().grouped(),
+			],
+		}),
 		defaultInput: "1.24.3",
 		invalidInput: "v1.24.3",
-		code: `const semver = createExactRegExp(
-  digit.times.any().grouped(),
-  ".",
-  digit.times.any().grouped(),
-  ".",
-  digit.times.any().grouped(),
-)`,
-		editorCode: `import { createExactRegExp, digit } from "regex-wand"
+		code: `const semver = defineRegex({
+  match: "exact",
+  pattern: [
+    digit.times.any().grouped(),
+    ".",
+    digit.times.any().grouped(),
+    ".",
+    digit.times.any().grouped(),
+  ],
+})`,
+		editorCode: `import { defineRegex, digit } from "regex-wand"
 
-const semver = createExactRegExp(
-  digit.times.any().grouped(),
-  ".",
-  digit.times.any().grouped(),
-  ".",
-  digit.times.any().grouped(),
-)
+const semver = defineRegex({
+  match: "exact",
+  pattern: [
+    digit.times.any().grouped(),
+    ".",
+    digit.times.any().grouped(),
+    ".",
+    digit.times.any().grouped(),
+  ],
+})
 
 semver.infer`,
 		hoverTarget: "semver.infer",
@@ -110,23 +117,29 @@ semver.infer`,
 		id: "email",
 		title: "Email parts",
 		icon: AtSign,
-		pattern: createExactRegExp(
-			namedIdentifier("name"),
-			"@",
-			namedIdentifier("domain"),
-			".",
-			namedIdentifier("tld"),
-		),
+		pattern: defineRegex({
+			match: "exact",
+			pattern: [
+				namedIdentifier("name"),
+				"@",
+				namedIdentifier("domain"),
+				".",
+				namedIdentifier("tld"),
+			],
+		}),
 		defaultInput: "me@example.com",
 		invalidInput: "me@example",
-		code: `const email = createExactRegExp(
-  namedIdentifier("name"),
-  "@",
-  namedIdentifier("domain"),
-  ".",
-  namedIdentifier("tld"),
-)`,
-		editorCode: `import { charIn, createExactRegExp, oneOrMore } from "regex-wand"
+		code: `const email = defineRegex({
+  match: "exact",
+  pattern: [
+    namedIdentifier("name"),
+    "@",
+    namedIdentifier("domain"),
+    ".",
+    namedIdentifier("tld"),
+  ],
+})`,
+		editorCode: `import { charIn, defineRegex, oneOrMore } from "regex-wand"
 
 const identifierChar = charIn
   .from("a", "z")
@@ -134,13 +147,16 @@ const identifierChar = charIn
   .orChar.from("0", "9")
   .orChar("_")
 
-const email = createExactRegExp(
-  oneOrMore(identifierChar).as("name"),
-  "@",
-  oneOrMore(identifierChar).as("domain"),
-  ".",
-  oneOrMore(identifierChar).as("tld"),
-)
+const email = defineRegex({
+  match: "exact",
+  pattern: [
+    oneOrMore(identifierChar).as("name"),
+    "@",
+    oneOrMore(identifierChar).as("domain"),
+    ".",
+    oneOrMore(identifierChar).as("tld"),
+  ],
+})
 
 email.inferNamedCaptures.domain`,
 		hoverTarget: "email.inferNamedCaptures.domain",
@@ -156,13 +172,16 @@ email.inferNamedCaptures.domain`,
 		id: "route",
 		title: "Route id",
 		icon: Route,
-		pattern: createExactRegExp("/users/", digit.times.atLeast(1).as("userId")),
+		pattern: defineRegex({
+			match: "exact",
+			pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+		}),
 		defaultInput: "/users/42",
 		invalidInput: "/teams/42",
-		code: `const userRoute = createExactRegExp(
-  "/users/",
-  digit.times.atLeast(1).as("userId"),
-)`,
+		code: `const userRoute = defineRegex({
+  match: "exact",
+  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})`,
 		comparisonCode: `// Raw Magic Regex: readable construction, plain RegExp result.
 const rawMagic = createMagicRegExp(
   "/users/",
@@ -173,18 +192,18 @@ const rawMagic = createMagicRegExp(
 const rawArk = regex("^/users/(?<userId>\\\\d{1,})$")
 rawArk.inferNamedCaptures.userId satisfies \`\${number}\`
 
-// regex-wand: Magic Regex authoring + ArkRegex result types.
-const wand = createExactRegExp(
-  "/users/",
-  digit.times.atLeast(1).as("userId"),
-)
+// regex-wand: readable object params + ArkRegex result types.
+const wand = defineRegex({
+  match: "exact",
+  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 wand.inferNamedCaptures.userId satisfies \`\${number}\``,
-		editorCode: `import { createExactRegExp, digit } from "regex-wand"
+		editorCode: `import { defineRegex, digit } from "regex-wand"
 
-const userRoute = createExactRegExp(
-  "/users/",
-  digit.times.atLeast(1).as("userId"),
-)
+const userRoute = defineRegex({
+  match: "exact",
+  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 
 userRoute.infer`,
 		hoverTarget: "userRoute.infer",
@@ -199,23 +218,29 @@ userRoute.infer`,
 		id: "case",
 		title: "Case flags",
 		icon: BadgeCheck,
-		pattern: createExactRegExpWithFlags([anyOf("ok", "yes")], caseInsensitive),
+		pattern: defineRegex({
+			flags: caseInsensitive,
+			match: "exact",
+			pattern: [anyOf("ok", "yes")],
+		}),
 		defaultInput: "YES",
 		invalidInput: "nah",
-		code: `const accepted = createExactRegExpWithFlags(
-  [anyOf("ok", "yes")],
-  caseInsensitive,
-)`,
+		code: `const accepted = defineRegex({
+  flags: caseInsensitive,
+  match: "exact",
+  pattern: [anyOf("ok", "yes")],
+})`,
 		editorCode: `import {
   anyOf,
   caseInsensitive,
-  createExactRegExpWithFlags,
+  defineRegex,
 } from "regex-wand"
 
-const accepted = createExactRegExpWithFlags(
-  [anyOf("ok", "yes")],
-  caseInsensitive,
-)
+const accepted = defineRegex({
+  flags: caseInsensitive,
+  match: "exact",
+  pattern: [anyOf("ok", "yes")],
+})
 
 accepted.flags`,
 		hoverTarget: "accepted.flags",
@@ -230,31 +255,40 @@ accepted.flags`,
 		id: "iso-date",
 		title: "ISO date",
 		icon: CalendarDays,
-		pattern: createExactRegExp(
-			digit.times.atLeast(4).as("year"),
-			"-",
-			digit.times.atLeast(2).as("month"),
-			"-",
-			digit.times.atLeast(2).as("day"),
-		),
+		pattern: defineRegex({
+			match: "exact",
+			pattern: [
+				digit.times.atLeast(4).as("year"),
+				"-",
+				digit.times.atLeast(2).as("month"),
+				"-",
+				digit.times.atLeast(2).as("day"),
+			],
+		}),
 		defaultInput: "2026-06-30",
 		invalidInput: "06/30/2026",
-		code: `const isoDate = createExactRegExp(
-  digit.times.atLeast(4).as("year"),
-  "-",
-  digit.times.atLeast(2).as("month"),
-  "-",
-  digit.times.atLeast(2).as("day"),
-)`,
-		editorCode: `import { createExactRegExp, digit } from "regex-wand"
+		code: `const isoDate = defineRegex({
+  match: "exact",
+  pattern: [
+    digit.times.atLeast(4).as("year"),
+    "-",
+    digit.times.atLeast(2).as("month"),
+    "-",
+    digit.times.atLeast(2).as("day"),
+  ],
+})`,
+		editorCode: `import { defineRegex, digit } from "regex-wand"
 
-const isoDate = createExactRegExp(
-  digit.times.atLeast(4).as("year"),
-  "-",
-  digit.times.atLeast(2).as("month"),
-  "-",
-  digit.times.atLeast(2).as("day"),
-)
+const isoDate = defineRegex({
+  match: "exact",
+  pattern: [
+    digit.times.atLeast(4).as("year"),
+    "-",
+    digit.times.atLeast(2).as("month"),
+    "-",
+    digit.times.atLeast(2).as("day"),
+  ],
+})
 
 isoDate.inferNamedCaptures.year`,
 		hoverTarget: "isoDate.inferNamedCaptures.year",
@@ -269,7 +303,10 @@ isoDate.inferNamedCaptures.year`,
 		id: "hex-color",
 		title: "Hex color",
 		icon: Tag,
-		pattern: createExactRegExp("#", oneOrMore(hexChar).as("hex")),
+		pattern: defineRegex({
+			match: "exact",
+			pattern: ["#", oneOrMore(hexChar).as("hex")],
+		}),
 		defaultInput: "#38BDF8",
 		invalidInput: "38BDF8",
 		code: `const hexChar = charIn
@@ -277,21 +314,21 @@ isoDate.inferNamedCaptures.year`,
   .orChar.from("a", "f")
   .orChar.from("A", "F")
 
-const hexColor = createExactRegExp(
-  "#",
-  oneOrMore(hexChar).as("hex"),
-)`,
-		editorCode: `import { charIn, createExactRegExp, oneOrMore } from "regex-wand"
+const hexColor = defineRegex({
+  match: "exact",
+  pattern: ["#", oneOrMore(hexChar).as("hex")],
+})`,
+		editorCode: `import { charIn, defineRegex, oneOrMore } from "regex-wand"
 
 const hexChar = charIn
   .from("0", "9")
   .orChar.from("a", "f")
   .orChar.from("A", "F")
 
-const hexColor = createExactRegExp(
-  "#",
-  oneOrMore(hexChar).as("hex"),
-)
+const hexColor = defineRegex({
+  match: "exact",
+  pattern: ["#", oneOrMore(hexChar).as("hex")],
+})
 
 hexColor.inferNamedCaptures.hex`,
 		hoverTarget: "hexColor.inferNamedCaptures.hex",
@@ -306,7 +343,10 @@ hexColor.inferNamedCaptures.hex`,
 		id: "slug",
 		title: "Slug",
 		icon: Link,
-		pattern: createExactRegExp(oneOrMore(slugChar).as("slug")),
+		pattern: defineRegex({
+			match: "exact",
+			pattern: [oneOrMore(slugChar).as("slug")],
+		}),
 		defaultInput: "typed-regex-playground",
 		invalidInput: "Typed Regex Playground",
 		code: `const slugChar = charIn
@@ -314,19 +354,21 @@ hexColor.inferNamedCaptures.hex`,
   .orChar.from("0", "9")
   .orChar("-")
 
-const slug = createExactRegExp(
-  oneOrMore(slugChar).as("slug"),
-)`,
-		editorCode: `import { charIn, createExactRegExp, oneOrMore } from "regex-wand"
+const slug = defineRegex({
+  match: "exact",
+  pattern: [oneOrMore(slugChar).as("slug")],
+})`,
+		editorCode: `import { charIn, defineRegex, oneOrMore } from "regex-wand"
 
 const slugChar = charIn
   .from("a", "z")
   .orChar.from("0", "9")
   .orChar("-")
 
-const slug = createExactRegExp(
-  oneOrMore(slugChar).as("slug"),
-)
+const slug = defineRegex({
+  match: "exact",
+  pattern: [oneOrMore(slugChar).as("slug")],
+})
 
 slug.inferNamedCaptures.slug`,
 		hoverTarget: "slug.inferNamedCaptures.slug",
@@ -341,19 +383,25 @@ slug.inferNamedCaptures.slug`,
 		id: "feature-key",
 		title: "Feature key",
 		icon: Fingerprint,
-		pattern: createExactRegExp(
-			anyOf("prod", "staging", "dev").as("env"),
-			":",
-			namedIdentifier("feature"),
-		),
+		pattern: defineRegex({
+			match: "exact",
+			pattern: [
+				anyOf("prod", "staging", "dev").as("env"),
+				":",
+				namedIdentifier("feature"),
+			],
+		}),
 		defaultInput: "prod:checkout_v2",
 		invalidInput: "local:checkout_v2",
-		code: `const featureKey = createExactRegExp(
-  anyOf("prod", "staging", "dev").as("env"),
-  ":",
-  oneOrMore(identifierChar).as("feature"),
-)`,
-		editorCode: `import { anyOf, charIn, createExactRegExp, oneOrMore } from "regex-wand"
+		code: `const featureKey = defineRegex({
+  match: "exact",
+  pattern: [
+    anyOf("prod", "staging", "dev").as("env"),
+    ":",
+    oneOrMore(identifierChar).as("feature"),
+  ],
+})`,
+		editorCode: `import { anyOf, charIn, defineRegex, oneOrMore } from "regex-wand"
 
 const identifierChar = charIn
   .from("a", "z")
@@ -361,11 +409,14 @@ const identifierChar = charIn
   .orChar.from("0", "9")
   .orChar("_")
 
-const featureKey = createExactRegExp(
-  anyOf("prod", "staging", "dev").as("env"),
-  ":",
-  oneOrMore(identifierChar).as("feature"),
-)
+const featureKey = defineRegex({
+  match: "exact",
+  pattern: [
+    anyOf("prod", "staging", "dev").as("env"),
+    ":",
+    oneOrMore(identifierChar).as("feature"),
+  ],
+})
 
 featureKey.inferNamedCaptures.env`,
 		hoverTarget: "featureKey.inferNamedCaptures.env",
@@ -380,19 +431,19 @@ featureKey.inferNamedCaptures.env`,
 		id: "contains",
 		title: "Text search",
 		icon: Search,
-		pattern: createRegExp("id:", digit.times.atLeast(1).grouped()),
+		pattern: defineRegex({
+			pattern: ["id:", digit.times.atLeast(1).grouped()],
+		}),
 		defaultInput: "ticket id:8042 is ready",
 		invalidInput: "ticket id: is ready",
-		code: `const idInsideText = createRegExp(
-  "id:",
-  digit.times.atLeast(1).grouped(),
-)`,
-		editorCode: `import { createRegExp, digit } from "regex-wand"
+		code: `const idInsideText = defineRegex({
+  pattern: ["id:", digit.times.atLeast(1).grouped()],
+})`,
+		editorCode: `import { defineRegex, digit } from "regex-wand"
 
-const idInsideText = createRegExp(
-  "id:",
-  digit.times.atLeast(1).grouped(),
-)
+const idInsideText = defineRegex({
+  pattern: ["id:", digit.times.atLeast(1).grouped()],
+})
 
 idInsideText.infer`,
 		hoverTarget: "idInsideText.infer",
@@ -407,15 +458,18 @@ idInsideText.infer`,
 		id: "comparison",
 		title: "Library comparison",
 		icon: Braces,
-		pattern: createExactRegExp("/users/", digit.times.atLeast(1).as("userId")),
+		pattern: defineRegex({
+			match: "exact",
+			pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+		}),
 		defaultInput: "/users/42",
 		invalidInput: "users/42",
 		code: `// Magic Regex: composable authoring.
 // ArkRegex: typed raw regex strings.
-// regex-wand: Magic Regex authoring + ArkRegex result types.`,
+// regex-wand: readable object params + ArkRegex result types.`,
 		comparisonCode: `import { regex } from "arkregex"
 import { createRegExp as createMagicRegExp, digit as magicDigit } from "magic-regexp"
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
 const rawMagic = createMagicRegExp(
   "/users/",
@@ -426,15 +480,15 @@ rawMagic.test("/users/42")
 const rawArk = regex("^/users/(?<userId>\\\\d{1,})$")
 rawArk.inferNamedCaptures.userId satisfies \`\${number}\`
 
-const wand = createExactRegExp(
-  "/users/",
-  digit.times.atLeast(1).as("userId"),
-)
+const wand = defineRegex({
+  match: "exact",
+  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 wand.inferNamedCaptures.userId satisfies \`\${number}\`
 wand.test("/users/42")`,
 		editorCode: `import { regex } from "arkregex"
 import { createRegExp as createMagicRegExp, digit as magicDigit } from "magic-regexp"
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
 const rawArkRegex = regex("^/users/(?<userId>\\\\d{1,})$")
 rawArkRegex.inferNamedCaptures.userId
@@ -445,10 +499,10 @@ const rawMagicRegex = createMagicRegExp(
 )
 rawMagicRegex.test("/users/42")
 
-const wand = createExactRegExp(
-  "/users/",
-  digit.times.atLeast(1).as("userId"),
-)
+const wand = defineRegex({
+  match: "exact",
+  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 wand.inferNamedCaptures.userId`,
 		hoverTarget: "wand.inferNamedCaptures.userId",
 		types: {
@@ -462,19 +516,22 @@ wand.inferNamedCaptures.userId`,
 		id: "transform",
 		title: "Build-time transform",
 		icon: Code2,
-		pattern: createExactRegExp("/users/", digit.times.atLeast(1).as("userId")),
+		pattern: defineRegex({
+			match: "exact",
+			pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+		}),
 		defaultInput: "/users/42",
 		invalidInput: "/users/me",
 		code: `// vite.config.ts
 plugins: [RegexWandTransformPlugin.vite()]
 
-// Static regex-wand builders compile to native RegExp literals.`,
-		editorCode: `import { createExactRegExp, digit } from "regex-wand"
+// Static defineRegex calls compile to native RegExp literals.`,
+		editorCode: `import { defineRegex, digit } from "regex-wand"
 
-const route = createExactRegExp(
-  "/users/",
-  digit.times.atLeast(1).as("userId"),
-)
+const route = defineRegex({
+  match: "exact",
+  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 
 route.toRegExp()`,
 		hoverTarget: "route.toRegExp",

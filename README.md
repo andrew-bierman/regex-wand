@@ -12,12 +12,12 @@ Typed regular expressions without giving up readable regex authoring.
 get ArkRegex-powered TypeScript inference on the final `RegExp`.
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const route = createExactRegExp(
-	"/users/",
-	digit.times.atLeast(1).as("userId"),
-)
+const route = defineRegex({
+	match: "exact",
+	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 
 route.infer satisfies `/users/${number}`
 route.inferNamedCaptures.userId satisfies `${number}`
@@ -81,15 +81,15 @@ const route = regex("^/users/(?<userId>\\d{1,})$")
 route.inferNamedCaptures.userId satisfies `${number}`
 ```
 
-`regex-wand` combines those two ideas:
+`regex-wand` combines those two ideas with a readable object-shaped API:
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const route = createExactRegExp(
-	"/users/",
-	digit.times.atLeast(1).as("userId"),
-)
+const route = defineRegex({
+	match: "exact",
+	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 
 route.infer satisfies `/users/${number}`
 route.inferNamedCaptures.userId satisfies `${number}`
@@ -109,6 +109,7 @@ import {
 	createExactRegExpWithFlags,
 	createRegExp,
 	createRegExpWithFlags,
+	defineRegex,
 	digit,
 	fromMagic,
 	fromMagicAs,
@@ -118,6 +119,7 @@ import {
 
 | API | Use it for |
 | --- | --- |
+| `defineRegex({ pattern, match, flags })` | Recommended API for readable exact/search patterns with optional flags. |
 | `createRegExp(...inputs)` | Search-style patterns that can appear inside larger strings. |
 | `createExactRegExp(...inputs)` | Whole-string validation and strongest `test()` narrowing. |
 | `createRegExpWithFlags(inputs, ...flags)` | Search-style patterns with Magic Regex flag helpers. |
@@ -134,15 +136,18 @@ can import from one package.
 Exact semver-style match:
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const semver = createExactRegExp(
-	digit.times.any().grouped(),
-	".",
-	digit.times.any().grouped(),
-	".",
-	digit.times.any().grouped(),
-)
+const semver = defineRegex({
+	match: "exact",
+	pattern: [
+		digit.times.any().grouped(),
+		".",
+		digit.times.any().grouped(),
+		".",
+		digit.times.any().grouped(),
+	],
+})
 
 semver.infer satisfies `${number}.${number}.${number}`
 semver.inferCaptures satisfies [`${number}`, `${number}`, `${number}`]
@@ -151,9 +156,11 @@ semver.inferCaptures satisfies [`${number}`, `${number}`, `${number}`]
 Contains-style text search:
 
 ```ts
-import { createRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const ticketId = createRegExp("id:", digit.times.atLeast(1).grouped())
+const ticketId = defineRegex({
+	pattern: ["id:", digit.times.atLeast(1).grouped()],
+})
 
 ticketId.infer satisfies `${string}id:${number}${string}`
 ticketId.test("ticket id:8042 is ready")
@@ -165,15 +172,15 @@ Flags:
 import {
 	anyOf,
 	caseInsensitive,
-	createExactRegExpWithFlags,
+	defineRegex,
 	global,
 } from "regex-wand"
 
-const accepted = createExactRegExpWithFlags(
-	[anyOf("ok", "yes")],
-	global,
-	caseInsensitive,
-)
+const accepted = defineRegex({
+	flags: [global, caseInsensitive],
+	match: "exact",
+	pattern: [anyOf("ok", "yes")],
+})
 
 accepted.flags satisfies "gi"
 ```
@@ -207,9 +214,10 @@ export default defineConfig({
 })
 ```
 
-The transform recognizes static `createRegExp`, `createExactRegExp`,
-`createRegExpWithFlags`, and `createExactRegExpWithFlags` calls imported from
-`regex-wand`. Dynamic expressions are left as runtime builder calls.
+The transform recognizes static `defineRegex`, `createRegExp`,
+`createExactRegExp`, `createRegExpWithFlags`, and
+`createExactRegExpWithFlags` calls imported from `regex-wand`. Dynamic
+expressions are left as runtime builder calls.
 
 ## Support Boundaries
 

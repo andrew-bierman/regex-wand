@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0
+
+- Added `defineRegex({ pattern, match, flags })` as the recommended
+  object-shaped API for readable contains/exact regex definitions.
+- Added build-time transform support for static direct and namespaced
+  `defineRegex` calls.
+- Expanded runtime, `tsd`, transform, and packed-consumer coverage for the
+  object API.
+- Updated the README, support matrix, roadmap, type-safety docs, testing docs,
+  and playground examples to lead with `defineRegex`.
+
 ## 0.3.8
 
 - Added CI compatibility coverage across Bun and TypeScript versions.

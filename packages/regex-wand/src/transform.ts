@@ -39,6 +39,7 @@ type IdentifierNode = AstNode & { name?: string }
 
 const REGEX_WAND_SPECIFIER = "regex-wand"
 const WRAPPER_EXPORTS = new Set([
+	"defineRegex",
 	"createRegExp",
 	"createExactRegExp",
 	"createRegExpWithFlags",

@@ -57,6 +57,23 @@ route.toRegExp()`,
 		expect(result?.code).not.toContain('from "regex-wand"')
 	})
 
+	it("compiles object-shaped defineRegex calls", async () => {
+		const result = await transformHandler.call(
+			context,
+			`import { defineRegex, digit } from "regex-wand"
+
+const route = defineRegex({
+  match: "exact",
+  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})`,
+			"object-api.ts",
+		)
+
+		expect(result?.code).toContain("/^\\/users\\/(?<userId>\\d{1,})$/")
+		expect(result?.code).not.toContain("defineRegex(")
+		expect(result?.code).not.toContain('from "regex-wand"')
+	})
+
 	it("emits executable adapters that preserve native RegExp behavior", async () => {
 		const result = await transformHandler.call(
 			context,

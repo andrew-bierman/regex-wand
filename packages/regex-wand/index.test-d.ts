@@ -6,6 +6,7 @@ import {
 	createExactRegExpWithFlags,
 	createRegExp,
 	createRegExpWithFlags,
+	defineRegex,
 	digit,
 	dotAll,
 	fromMagic,
@@ -122,6 +123,46 @@ expectType<`${string}id:${number}${string}`>(idInsideText.infer)
 const userRoute = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))
 expectType<`/users/${number}`>(userRoute.infer)
 expectType<{ userId: `${number}` }>(userRoute.inferNamedCaptures)
+
+const objectUserRoute = defineRegex({
+	match: "exact",
+	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
+expectType<`/users/${number}`>(objectUserRoute.infer)
+expectType<{ userId: `${number}` }>(objectUserRoute.inferNamedCaptures)
+expectAssignable<RegExp>(objectUserRoute)
+
+const objectContains = defineRegex({
+	pattern: ["id:", digit.times.atLeast(1).grouped()],
+})
+expectType<`${string}id:${number}${string}`>(objectContains.infer)
+expectType<[`${number}`]>(objectContains.inferCaptures)
+
+const objectFlagged = defineRegex({
+	flags: [global, caseInsensitive],
+	match: "exact",
+	pattern: ["ok"],
+})
+expectType<"gi">(objectFlagged.flags)
+expectType<"ok" | "oK" | "Ok" | "OK">(objectFlagged.infer)
+
+const objectStringFlags = defineRegex({
+	flags: "ig",
+	pattern: ["ok"],
+})
+expectType<"gi">(objectStringFlags.flags)
+expectType<
+	| `${string}ok${string}`
+	| `${string}oK${string}`
+	| `${string}Ok${string}`
+	| `${string}OK${string}`
+>(objectStringFlags.infer)
+
+const objectSetFlags = defineRegex({
+	flags: new Set<typeof global | typeof caseInsensitive>([global, caseInsensitive]),
+	pattern: ["ok"],
+})
+expectType<"gi">(objectSetFlags.flags)
 
 const lowerWord = createExactRegExp(oneOrMore(letter.lowercase).as("word"))
 const lowerWordMatch = lowerWord.exec("abc")
