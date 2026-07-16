@@ -126,14 +126,14 @@ expectType<{ userId: `${number}` }>(userRoute.inferNamedCaptures)
 
 const objectUserRoute = defineRegex({
 	match: "exact",
-	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+	inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 expectType<`/users/${number}`>(objectUserRoute.infer)
 expectType<{ userId: `${number}` }>(objectUserRoute.inferNamedCaptures)
 expectAssignable<RegExp>(objectUserRoute)
 
 const objectContains = defineRegex({
-	pattern: ["id:", digit.times.atLeast(1).grouped()],
+	inputs: ["id:", digit.times.atLeast(1).grouped()],
 })
 expectType<`${string}id:${number}${string}`>(objectContains.infer)
 expectType<[`${number}`]>(objectContains.inferCaptures)
@@ -141,14 +141,14 @@ expectType<[`${number}`]>(objectContains.inferCaptures)
 const objectFlagged = defineRegex({
 	flags: [global, caseInsensitive],
 	match: "exact",
-	pattern: ["ok"],
+	inputs: ["ok"],
 })
 expectType<"gi">(objectFlagged.flags)
 expectType<"ok" | "oK" | "Ok" | "OK">(objectFlagged.infer)
 
 const objectStringFlags = defineRegex({
 	flags: "ig",
-	pattern: ["ok"],
+	inputs: ["ok"],
 })
 expectType<"gi">(objectStringFlags.flags)
 expectType<
@@ -160,9 +160,16 @@ expectType<
 
 const objectSetFlags = defineRegex({
 	flags: new Set<typeof global | typeof caseInsensitive>([global, caseInsensitive]),
-	pattern: ["ok"],
+	inputs: ["ok"],
 })
 expectType<"gi">(objectSetFlags.flags)
+
+const legacyPatternAlias = defineRegex({
+	match: "exact",
+	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
+expectType<`/users/${number}`>(legacyPatternAlias.infer)
+expectType<{ userId: `${number}` }>(legacyPatternAlias.inferNamedCaptures)
 
 const lowerWord = createExactRegExp(oneOrMore(letter.lowercase).as("word"))
 const lowerWordMatch = lowerWord.exec("abc")

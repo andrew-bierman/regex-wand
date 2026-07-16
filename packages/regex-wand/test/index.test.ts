@@ -109,24 +109,24 @@ describe("regex-wand", () => {
 
 	it("supports readable object-shaped regex definitions", () => {
 		const contains = defineRegex({
-			pattern: ["id:", digit.times.atLeast(1).grouped()],
+			inputs: ["id:", digit.times.atLeast(1).grouped()],
 		})
 		const exactRoute = defineRegex({
 			match: "exact",
-			pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+			inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 		})
 		const flagged = defineRegex({
 			flags: [global, caseInsensitive],
 			match: "exact",
-			pattern: [anyOf("ok", "yes")],
+			inputs: [anyOf("ok", "yes")],
 		})
 		const stringFlagged = defineRegex({
 			flags: "i",
-			pattern: ["feature"],
+			inputs: ["feature"],
 		})
 		const setFlagged = defineRegex({
 			flags: new Set<Flag>([global, caseInsensitive]),
-			pattern: ["ok"],
+			inputs: ["ok"],
 		})
 
 		expect(String(contains)).toBe("/id:(\\d{1,})/")
@@ -142,6 +142,16 @@ describe("regex-wand", () => {
 		expect(stringFlagged.flags).toBe("i")
 		expect(stringFlagged.test("FEATURE")).toBe(true)
 		expect(setFlagged.flags).toBe("gi")
+	})
+
+	it("keeps pattern as a legacy alias for object-shaped definitions", () => {
+		const route = defineRegex({
+			match: "exact",
+			pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+		})
+
+		expect(route.test("/users/42")).toBe(true)
+		expect(route.exec("/users/42")?.groups).toEqual({ userId: "42" })
 	})
 
 	it("escapes plain string inputs while preserving Magic Regex fragments", () => {
@@ -399,7 +409,7 @@ describe("regex-wand", () => {
 			{
 				upstream: createMagicRegExp("id:", digit.times.atLeast(1).grouped()),
 				wand: defineRegex({
-					pattern: ["id:", digit.times.atLeast(1).grouped()],
+					inputs: ["id:", digit.times.atLeast(1).grouped()],
 				}),
 				samples: ["ticket id:42", "ticket id:", "id:8042"],
 			},
@@ -407,7 +417,7 @@ describe("regex-wand", () => {
 				upstream: exactMagicRegExp("/users/", digit.times.atLeast(1).as("userId")),
 				wand: defineRegex({
 					match: "exact",
-					pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+					inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 				}),
 				samples: ["/users/42", "/teams/42", "prefix /users/42"],
 			},

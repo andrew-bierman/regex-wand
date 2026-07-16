@@ -49,7 +49,7 @@ import { defineRegex, digit } from "regex-wand"
 
 const route = defineRegex({
 	match: "exact",
-	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+	inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 
 route.infer satisfies `/users/${number}`
@@ -74,7 +74,7 @@ import { defineRegex, digit } from "regex-wand"
 
 const semver = defineRegex({
 	match: "exact",
-	pattern: [
+	inputs: [
 		digit.times.any().grouped(),
 		".",
 		digit.times.any().grouped(),
@@ -93,7 +93,7 @@ Contains-style text search:
 import { defineRegex, digit } from "regex-wand"
 
 const ticketId = defineRegex({
-	pattern: ["id:", digit.times.atLeast(1).grouped()],
+	inputs: ["id:", digit.times.atLeast(1).grouped()],
 })
 
 ticketId.infer satisfies `${string}id:${number}${string}`
@@ -112,7 +112,7 @@ import {
 const accepted = defineRegex({
 	flags: [global, caseInsensitive],
 	match: "exact",
-	pattern: ["ok"],
+	inputs: ["ok"],
 })
 
 accepted.flags satisfies "gi"
@@ -162,7 +162,7 @@ import { defineRegex, digit } from "regex-wand"
 
 const route = defineRegex({
 	match: "exact",
-	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+	inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 
 route.infer satisfies `/users/${number}`
@@ -185,7 +185,7 @@ import { defineRegex, digit } from "regex-wand"
 
 const route = defineRegex({
 	match: "exact",
-	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+	inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 ```
 
@@ -247,10 +247,11 @@ const route = fromMagicAs<
 
 ## API
 
-- `defineRegex({ pattern, match, flags })` is the recommended object-shaped API.
-  `pattern` is a Magic Regex-compatible tuple, `match` is `"contains"` by
+- `defineRegex({ inputs, match, flags })` is the recommended object-shaped API.
+  `inputs` is a Magic Regex-compatible tuple, `match` is `"contains"` by
   default or `"exact"` for start/end anchoring, and `flags` accepts helper
-  values, arrays, strings, or Sets.
+  values, arrays, strings, or Sets. `pattern` remains accepted as a legacy alias
+  for `inputs`.
 - `createRegExp(...inputs)` compiles Magic Regex inputs as a contains-style regex.
 - `createExactRegExp(...inputs)` compiles a start/end anchored regex.
 - `createRegExpWithFlags(inputs, ...flags)` compiles with Magic Regex flag helpers.

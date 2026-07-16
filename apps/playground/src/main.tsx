@@ -71,7 +71,7 @@ const examples: PlaygroundExample[] = [
 		icon: Hash,
 		pattern: defineRegex({
 			match: "exact",
-			pattern: [
+			inputs: [
 				digit.times.any().grouped(),
 				".",
 				digit.times.any().grouped(),
@@ -83,7 +83,7 @@ const examples: PlaygroundExample[] = [
 		invalidInput: "v1.24.3",
 		code: `const semver = defineRegex({
   match: "exact",
-  pattern: [
+  inputs: [
     digit.times.any().grouped(),
     ".",
     digit.times.any().grouped(),
@@ -95,7 +95,7 @@ const examples: PlaygroundExample[] = [
 
 const semver = defineRegex({
   match: "exact",
-  pattern: [
+  inputs: [
     digit.times.any().grouped(),
     ".",
     digit.times.any().grouped(),
@@ -119,7 +119,7 @@ semver.infer`,
 		icon: AtSign,
 		pattern: defineRegex({
 			match: "exact",
-			pattern: [
+			inputs: [
 				namedIdentifier("name"),
 				"@",
 				namedIdentifier("domain"),
@@ -131,7 +131,7 @@ semver.infer`,
 		invalidInput: "me@example",
 		code: `const email = defineRegex({
   match: "exact",
-  pattern: [
+  inputs: [
     namedIdentifier("name"),
     "@",
     namedIdentifier("domain"),
@@ -149,7 +149,7 @@ const identifierChar = charIn
 
 const email = defineRegex({
   match: "exact",
-  pattern: [
+  inputs: [
     oneOrMore(identifierChar).as("name"),
     "@",
     oneOrMore(identifierChar).as("domain"),
@@ -174,13 +174,13 @@ email.inferNamedCaptures.domain`,
 		icon: Route,
 		pattern: defineRegex({
 			match: "exact",
-			pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+			inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 		}),
 		defaultInput: "/users/42",
 		invalidInput: "/teams/42",
 		code: `const userRoute = defineRegex({
   match: "exact",
-  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+  inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })`,
 		comparisonCode: `// Raw Magic Regex: readable construction, plain RegExp result.
 const rawMagic = createMagicRegExp(
@@ -195,14 +195,14 @@ rawArk.inferNamedCaptures.userId satisfies \`\${number}\`
 // regex-wand: readable object params + ArkRegex result types.
 const wand = defineRegex({
   match: "exact",
-  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+  inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 wand.inferNamedCaptures.userId satisfies \`\${number}\``,
 		editorCode: `import { defineRegex, digit } from "regex-wand"
 
 const userRoute = defineRegex({
   match: "exact",
-  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+  inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 
 userRoute.infer`,
@@ -221,14 +221,14 @@ userRoute.infer`,
 		pattern: defineRegex({
 			flags: caseInsensitive,
 			match: "exact",
-			pattern: [anyOf("ok", "yes")],
+			inputs: [anyOf("ok", "yes")],
 		}),
 		defaultInput: "YES",
 		invalidInput: "nah",
 		code: `const accepted = defineRegex({
   flags: caseInsensitive,
   match: "exact",
-  pattern: [anyOf("ok", "yes")],
+  inputs: [anyOf("ok", "yes")],
 })`,
 		editorCode: `import {
   anyOf,
@@ -239,7 +239,7 @@ userRoute.infer`,
 const accepted = defineRegex({
   flags: caseInsensitive,
   match: "exact",
-  pattern: [anyOf("ok", "yes")],
+  inputs: [anyOf("ok", "yes")],
 })
 
 accepted.flags`,
@@ -257,7 +257,7 @@ accepted.flags`,
 		icon: CalendarDays,
 		pattern: defineRegex({
 			match: "exact",
-			pattern: [
+			inputs: [
 				digit.times.atLeast(4).as("year"),
 				"-",
 				digit.times.atLeast(2).as("month"),
@@ -269,7 +269,7 @@ accepted.flags`,
 		invalidInput: "06/30/2026",
 		code: `const isoDate = defineRegex({
   match: "exact",
-  pattern: [
+  inputs: [
     digit.times.atLeast(4).as("year"),
     "-",
     digit.times.atLeast(2).as("month"),
@@ -281,7 +281,7 @@ accepted.flags`,
 
 const isoDate = defineRegex({
   match: "exact",
-  pattern: [
+  inputs: [
     digit.times.atLeast(4).as("year"),
     "-",
     digit.times.atLeast(2).as("month"),
@@ -305,7 +305,7 @@ isoDate.inferNamedCaptures.year`,
 		icon: Tag,
 		pattern: defineRegex({
 			match: "exact",
-			pattern: ["#", oneOrMore(hexChar).as("hex")],
+			inputs: ["#", oneOrMore(hexChar).as("hex")],
 		}),
 		defaultInput: "#38BDF8",
 		invalidInput: "38BDF8",
@@ -316,7 +316,7 @@ isoDate.inferNamedCaptures.year`,
 
 const hexColor = defineRegex({
   match: "exact",
-  pattern: ["#", oneOrMore(hexChar).as("hex")],
+  inputs: ["#", oneOrMore(hexChar).as("hex")],
 })`,
 		editorCode: `import { charIn, defineRegex, oneOrMore } from "regex-wand"
 
@@ -327,7 +327,7 @@ const hexChar = charIn
 
 const hexColor = defineRegex({
   match: "exact",
-  pattern: ["#", oneOrMore(hexChar).as("hex")],
+  inputs: ["#", oneOrMore(hexChar).as("hex")],
 })
 
 hexColor.inferNamedCaptures.hex`,
@@ -345,7 +345,7 @@ hexColor.inferNamedCaptures.hex`,
 		icon: Link,
 		pattern: defineRegex({
 			match: "exact",
-			pattern: [oneOrMore(slugChar).as("slug")],
+			inputs: [oneOrMore(slugChar).as("slug")],
 		}),
 		defaultInput: "typed-regex-playground",
 		invalidInput: "Typed Regex Playground",
@@ -356,7 +356,7 @@ hexColor.inferNamedCaptures.hex`,
 
 const slug = defineRegex({
   match: "exact",
-  pattern: [oneOrMore(slugChar).as("slug")],
+  inputs: [oneOrMore(slugChar).as("slug")],
 })`,
 		editorCode: `import { charIn, defineRegex, oneOrMore } from "regex-wand"
 
@@ -367,7 +367,7 @@ const slugChar = charIn
 
 const slug = defineRegex({
   match: "exact",
-  pattern: [oneOrMore(slugChar).as("slug")],
+  inputs: [oneOrMore(slugChar).as("slug")],
 })
 
 slug.inferNamedCaptures.slug`,
@@ -385,7 +385,7 @@ slug.inferNamedCaptures.slug`,
 		icon: Fingerprint,
 		pattern: defineRegex({
 			match: "exact",
-			pattern: [
+			inputs: [
 				anyOf("prod", "staging", "dev").as("env"),
 				":",
 				namedIdentifier("feature"),
@@ -395,7 +395,7 @@ slug.inferNamedCaptures.slug`,
 		invalidInput: "local:checkout_v2",
 		code: `const featureKey = defineRegex({
   match: "exact",
-  pattern: [
+  inputs: [
     anyOf("prod", "staging", "dev").as("env"),
     ":",
     oneOrMore(identifierChar).as("feature"),
@@ -411,7 +411,7 @@ const identifierChar = charIn
 
 const featureKey = defineRegex({
   match: "exact",
-  pattern: [
+  inputs: [
     anyOf("prod", "staging", "dev").as("env"),
     ":",
     oneOrMore(identifierChar).as("feature"),
@@ -432,17 +432,17 @@ featureKey.inferNamedCaptures.env`,
 		title: "Text search",
 		icon: Search,
 		pattern: defineRegex({
-			pattern: ["id:", digit.times.atLeast(1).grouped()],
+			inputs: ["id:", digit.times.atLeast(1).grouped()],
 		}),
 		defaultInput: "ticket id:8042 is ready",
 		invalidInput: "ticket id: is ready",
 		code: `const idInsideText = defineRegex({
-  pattern: ["id:", digit.times.atLeast(1).grouped()],
+  inputs: ["id:", digit.times.atLeast(1).grouped()],
 })`,
 		editorCode: `import { defineRegex, digit } from "regex-wand"
 
 const idInsideText = defineRegex({
-  pattern: ["id:", digit.times.atLeast(1).grouped()],
+  inputs: ["id:", digit.times.atLeast(1).grouped()],
 })
 
 idInsideText.infer`,
@@ -460,7 +460,7 @@ idInsideText.infer`,
 		icon: Braces,
 		pattern: defineRegex({
 			match: "exact",
-			pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+			inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 		}),
 		defaultInput: "/users/42",
 		invalidInput: "users/42",
@@ -482,7 +482,7 @@ rawArk.inferNamedCaptures.userId satisfies \`\${number}\`
 
 const wand = defineRegex({
   match: "exact",
-  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+  inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 wand.inferNamedCaptures.userId satisfies \`\${number}\`
 wand.test("/users/42")`,
@@ -501,7 +501,7 @@ rawMagicRegex.test("/users/42")
 
 const wand = defineRegex({
   match: "exact",
-  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+  inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 wand.inferNamedCaptures.userId`,
 		hoverTarget: "wand.inferNamedCaptures.userId",
@@ -518,7 +518,7 @@ wand.inferNamedCaptures.userId`,
 		icon: Code2,
 		pattern: defineRegex({
 			match: "exact",
-			pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+			inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 		}),
 		defaultInput: "/users/42",
 		invalidInput: "/users/me",
@@ -530,7 +530,7 @@ plugins: [RegexWandTransformPlugin.vite()]
 
 const route = defineRegex({
   match: "exact",
-  pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+  inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 
 route.toRegExp()`,

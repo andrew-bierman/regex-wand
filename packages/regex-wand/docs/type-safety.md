@@ -19,7 +19,7 @@ import { defineRegex, digit } from "regex-wand"
 
 const version = defineRegex({
 	match: "exact",
-	pattern: [
+	inputs: [
 		digit.times.any().grouped(),
 		".",
 		digit.times.any().grouped(),
@@ -45,12 +45,12 @@ import { defineRegex, digit } from "regex-wand"
 
 const exact = defineRegex({
 	match: "exact",
-	pattern: ["id:", digit.times.atLeast(1).grouped()],
+	inputs: ["id:", digit.times.atLeast(1).grouped()],
 })
 exact.infer satisfies `id:${number}`
 
 const contains = defineRegex({
-	pattern: ["id:", digit.times.atLeast(1).grouped()],
+	inputs: ["id:", digit.times.atLeast(1).grouped()],
 })
 contains.infer satisfies `${string}id:${number}${string}`
 ```
@@ -68,7 +68,7 @@ import { defineRegex, digit } from "regex-wand"
 
 const route = defineRegex({
 	match: "exact",
-	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+	inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 
 route.inferNamedCaptures.userId satisfies `${number}`
@@ -85,7 +85,7 @@ import { defineRegex, digit, maybe } from "regex-wand"
 
 const maybeDigit = defineRegex({
 	match: "exact",
-	pattern: [maybe(digit.grouped())],
+	inputs: [maybe(digit.grouped())],
 })
 maybeDigit.inferCaptures satisfies [undefined] | [`${number}`]
 ```
@@ -105,7 +105,7 @@ import {
 const accepted = defineRegex({
 	flags: [global, caseInsensitive],
 	match: "exact",
-	pattern: ["ok"],
+	inputs: ["ok"],
 })
 accepted.flags satisfies "gi"
 ```
@@ -115,15 +115,15 @@ The flag helpers also accept Magic Regex's documented flag container forms:
 ```ts
 import { caseInsensitive, defineRegex, global } from "regex-wand"
 
-defineRegex({ flags: "ig", pattern: ["ok"] }).flags satisfies "gi"
-defineRegex({ flags: [global, caseInsensitive], pattern: ["ok"] }).flags satisfies
+defineRegex({ flags: "ig", inputs: ["ok"] }).flags satisfies "gi"
+defineRegex({ flags: [global, caseInsensitive], inputs: ["ok"] }).flags satisfies
 	"gi"
 defineRegex({
 	flags: new Set<typeof global | typeof caseInsensitive>([
 		global,
 		caseInsensitive,
 	]),
-	pattern: ["ok"],
+	inputs: ["ok"],
 }).flags satisfies "gi"
 ```
 

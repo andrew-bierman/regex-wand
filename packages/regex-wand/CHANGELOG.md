@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.1
+
+- Renamed the recommended `defineRegex` object field from `pattern` to `inputs`
+  so the API matches Magic Regex terminology and does not imply raw regex string
+  syntax.
+- Kept `pattern` as a typed legacy alias for `inputs` so `0.4.0` callers remain
+  compatible.
+- Updated docs, playground examples, runtime tests, type tests, and packed
+  consumer verification to lead with `inputs`.
+
 ## 0.4.0
 
 - Added `defineRegex({ pattern, match, flags })` as the recommended

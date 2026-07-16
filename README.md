@@ -16,7 +16,7 @@ import { defineRegex, digit } from "regex-wand"
 
 const route = defineRegex({
 	match: "exact",
-	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+	inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 
 route.infer satisfies `/users/${number}`
@@ -88,7 +88,7 @@ import { defineRegex, digit } from "regex-wand"
 
 const route = defineRegex({
 	match: "exact",
-	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+	inputs: ["/users/", digit.times.atLeast(1).as("userId")],
 })
 
 route.infer satisfies `/users/${number}`
@@ -119,7 +119,7 @@ import {
 
 | API | Use it for |
 | --- | --- |
-| `defineRegex({ pattern, match, flags })` | Recommended API for readable exact/search patterns with optional flags. |
+| `defineRegex({ inputs, match, flags })` | Recommended API for readable exact/search patterns with optional flags. |
 | `createRegExp(...inputs)` | Search-style patterns that can appear inside larger strings. |
 | `createExactRegExp(...inputs)` | Whole-string validation and strongest `test()` narrowing. |
 | `createRegExpWithFlags(inputs, ...flags)` | Search-style patterns with Magic Regex flag helpers. |
@@ -140,7 +140,7 @@ import { defineRegex, digit } from "regex-wand"
 
 const semver = defineRegex({
 	match: "exact",
-	pattern: [
+	inputs: [
 		digit.times.any().grouped(),
 		".",
 		digit.times.any().grouped(),
@@ -159,7 +159,7 @@ Contains-style text search:
 import { defineRegex, digit } from "regex-wand"
 
 const ticketId = defineRegex({
-	pattern: ["id:", digit.times.atLeast(1).grouped()],
+	inputs: ["id:", digit.times.atLeast(1).grouped()],
 })
 
 ticketId.infer satisfies `${string}id:${number}${string}`
@@ -179,7 +179,7 @@ import {
 const accepted = defineRegex({
 	flags: [global, caseInsensitive],
 	match: "exact",
-	pattern: [anyOf("ok", "yes")],
+	inputs: [anyOf("ok", "yes")],
 })
 
 accepted.flags satisfies "gi"
