@@ -7,12 +7,12 @@ ArkRegex syntax directly inside schemas.
 Use `regex-wand` when regex construction is the primary problem:
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const userRoute = createExactRegExp(
-	"/users/",
-	digit.times.atLeast(1).as("userId"),
-)
+const userRoute = defineRegex({
+	match: "exact",
+	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 
 userRoute.inferNamedCaptures.userId satisfies `${number}`
 ```

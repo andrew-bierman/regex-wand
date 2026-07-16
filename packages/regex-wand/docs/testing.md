@@ -13,6 +13,8 @@ bun run test:coverage
 
 Runtime tests use Vitest and cover:
 
+- `defineRegex({ pattern, match, flags })` for contains, exact, helper flags,
+  string flags, and Set flags.
 - `createRegExp` contains-style matching.
 - `createExactRegExp` start/end anchoring.
 - Runtime parity with raw Magic Regex for representative contains, exact,
@@ -28,6 +30,7 @@ Runtime tests use Vitest and cover:
 - `magic`, `ark`, and `toRegExp()` interop behavior.
 - Static direct and namespaced `regex-wand` builder calls through
   `RegexWandTransformPlugin`.
+- Static object-shaped `defineRegex` calls through `RegexWandTransformPlugin`.
 - Executed transform output that still behaves like a native `RegExp` plus the
   `regex-wand` adapter shape.
 - `RegexWandTransformPlugin.esbuild()` through a real esbuild bundle.
@@ -49,6 +52,7 @@ bun run type-test
 
 Type tests use `tsd` and cover:
 
+- `defineRegex` inference for exact, contains, flags, captures, and named groups.
 - `.infer` for exact and contains-style regexes.
 - `test()` narrowing from `string` to inferred template literal types.
 - `.inferCaptures` for anonymous and optional captures.

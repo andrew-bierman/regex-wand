@@ -15,15 +15,18 @@ ArkRegex cannot infer today. Keep casts local and deliberate when testing those
 runtime-only cases.
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const version = createExactRegExp(
-	digit.times.any().grouped(),
-	".",
-	digit.times.any().grouped(),
-	".",
-	digit.times.any().grouped(),
-)
+const version = defineRegex({
+	match: "exact",
+	pattern: [
+		digit.times.any().grouped(),
+		".",
+		digit.times.any().grouped(),
+		".",
+		digit.times.any().grouped(),
+	],
+})
 
 declare const input: string
 
@@ -34,15 +37,21 @@ if (version.test(input)) {
 
 ## Exact Versus Contains Inference
 
-`createExactRegExp` anchors the pattern at the type and runtime boundary:
+`defineRegex({ match: "exact" })` anchors the pattern at the type and runtime
+boundary. Omitting `match` keeps the default contains-style behavior:
 
 ```ts
-import { createExactRegExp, createRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const exact = createExactRegExp("id:", digit.times.atLeast(1).grouped())
+const exact = defineRegex({
+	match: "exact",
+	pattern: ["id:", digit.times.atLeast(1).grouped()],
+})
 exact.infer satisfies `id:${number}`
 
-const contains = createRegExp("id:", digit.times.atLeast(1).grouped())
+const contains = defineRegex({
+	pattern: ["id:", digit.times.atLeast(1).grouped()],
+})
 contains.infer satisfies `${string}id:${number}${string}`
 ```
 
@@ -55,12 +64,12 @@ Anonymous captures flow into `inferCaptures` and `exec()` result tuples. Named
 captures flow into `inferNamedCaptures` and `exec().groups`.
 
 ```ts
-import { createExactRegExp, digit } from "regex-wand"
+import { defineRegex, digit } from "regex-wand"
 
-const route = createExactRegExp(
-	"/users/",
-	digit.times.atLeast(1).as("userId"),
-)
+const route = defineRegex({
+	match: "exact",
+	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+})
 
 route.inferNamedCaptures.userId satisfies `${number}`
 
@@ -72,9 +81,12 @@ Optional captures are represented as optional tuple states rather than widened
 away:
 
 ```ts
-import { createExactRegExp, digit, maybe } from "regex-wand"
+import { defineRegex, digit, maybe } from "regex-wand"
 
-const maybeDigit = createExactRegExp(maybe(digit.grouped()))
+const maybeDigit = defineRegex({
+	match: "exact",
+	pattern: [maybe(digit.grouped())],
+})
 maybeDigit.inferCaptures satisfies [undefined] | [`${number}`]
 ```
 
@@ -86,25 +98,33 @@ to the helper. Runtime `RegExp#flags` still follows native JavaScript behavior.
 ```ts
 import {
 	caseInsensitive,
-	createExactRegExpWithFlags,
+	defineRegex,
 	global,
 } from "regex-wand"
 
-const accepted = createExactRegExpWithFlags(["ok"], global, caseInsensitive)
+const accepted = defineRegex({
+	flags: [global, caseInsensitive],
+	match: "exact",
+	pattern: ["ok"],
+})
 accepted.flags satisfies "gi"
 ```
 
 The flag helpers also accept Magic Regex's documented flag container forms:
 
 ```ts
-import { caseInsensitive, createRegExpWithFlags, global } from "regex-wand"
+import { caseInsensitive, defineRegex, global } from "regex-wand"
 
-createRegExpWithFlags(["ok"], "ig").flags satisfies "gi"
-createRegExpWithFlags(["ok"], [global, caseInsensitive]).flags satisfies "gi"
-createRegExpWithFlags(
-	["ok"],
-	new Set<typeof global | typeof caseInsensitive>([global, caseInsensitive]),
-).flags satisfies "gi"
+defineRegex({ flags: "ig", pattern: ["ok"] }).flags satisfies "gi"
+defineRegex({ flags: [global, caseInsensitive], pattern: ["ok"] }).flags satisfies
+	"gi"
+defineRegex({
+	flags: new Set<typeof global | typeof caseInsensitive>([
+		global,
+		caseInsensitive,
+	]),
+	pattern: ["ok"],
+}).flags satisfies "gi"
 ```
 
 Duplicate flags are native `RegExp` errors at runtime. Keep flag composition

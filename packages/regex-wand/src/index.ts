@@ -35,9 +35,10 @@ export {
 	wordChar,
 } from "magic-regexp"
 
-type MagicInput = string | Input<string, string, (string | undefined)[]>
+export type MagicInput = string | Input<string, string, (string | undefined)[]>
 type RegexFlag = "d" | "g" | "i" | "m" | "s" | "u" | "v" | "y"
-type MagicFlagInput = Flag | readonly Flag[] | ReadonlySet<Flag> | string
+export type MagicFlagInput = Flag | readonly Flag[] | ReadonlySet<Flag> | string
+export type RegexMatchMode = "contains" | "exact"
 type ArkFlags =
 	`${"d" | ""}${"g" | ""}${"i" | ""}${"m" | ""}${"s" | ""}${"u" | "v" | ""}${"y" | ""}`
 type IndexedCaptures = Array<string | undefined>
@@ -199,6 +200,39 @@ type Anchored<R> =
 		? MagicRegExp<`/^${Source}$/`, Groups, Captures, never>
 		: never
 
+export type DefineRegexOptions<
+	Inputs extends readonly MagicInput[] = readonly MagicInput[],
+	Match extends RegexMatchMode = RegexMatchMode,
+	Flags extends MagicFlagInput | undefined = MagicFlagInput | undefined,
+> = {
+	/**
+	 * Magic Regex-compatible pieces. Plain strings are escaped and Magic Regex
+	 * fragments keep their capture, group, and composition behavior.
+	 */
+	readonly pattern: Inputs
+	/**
+	 * `contains` keeps Magic Regex's default search-style behavior. `exact` adds
+	 * start/end anchors at runtime and in the inferred type.
+	 */
+	readonly match?: Match
+	/** Native RegExp flags as Magic Regex helpers, an array/Set, or a flag string. */
+	readonly flags?: Flags
+}
+
+type DefineRegexBase<
+	Inputs extends readonly MagicInput[],
+	Options extends DefineRegexOptions<Inputs>,
+> = Options extends { readonly match: "exact" }
+	? Anchored<MagicFromInputs<Inputs>>
+	: MagicFromInputs<Inputs>
+
+type DefineRegexMagic<Options extends DefineRegexOptions> =
+	Options extends DefineRegexOptions<infer Inputs>
+		? Options extends { readonly flags: infer Flags extends MagicFlagInput }
+			? WithFlagInput<DefineRegexBase<Inputs, Options>, Flags>
+			: DefineRegexBase<Inputs, Options>
+		: never
+
 export type WandManualContext = {
 	flags?: ArkFlags
 	captures?: IndexedCaptures
@@ -220,9 +254,9 @@ export type WandRegExp<
 /**
  * Adapt an existing Magic Regex value into a `WandRegExp`.
  *
- * Prefer `createRegExp` or `createExactRegExp` for new code. Use this when a
- * project already has a Magic Regex value and wants ArkRegex-powered types at
- * the final compiled boundary.
+ * Prefer `defineRegex` for new code. Use this when a project already has a
+ * Magic Regex value and wants ArkRegex-powered types at the final compiled
+ * boundary.
  */
 export function fromMagic<
 	const R extends MagicRegExp<string, string, (string | undefined)[], string>,
@@ -254,6 +288,30 @@ export function fromMagicAs<
 	> = MagicRegExp<string, string, (string | undefined)[], string>,
 >(magic: R): WandRegExp<R> & Regex<Pattern, Context> {
 	return fromMagic(magic) as WandRegExp<R> & Regex<Pattern, Context>
+}
+
+/**
+ * Compile a readable object-shaped regex definition.
+ *
+ * This is the recommended high-level API when you want named options instead of
+ * positional builder arguments. It uses the same Magic Regex construction and
+ * ArkRegex-powered adapter as the lower-level helpers.
+ */
+export function defineRegex<const Options extends DefineRegexOptions>(
+	options: Options,
+): WandRegExp<DefineRegexMagic<Options>>
+export function defineRegex({
+	flags,
+	match = "contains",
+	pattern,
+}: DefineRegexOptions): unknown {
+	if (flags !== undefined) {
+		return match === "exact"
+			? createExactRegExpWithFlags(pattern, flags)
+			: createRegExpWithFlags(pattern, flags)
+	}
+
+	return match === "exact" ? createExactRegExp(...pattern) : createRegExp(...pattern)
 }
 
 /**

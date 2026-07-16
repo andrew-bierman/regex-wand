@@ -12,6 +12,7 @@ import {
 	createExactRegExpWithFlags,
 	createRegExp,
 	createRegExpWithFlags,
+	defineRegex,
 	digit,
 	dotAll,
 	exactly,
@@ -104,6 +105,43 @@ describe("regex-wand", () => {
 		expect(String(idInsideText)).toBe("/id:(\\d{1,})/")
 		expect(idInsideText.test("prefix id:123 suffix")).toBe(true)
 		expect(idInsideText.test("prefix id: suffix")).toBe(false)
+	})
+
+	it("supports readable object-shaped regex definitions", () => {
+		const contains = defineRegex({
+			pattern: ["id:", digit.times.atLeast(1).grouped()],
+		})
+		const exactRoute = defineRegex({
+			match: "exact",
+			pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+		})
+		const flagged = defineRegex({
+			flags: [global, caseInsensitive],
+			match: "exact",
+			pattern: [anyOf("ok", "yes")],
+		})
+		const stringFlagged = defineRegex({
+			flags: "i",
+			pattern: ["feature"],
+		})
+		const setFlagged = defineRegex({
+			flags: new Set<Flag>([global, caseInsensitive]),
+			pattern: ["ok"],
+		})
+
+		expect(String(contains)).toBe("/id:(\\d{1,})/")
+		expect(contains.test("prefix id:123 suffix")).toBe(true)
+		expect(contains.test("prefix id: suffix")).toBe(false)
+		expect(exactRoute.source).toBe("^\\/users\\/(?<userId>\\d{1,})$")
+		expect(exactRoute.test("/users/42")).toBe(true)
+		expect(exactRoute.test("prefix /users/42")).toBe(false)
+		expect(exactRoute.exec("/users/42")?.groups).toEqual({ userId: "42" })
+		expect(flagged.flags).toBe("gi")
+		expect(flagged.test("YES")).toBe(true)
+		expect(flagged.test("YES please")).toBe(false)
+		expect(stringFlagged.flags).toBe("i")
+		expect(stringFlagged.test("FEATURE")).toBe(true)
+		expect(setFlagged.flags).toBe("gi")
 	})
 
 	it("escapes plain string inputs while preserving Magic Regex fragments", () => {
@@ -360,12 +398,17 @@ describe("regex-wand", () => {
 		}> = [
 			{
 				upstream: createMagicRegExp("id:", digit.times.atLeast(1).grouped()),
-				wand: createRegExp("id:", digit.times.atLeast(1).grouped()),
+				wand: defineRegex({
+					pattern: ["id:", digit.times.atLeast(1).grouped()],
+				}),
 				samples: ["ticket id:42", "ticket id:", "id:8042"],
 			},
 			{
 				upstream: exactMagicRegExp("/users/", digit.times.atLeast(1).as("userId")),
-				wand: createExactRegExp("/users/", digit.times.atLeast(1).as("userId")),
+				wand: defineRegex({
+					match: "exact",
+					pattern: ["/users/", digit.times.atLeast(1).as("userId")],
+				}),
 				samples: ["/users/42", "/teams/42", "prefix /users/42"],
 			},
 			{
