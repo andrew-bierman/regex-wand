@@ -2,17 +2,23 @@ import type { BeforeMount, OnMount } from "@monaco-editor/react"
 import {
 	AtSign,
 	BadgeCheck,
+	BookOpen,
 	Braces,
 	CalendarDays,
 	Code2,
+	ExternalLink,
 	Fingerprint,
+	Github,
 	Hash,
 	Link,
+	Package,
 	Regex,
 	Route,
 	Search,
+	ShieldCheck,
 	Sparkles,
 	Tag,
+	Terminal,
 	WandSparkles,
 } from "lucide-react"
 import { createRegExp as createMagicRegExp } from "magic-regexp"
@@ -557,22 +563,77 @@ function App() {
 	}
 
 	return (
-		<main className="min-h-screen bg-muted/40 p-4 text-foreground lg:p-6">
-			<section className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1500px] flex-col overflow-hidden rounded-xl border bg-background shadow-sm lg:min-h-[calc(100vh-3rem)]">
-				<header className="flex flex-col gap-4 border-b px-5 py-4 md:h-16 md:flex-row md:items-center md:justify-between">
-					<div className="flex min-w-0 items-center gap-3">
-						<Regex className="size-5 text-muted-foreground" />
-						<div>
-							<h1 className="font-semibold leading-none tracking-tight">regex-wand</h1>
-							<p className="mt-1 text-sm text-muted-foreground">
-								Magic Regex authoring, ArkRegex result types.
+		<main className="min-h-screen bg-[#f6f7f2] p-3 text-foreground md:p-4 lg:p-6">
+			<section className="mx-auto flex min-h-[calc(100vh-1.5rem)] max-w-[1500px] flex-col overflow-hidden rounded-xl border bg-background shadow-sm md:min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-3rem)]">
+				<header className="border-b bg-background">
+					<div className="flex flex-col gap-5 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
+						<div className="min-w-0">
+							<div className="mb-3 flex flex-wrap items-center gap-2">
+								<Badge variant="secondary" className="gap-1.5">
+									<Regex className="size-3" />
+									<span>regex-wand</span>
+								</Badge>
+								<Badge variant="outline" className="gap-1.5">
+									<ShieldCheck className="size-3" />
+									<span>native RegExp runtime</span>
+								</Badge>
+								<Badge variant="outline" className="gap-1.5">
+									<Sparkles className="size-3" />
+									<span>{examples.length} typed examples</span>
+								</Badge>
+							</div>
+							<h1 className="max-w-3xl text-2xl font-semibold leading-tight tracking-tight md:text-3xl">
+								Write readable regexes. Keep the TypeScript inference.
+							</h1>
+							<p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground md:text-base">
+								Compose with Magic Regex primitives and get ArkRegex-powered `.infer`,
+								captures, named groups, flags, `exec()`, and `test()` narrowing on the
+								final native `RegExp`.
 							</p>
 						</div>
+						<div className="flex flex-wrap gap-2 lg:justify-end">
+							<button
+								type="button"
+								className="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm font-medium shadow-xs transition-colors hover:bg-accent"
+								onClick={() => copyValue("install", "bun add regex-wand")}
+							>
+								{copiedTarget === "install" ? (
+									<BadgeCheck className="size-4" />
+								) : (
+									<Terminal className="size-4" />
+								)}
+								<span>bun add regex-wand</span>
+							</button>
+							<a
+								className="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm font-medium shadow-xs transition-colors hover:bg-accent"
+								href="https://www.npmjs.com/package/regex-wand"
+								target="_blank"
+								rel="noreferrer"
+							>
+								<Package className="size-4" />
+								<span>npm</span>
+								<ExternalLink className="size-3" />
+							</a>
+							<a
+								className="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm font-medium shadow-xs transition-colors hover:bg-accent"
+								href="https://github.com/andrew-bierman/regex-wand"
+								target="_blank"
+								rel="noreferrer"
+							>
+								<Github className="size-4" />
+								<span>GitHub</span>
+							</a>
+							<a
+								className="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm font-medium shadow-xs transition-colors hover:bg-accent"
+								href="https://github.com/andrew-bierman/regex-wand/tree/main/packages/regex-wand#readme"
+								target="_blank"
+								rel="noreferrer"
+							>
+								<BookOpen className="size-4" />
+								<span>Docs</span>
+							</a>
+						</div>
 					</div>
-					<Badge variant="secondary" className="w-fit gap-1.5">
-						<Sparkles className="size-3" />
-						<span>{examples.length} typed examples</span>
-					</Badge>
 				</header>
 
 				<div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[220px_minmax(420px,1.35fr)_minmax(320px,0.8fr)]">
@@ -682,6 +743,11 @@ function App() {
 							<Code2 className="size-4 text-muted-foreground" />
 							<h2 className="text-sm font-semibold">Inferred surface</h2>
 						</div>
+						<p className="text-sm leading-6 text-muted-foreground">
+							These are the types `regex-wand` exposes on the final `RegExp`. Hover the
+							highlighted expression in Monaco to inspect the same surface through
+							TypeScript.
+						</p>
 						<TypeRow label="infer" value={selected.types.infer} />
 						<TypeRow label="inferCaptures" value={selected.types.captures} />
 						<TypeRow label="inferNamedCaptures" value={selected.types.namedCaptures} />
@@ -692,9 +758,15 @@ function App() {
 							shareUrl={shareUrl}
 							typescriptCode={selected.editorCode}
 						/>
-						<div className="mt-auto flex items-center gap-2 rounded-lg border bg-card p-3 text-sm text-muted-foreground">
-							<Braces className="size-4" />
-							<span>Displayed types are curated from the package type tests.</span>
+						<div className="mt-auto grid gap-2">
+							<div className="flex items-center gap-2 rounded-lg border bg-card p-3 text-sm text-muted-foreground">
+								<Braces className="size-4" />
+								<span>Displayed types are backed by package `tsd` tests.</span>
+							</div>
+							<div className="flex items-center gap-2 rounded-lg border bg-card p-3 text-sm text-muted-foreground">
+								<ShieldCheck className="size-4" />
+								<span>Build checks verify the published tarball and Vite transform.</span>
+							</div>
 						</div>
 					</aside>
 				</div>

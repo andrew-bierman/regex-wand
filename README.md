@@ -1,6 +1,6 @@
 # regex-wand
 
-Magic Regex authoring with ArkRegex-powered TypeScript inference.
+Typed regular expressions without giving up readable regex authoring.
 
 [![npm version](https://img.shields.io/npm/v/regex-wand.svg)](https://www.npmjs.com/package/regex-wand)
 [![CI](https://github.com/andrew-bierman/regex-wand/actions/workflows/ci.yml/badge.svg)](https://github.com/andrew-bierman/regex-wand/actions/workflows/ci.yml)
@@ -8,50 +8,130 @@ Magic Regex authoring with ArkRegex-powered TypeScript inference.
 [![Playground](https://github.com/andrew-bierman/regex-wand/actions/workflows/pages.yml/badge.svg)](https://andrew-bierman.github.io/regex-wand/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-This monorepo contains the published `regex-wand` npm package and a static
-playground for trying examples in the browser.
+`regex-wand` lets you write patterns with the composable `magic-regexp` API and
+get ArkRegex-powered TypeScript inference on the final `RegExp`.
 
-## Links
+```ts
+import { createExactRegExp, digit } from "regex-wand"
 
+const route = createExactRegExp(
+	"/users/",
+	digit.times.atLeast(1).as("userId"),
+)
+
+route.infer satisfies `/users/${number}`
+route.inferNamedCaptures.userId satisfies `${number}`
+
+const match = route.exec("/users/42")
+match?.groups.userId satisfies string | undefined
+```
+
+The runtime value is still a native `RegExp`. The extra value is the typed
+surface: `.infer`, `.inferCaptures`, `.inferNamedCaptures`, typed `exec()`
+groups, literal flags, and `test()` narrowing.
+
+## Try It
+
+- [Interactive playground](https://andrew-bierman.github.io/regex-wand/)
 - [npm package](https://www.npmjs.com/package/regex-wand)
-- [Playground](https://andrew-bierman.github.io/regex-wand/)
-- [Package docs](packages/regex-wand/README.md)
-- [Type-safety guide](packages/regex-wand/docs/type-safety.md)
-- [ArkType interop](packages/regex-wand/docs/arktype-interop.md)
 - [Support matrix](packages/regex-wand/docs/support.md)
+- [Type-safety guide](packages/regex-wand/docs/type-safety.md)
 - [Roadmap](packages/regex-wand/docs/roadmap.md)
-- [Testing strategy](packages/regex-wand/docs/testing.md)
-- [Changelog](packages/regex-wand/CHANGELOG.md)
-- [GitHub releases](https://github.com/andrew-bierman/regex-wand/releases)
 
-## Workspaces
-
-| Workspace | Purpose |
-| --- | --- |
-| `packages/regex-wand` | Published npm package. |
-| `apps/vite-fixture` | Static Vite fixture proving `regex-wand/transform` works in a real Vite build. |
-| `apps/playground` | Static React playground deployed to GitHub Pages. |
-| `.github/workflows/ci.yml` | Auth-free CI gate for PRs and relevant `main` pushes. |
-| `.github/workflows/release.yml` | npm release automation. |
-| `.github/workflows/pages.yml` | Playground deployment. |
-
-## What This Library Does
-
-`regex-wand` is a thin adapter between two libraries:
-
-- `magic-regexp` gives a readable, composable regex authoring API.
-- `arkregex` gives strongly inferred regex types.
-
-The package keeps runtime behavior native. A `regex-wand` result is still a
-`RegExp`; it just carries the ArkRegex-powered type surface for `.infer`,
-`.inferCaptures`, `.inferNamedCaptures`, `test()` narrowing, and typed `exec()`
-groups.
-
-## Quick Start
+## Install
 
 ```sh
 bun add regex-wand
 ```
+
+```sh
+npm install regex-wand
+```
+
+`magic-regexp`, `arkregex`, and the transform dependency are installed for you.
+They are regular dependencies because `regex-wand` re-exports Magic Regex
+primitives and uses ArkRegex in its public type surface.
+
+## Why
+
+Raw regex strings are compact but hard to safely compose:
+
+```ts
+const route = /^\/users\/(?<userId>\d{1,})$/
+```
+
+Magic Regex makes authoring readable:
+
+```ts
+import { createRegExp, digit } from "magic-regexp"
+
+const route = createRegExp(
+	"/users/",
+	digit.times.atLeast(1).as("userId"),
+)
+```
+
+ArkRegex makes raw regex results typed:
+
+```ts
+import { regex } from "arkregex"
+
+const route = regex("^/users/(?<userId>\\d{1,})$")
+
+route.inferNamedCaptures.userId satisfies `${number}`
+```
+
+`regex-wand` combines those two ideas:
+
+```ts
+import { createExactRegExp, digit } from "regex-wand"
+
+const route = createExactRegExp(
+	"/users/",
+	digit.times.atLeast(1).as("userId"),
+)
+
+route.infer satisfies `/users/${number}`
+route.inferNamedCaptures.userId satisfies `${number}`
+route.test("/users/42")
+```
+
+Use raw `magic-regexp` when you only need composable regex construction. Use raw
+`arkregex` when you already have a regex string. Use `regex-wand` when you want
+both authoring ergonomics and result inference.
+
+## API
+
+```ts
+import {
+	caseInsensitive,
+	createExactRegExp,
+	createExactRegExpWithFlags,
+	createRegExp,
+	createRegExpWithFlags,
+	digit,
+	fromMagic,
+	fromMagicAs,
+	global,
+} from "regex-wand"
+```
+
+| API | Use it for |
+| --- | --- |
+| `createRegExp(...inputs)` | Search-style patterns that can appear inside larger strings. |
+| `createExactRegExp(...inputs)` | Whole-string validation and strongest `test()` narrowing. |
+| `createRegExpWithFlags(inputs, ...flags)` | Search-style patterns with Magic Regex flag helpers. |
+| `createExactRegExpWithFlags(inputs, ...flags)` | Exact patterns with flags. |
+| `fromMagic(magic)` | Adapting an existing Magic Regex value. |
+| `fromMagicAs<Pattern, Context>(magic)` | Manual typing for runtime-valid patterns ArkRegex cannot infer. |
+| `regex-wand/transform` | Build-time compilation of static `regex-wand` builders. |
+
+All core Magic Regex primitives are re-exported from `regex-wand`, so most code
+can import from one package.
+
+## Examples
+
+Exact semver-style match:
 
 ```ts
 import { createExactRegExp, digit } from "regex-wand"
@@ -64,185 +144,118 @@ const semver = createExactRegExp(
 	digit.times.any().grouped(),
 )
 
-declare const value: string
-
-if (semver.test(value)) {
-	value satisfies `${number}.${number}.${number}`
-}
+semver.infer satisfies `${number}.${number}.${number}`
+semver.inferCaptures satisfies [`${number}`, `${number}`, `${number}`]
 ```
 
-Full package docs live in
-[`packages/regex-wand/README.md`](packages/regex-wand/README.md).
-The explicit support boundary lives in
-[`packages/regex-wand/docs/support.md`](packages/regex-wand/docs/support.md).
-The compatibility roadmap lives in
-[`packages/regex-wand/docs/roadmap.md`](packages/regex-wand/docs/roadmap.md).
-
-## Comparison
-
-Raw `magic-regexp` is best when you want readable regex composition. Raw
-`arkregex` is best when you already have a regex string and want TypeScript to
-infer its accepted strings, captures, and named groups. `regex-wand` combines the
-two: write Magic Regex-style expressions and get the ArkRegex-powered result
-type surface. Magic Regex also has a build-time transform that can compile raw
-Magic Regex calls to plain `RegExp` literals.
+Contains-style text search:
 
 ```ts
-import { regex } from "arkregex"
-import { createRegExp as createMagicRegExp, digit as magicDigit } from "magic-regexp"
-import { createExactRegExp, digit } from "regex-wand"
+import { createRegExp, digit } from "regex-wand"
 
-const rawMagic = createMagicRegExp(
-	"/users/",
-	magicDigit.times.atLeast(1).as("userId"),
-)
-rawMagic.test("/users/42")
+const ticketId = createRegExp("id:", digit.times.atLeast(1).grouped())
 
-const rawArk = regex("^/users/(?<userId>\\d{1,})$")
-rawArk.inferNamedCaptures.userId satisfies `${number}`
-
-const wand = createExactRegExp("/users/", digit.times.atLeast(1).as("userId"))
-wand.inferNamedCaptures.userId satisfies `${number}`
-wand.test("/users/42")
+ticketId.infer satisfies `${string}id:${number}${string}`
+ticketId.test("ticket id:8042 is ready")
 ```
 
-For direct build-time compilation of static `regex-wand` builders, use
-`RegexWandTransformPlugin` from `regex-wand/transform`. You can also use Magic
-Regex directly and adapt at the boundary:
+Flags:
 
 ```ts
-import { createRegExp, digit, exactly } from "magic-regexp"
-import { fromMagic } from "regex-wand"
+import {
+	anyOf,
+	caseInsensitive,
+	createExactRegExpWithFlags,
+	global,
+} from "regex-wand"
 
-const magicRoute = createRegExp(
-	exactly("/users/", digit.times.atLeast(1).as("userId"))
-		.at.lineStart()
-		.at.lineEnd(),
+const accepted = createExactRegExpWithFlags(
+	[anyOf("ok", "yes")],
+	global,
+	caseInsensitive,
 )
 
-const route = fromMagic(magicRoute)
+accepted.flags satisfies "gi"
 ```
 
-For complex runtime-valid expressions that ArkRegex cannot infer, `fromMagicAs`
-provides the same kind of manual type escape hatch as ArkRegex's `regex.as`.
+Manual type escape hatch:
 
-## Development
+```ts
+import { createRegExp, digit } from "magic-regexp"
+import { fromMagicAs } from "regex-wand"
 
-This repo uses Bun workspaces.
+const magic = createRegExp("feature:", digit.times.atLeast(1).as("id"))
+
+const feature = fromMagicAs<
+	`${string}feature:${number}${string}`,
+	{ names: { id: `${number}` } }
+>(magic)
+```
+
+## Build-Time Transform
+
+Runtime builders are small, but static `regex-wand` calls can also compile to
+native `RegExp` literals:
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite"
+import { RegexWandTransformPlugin } from "regex-wand/transform"
+
+export default defineConfig({
+	plugins: [RegexWandTransformPlugin.vite()],
+})
+```
+
+The transform recognizes static `createRegExp`, `createExactRegExp`,
+`createRegExpWithFlags`, and `createExactRegExpWithFlags` calls imported from
+`regex-wand`. Dynamic expressions are left as runtime builder calls.
+
+## Support Boundaries
+
+`regex-wand` is intentionally strict:
+
+- If Magic Regex can produce a runtime `RegExp` and ArkRegex can infer it,
+  `regex-wand` exposes the type directly.
+- If runtime behavior works but inference cannot be proven, use `fromMagicAs`.
+- If a feature belongs to Magic Regex string-method augmentation, ArkType schema
+  parsing, or Magic Regex converter output, use those upstream libraries
+  directly.
+
+The exact public contract lives in
+[docs/support.md](packages/regex-wand/docs/support.md).
+
+## Verification
+
+The release gate covers:
+
+- Vitest runtime behavior for builders, flags, captures, named groups,
+  lookarounds, backreferences, native `RegExp` protocols, and transform output.
+- `tsd` type tests for `.infer`, captures, named captures, flags, narrowing,
+  manual typing, and compatibility errors.
+- A packed-tarball consumer that installs the generated package and verifies
+  both `regex-wand` and `regex-wand/transform` through Vite.
+- A dedicated Vite fixture and static playground build.
+- npm dry-run packaging and registry checks.
 
 ```sh
 bun install
-bun run check
-bun run dev
-```
-
-Useful commands:
-
-```sh
-bun run build
-bun run test
-bun run test:coverage
-bun run typecheck
-bun run ci:check
 bun run release:check
-bun run publish:dry-run
 ```
 
-`bun run release:check` is the required pre-release gate. It runs formatting and
-lint checks, TypeScript checks, package build, runtime tests, type tests, Intent
-skill validation, publish-file assertions, packed-consumer verification of the
-root export and `regex-wand/transform`, playground checks, coverage, npm dry-run,
-and registry lookup.
+## Repository
 
-`bun run ci:check` is the unauthenticated GitHub Actions gate. It runs the same
-build, lint, type, runtime, type-test, packed-consumer, playground, and coverage
-checks, but skips npm registry operations that require publish credentials.
+This is a Bun monorepo:
 
-## Test Coverage
+| Workspace | Purpose |
+| --- | --- |
+| `packages/regex-wand` | Published npm package. |
+| `apps/playground` | Static playground deployed to GitHub Pages. |
+| `apps/vite-fixture` | Real Vite build fixture for the transform. |
 
-The package has three layers of verification:
+Release automation lives in [`.github/workflows/release.yml`](.github/workflows/release.yml).
+The playground deploys through [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
 
-| Layer | Command | What it proves |
-| --- | --- | --- |
-| Runtime behavior | `bun run test:coverage` | Builders, exact vs contains matching, escaped strings, flags, native `RegExp` protocols, captures, named groups, lookarounds, backreferences, optional captures, `lastIndex`, and `toRegExp()` behavior. |
-| Type safety | `bun run --filter './packages/regex-wand' type-test` | Inferred strings, captures, named captures, flags, narrowing, escaped slash parsing, and compatibility-error types. |
-| Package integrity | `bun run ci:check` | Build output, no runtime ArkRegex import, npm tarball contents, install-from-packed-tarball consumer behavior, Vite fixture, playground build, and coverage. |
-| Release readiness | `bun run release:check` | Everything in CI plus npm dry-run and registry state. |
+## License
 
-Runtime coverage is kept high. The adapter is intentionally small, so `tsd`,
-host-transform, and packed-consumer tests are as important as line coverage.
-
-## GitHub Actions
-
-There are three workflows:
-
-- [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the auth-free Bun
-  CI gate on pull requests and relevant `main` pushes.
-- [`.github/workflows/release.yml`](.github/workflows/release.yml) publishes the
-  npm package. It runs on GitHub Release publish and supports manual
-  `workflow_dispatch` with a tag.
-- [`.github/workflows/pages.yml`](.github/workflows/pages.yml) builds and deploys
-  the playground to GitHub Pages.
-
-The current release workflow supports both private and public repository modes:
-
-- Private repo: publishes with `npm publish --access public --provenance=false`.
-- Public repo: publishes with `npm publish --access public --provenance`.
-
-npm only accepts provenance from public GitHub source repositories. Once this
-repo is public, the workflow will automatically use provenance.
-
-## Versioning And Releases
-
-`regex-wand` uses semver.
-
-- Patch: docs, test hardening, release automation, and compatible bug fixes.
-- Minor: new compatible APIs or broader supported Magic Regex/ArkRegex behavior.
-- Major: breaking runtime API changes or intentional type-surface breaks.
-
-Release checklist:
-
-1. Update `packages/regex-wand/package.json`.
-2. Update `packages/regex-wand/CHANGELOG.md`.
-3. Run `bun run release:check`.
-4. Merge to `main`.
-5. Create a matching GitHub Release, or manually dispatch the Release workflow
-   with the matching tag.
-
-The release workflow validates that the tag matches the package version before
-publishing.
-
-## Required npm Setup
-
-While the repo is private, set the repository secret `NPM_TOKEN` to an npm
-automation or granular access token with publish access to `regex-wand`.
-
-Once the repo is public, npm trusted publishing can replace the long-lived token:
-
-- Publisher: GitHub Actions
-- Owner/user: `andrew-bierman`
-- Repository: `regex-wand`
-- Workflow: `release.yml`
-- Environment: blank
-
-After trusted publishing is confirmed, remove the `NPM_TOKEN` fallback if you no
-longer want token-based publishing.
-
-## Playground
-
-The playground is a static React app and can be hosted on GitHub Pages.
-
-```sh
-bun run --filter './apps/playground' build
-```
-
-The Pages workflow uploads `apps/playground/dist`. The live site is:
-
-https://andrew-bierman.github.io/regex-wand/
-
-## Contributing And Security
-
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and pull request
-  expectations.
-- See [SECURITY.md](SECURITY.md) for private vulnerability reporting guidance.
-- This repository and package are MIT licensed.
+MIT

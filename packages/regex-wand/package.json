@@ -1,6 +1,6 @@
 {
 	"name": "regex-wand",
-	"version": "0.3.5",
+	"version": "0.3.6",
 	"description": "Magic Regex authoring with ArkRegex-powered type inference.",
 	"type": "module",
 	"license": "MIT",
