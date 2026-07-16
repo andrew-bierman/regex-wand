@@ -163,6 +163,22 @@ email.inferNamedCaptures.domain`,
   "/users/",
   digit.times.atLeast(1).as("userId"),
 )`,
+		comparisonCode: `// Raw Magic Regex: readable construction, plain RegExp result.
+const rawMagic = createMagicRegExp(
+  "/users/",
+  magicDigit.times.atLeast(1).as("userId"),
+)
+
+// Raw ArkRegex: strong types, raw regex string authoring.
+const rawArk = regex("^/users/(?<userId>\\\\d{1,})$")
+rawArk.inferNamedCaptures.userId satisfies \`\${number}\`
+
+// regex-wand: Magic Regex authoring + ArkRegex result types.
+const wand = createExactRegExp(
+  "/users/",
+  digit.times.atLeast(1).as("userId"),
+)
+wand.inferNamedCaptures.userId satisfies \`\${number}\``,
 		editorCode: `import { createExactRegExp, digit } from "regex-wand"
 
 const userRoute = createExactRegExp(
@@ -397,6 +413,25 @@ idInsideText.infer`,
 		code: `// Magic Regex: composable authoring.
 // ArkRegex: typed raw regex strings.
 // regex-wand: Magic Regex authoring + ArkRegex result types.`,
+		comparisonCode: `import { regex } from "arkregex"
+import { createRegExp as createMagicRegExp, digit as magicDigit } from "magic-regexp"
+import { createExactRegExp, digit } from "regex-wand"
+
+const rawMagic = createMagicRegExp(
+  "/users/",
+  magicDigit.times.atLeast(1).as("userId"),
+)
+rawMagic.test("/users/42")
+
+const rawArk = regex("^/users/(?<userId>\\\\d{1,})$")
+rawArk.inferNamedCaptures.userId satisfies \`\${number}\`
+
+const wand = createExactRegExp(
+  "/users/",
+  digit.times.atLeast(1).as("userId"),
+)
+wand.inferNamedCaptures.userId satisfies \`\${number}\`
+wand.test("/users/42")`,
 		editorCode: `import { regex } from "arkregex"
 import { createRegExp as createMagicRegExp, digit as magicDigit } from "magic-regexp"
 import { createExactRegExp, digit } from "regex-wand"
@@ -527,9 +562,14 @@ function App() {
 	const [selectedId, setSelectedId] = useState(() => getInitialExampleId())
 	const selected = examples.find((example) => example.id === selectedId) ?? examples[0]
 	const [inputById, setInputById] = useState<Record<string, string>>({})
+	const [detailView, setDetailView] = useState<"code" | "compare">("code")
 	const [quickInfo, setQuickInfo] = useState("Hover-ready type info appears here.")
 	const [copiedTarget, setCopiedTarget] = useState<CopyTarget | null>(null)
 	const input = inputById[selected.id] ?? selected.defaultInput
+	const detailCode =
+		detailView === "compare" && selected.comparisonCode
+			? selected.comparisonCode
+			: selected.code
 	const evaluation = useMemo(
 		() => evaluatePattern(selected.pattern, input),
 		[input, selected],
@@ -554,6 +594,7 @@ function App() {
 
 	const selectExample = (exampleId: string) => {
 		setQuickInfo("Loading quick info...")
+		setDetailView("code")
 		setSelectedId(exampleId)
 	}
 
@@ -713,9 +754,37 @@ function App() {
 								{quickInfo}
 							</code>
 						</Card>
-						<pre className="min-h-28 overflow-auto rounded-lg border bg-zinc-950 p-4 text-xs leading-6 text-zinc-100">
-							<code>{selected.code}</code>
-						</pre>
+						<div className="overflow-hidden rounded-lg border bg-zinc-950">
+							{selected.comparisonCode ? (
+								<div className="flex border-b border-white/10 bg-zinc-900 p-1">
+									<button
+										type="button"
+										className={`h-8 rounded-md px-3 text-xs font-medium transition-colors ${
+											detailView === "code"
+												? "bg-white text-zinc-950"
+												: "text-zinc-300 hover:bg-white/10"
+										}`}
+										onClick={() => setDetailView("code")}
+									>
+										Example
+									</button>
+									<button
+										type="button"
+										className={`h-8 rounded-md px-3 text-xs font-medium transition-colors ${
+											detailView === "compare"
+												? "bg-white text-zinc-950"
+												: "text-zinc-300 hover:bg-white/10"
+										}`}
+										onClick={() => setDetailView("compare")}
+									>
+										Compare
+									</button>
+								</div>
+							) : null}
+							<pre className="min-h-28 overflow-auto p-4 text-xs leading-6 text-zinc-100">
+								<code>{detailCode}</code>
+							</pre>
+						</div>
 						<SamplePanel
 							evaluation={evaluation}
 							input={input}

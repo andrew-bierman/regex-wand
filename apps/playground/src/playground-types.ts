@@ -7,6 +7,7 @@ export type PlaygroundExample = {
 	title: string
 	icon: LucideIcon
 	code: string
+	comparisonCode?: string
 	editorCode: string
 	hoverTarget: string
 	pattern: RegExp
