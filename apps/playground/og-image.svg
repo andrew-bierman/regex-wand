@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+	<title id="title">regex-wand</title>
+	<desc id="desc">Typed regular expressions without giving up readable regex authoring.</desc>
+	<rect width="1200" height="630" fill="#f6f7f2" />
+	<rect x="70" y="70" width="1060" height="490" rx="28" fill="#ffffff" stroke="#d9ddd2" stroke-width="2" />
+	<text x="118" y="145" fill="#111111" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="28" font-weight="700">regex-wand</text>
+	<text x="118" y="250" fill="#111111" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="58" font-weight="750">Readable regex authoring.</text>
+	<text x="118" y="320" fill="#111111" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="58" font-weight="750">TypeScript inference.</text>
+	<text x="118" y="390" fill="#5f6470" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="27">Magic Regex composition with ArkRegex-powered result types.</text>
+	<rect x="118" y="438" width="470" height="58" rx="12" fill="#101820" />
+	<text x="146" y="475" fill="#f8fafc" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23">bun add regex-wand</text>
+	<text x="750" y="478" fill="#111111" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="28">route.infer</text>
+	<text x="750" y="520" fill="#2774ae" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24">/users/${number}</text>
+</svg>

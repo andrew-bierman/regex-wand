@@ -1,7 +1,7 @@
 {
 	"name": "regex-wand",
-	"version": "0.3.6",
-	"description": "Magic Regex authoring with ArkRegex-powered type inference.",
+	"version": "0.3.7",
+	"description": "Typed regular expressions without giving up readable regex authoring.",
 	"type": "module",
 	"license": "MIT",
 	"author": "Andrew Bierman",

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.7
+
+- Updated package metadata and public descriptions to match the launch README.
+- Added playground social preview metadata for cleaner shared links.
+
 ## 0.3.6
 
 - Reworked the GitHub and npm README opening sections for public launch.
