@@ -27,6 +27,7 @@ provide one of three things:
 | P0 | Transform execution coverage | Static calls are transformed, executed, and verified through a real host adapter. | Keep transformed-output execution tests so emitted adapters are proven, not just snapshot-like. |
 | P0 | Public support docs | `docs/support.md` lists direct support and gaps. | Keep this roadmap, support matrix, and testing matrix updated before each release. |
 | P0 | Readable object API | `defineRegex({ inputs, match, flags })` is implemented, tested, documented, and transform-compatible. | Keep the object API as the recommended path while preserving positional helpers for Magic Regex familiarity. |
+| P0 | Magic-compatible authoring | `createRegExp(...inputs)` mirrors Magic Regex's positional input API while returning `WandRegExp`. | Keep compatibility focused on Magic Regex inputs; avoid claiming support for upstream-only string augmentation or converter APIs. |
 | P1 | Vite/host fixture for `regex-wand/transform` | A dedicated Vite fixture builds static `regex-wand` calls and verifies compiled output in CI. | Keep fixture checks green across Vite and unplugin updates. |
 | P1 | Magic Regex converter interop | Use `magic-regexp/converter` directly. | Docs-only unless a wrapper can add real typed value beyond returning a string. |
 | P1 | `further-magic` string method typing | Use `magic-regexp/further-magic` directly. | Intentional non-goal unless Magic Regex exposes an adapter-friendly extension point. |
@@ -38,7 +39,7 @@ provide one of three things:
 
 | Upstream feature | `regex-wand` status |
 | --- | --- |
-| Magic Regex `createRegExp` with variadic string/Input args | Supported by `createRegExp`. |
+| Magic Regex `createRegExp` with variadic string/Input args | Supported by `createRegExp` as the Magic-compatible positional builder. |
 | Readable object params over Magic Regex inputs | Supported by `defineRegex({ inputs, match, flags })`. |
 | Magic Regex escaped string semantics | Supported; plain strings are escaped by Magic Regex. |
 | Magic Regex flags as helpers, arrays, strings, and Sets | Supported by `createRegExpWithFlags` and `createExactRegExpWithFlags`. |

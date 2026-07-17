@@ -19,8 +19,10 @@ Magic Regex fragments and use `regex-wand` only at the compile boundary.
 - Prefer `defineRegex({ inputs, match, flags })` for new code. Omit `match`
   for contains-style matching; use `match: "exact"` when `test()` should narrow
   to the exact inferred string shape.
-- Use `createRegExp(...inputs)` and `createExactRegExp(...inputs)` when matching
-  Magic Regex's positional builder style is clearer for a small local pattern.
+- Use `createRegExp(...inputs)` when migration or Magic Regex-compatible
+  positional authoring is the goal.
+- Use `createExactRegExp(...inputs)` when positional authoring is clearer for a
+  small exact pattern.
 - Use `createRegExpWithFlags(inputs, ...flags)` or
   `createExactRegExpWithFlags(inputs, ...flags)` when flags must be part of the
   inferred type. Flag arrays, flag strings, and flag Sets are also accepted.
