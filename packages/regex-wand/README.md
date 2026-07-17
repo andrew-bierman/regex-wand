@@ -154,7 +154,7 @@ route.infer satisfies `/users/${number}`
 route.inferNamedCaptures.userId satisfies `${number}`
 ```
 
-`regex-wand` keeps the Magic Regex authoring style, adds readable object params,
+`regex-wand` keeps the Magic Regex authoring model, adds readable object params,
 and returns the ArkRegex-type surface:
 
 ```ts
@@ -173,6 +173,11 @@ route.test("/users/42")
 Use raw `magic-regexp` when you only need composable regex construction. Use raw
 `arkregex` when you already have a regex string and want type inference for it.
 Use `regex-wand` when you want both authoring ergonomics and result inference.
+
+For new code, prefer `defineRegex({ inputs, match, flags })`. It is more
+readable than ordered arguments once definitions need matching mode or flags.
+For migration or Magic Regex-style authoring, `createRegExp(...inputs)` mirrors
+Magic Regex's positional input API and returns the richer `regex-wand` result.
 
 ### Build-Time Transform Note
 
@@ -252,9 +257,12 @@ const route = fromMagicAs<
   default or `"exact"` for start/end anchoring, and `flags` accepts helper
   values, arrays, strings, or Sets. `pattern` remains accepted as a legacy alias
   for `inputs`.
-- `createRegExp(...inputs)` compiles Magic Regex inputs as a contains-style regex.
-- `createExactRegExp(...inputs)` compiles a start/end anchored regex.
-- `createRegExpWithFlags(inputs, ...flags)` compiles with Magic Regex flag helpers.
+- `createRegExp(...inputs)` is the Magic Regex-compatible positional builder for
+  contains-style regexes.
+- `createExactRegExp(...inputs)` is a positional helper for start/end anchored
+  regexes.
+- `createRegExpWithFlags(inputs, ...flags)` is a positional helper for Magic
+  Regex flag helpers.
 - `createRegExpWithFlags(inputs, flags)` also accepts flag arrays, flag strings,
   and flag Sets.
 - `createExactRegExpWithFlags(inputs, ...flags)` combines anchoring and flags.

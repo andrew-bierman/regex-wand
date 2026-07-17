@@ -81,7 +81,8 @@ const route = regex("^/users/(?<userId>\\d{1,})$")
 route.inferNamedCaptures.userId satisfies `${number}`
 ```
 
-`regex-wand` combines those two ideas with a readable object-shaped API:
+`regex-wand` combines those two ideas. The recommended API uses object params so
+the intent stays readable as definitions grow:
 
 ```ts
 import { defineRegex, digit } from "regex-wand"
@@ -99,6 +100,10 @@ route.test("/users/42")
 Use raw `magic-regexp` when you only need composable regex construction. Use raw
 `arkregex` when you already have a regex string. Use `regex-wand` when you want
 both authoring ergonomics and result inference.
+
+If you prefer Magic Regex's positional style, `createRegExp(...inputs)` is the
+Magic-compatible path. It accepts the same Magic Regex input pieces and returns a
+typed `regex-wand` result.
 
 ## API
 
@@ -119,11 +124,11 @@ import {
 
 | API | Use it for |
 | --- | --- |
-| `defineRegex({ inputs, match, flags })` | Recommended API for readable exact/search patterns with optional flags. |
-| `createRegExp(...inputs)` | Search-style patterns that can appear inside larger strings. |
-| `createExactRegExp(...inputs)` | Whole-string validation and strongest `test()` narrowing. |
-| `createRegExpWithFlags(inputs, ...flags)` | Search-style patterns with Magic Regex flag helpers. |
-| `createExactRegExpWithFlags(inputs, ...flags)` | Exact patterns with flags. |
+| `defineRegex({ inputs, match, flags })` | Recommended API. Best for readable exact/search definitions with optional flags. |
+| `createRegExp(...inputs)` | Magic Regex-compatible positional builder for search-style patterns. |
+| `createExactRegExp(...inputs)` | Positional helper for whole-string validation and strongest `test()` narrowing. |
+| `createRegExpWithFlags(inputs, ...flags)` | Positional helper for search-style patterns with flags. |
+| `createExactRegExpWithFlags(inputs, ...flags)` | Positional helper for exact patterns with flags. |
 | `fromMagic(magic)` | Adapting an existing Magic Regex value. |
 | `fromMagicAs<Pattern, Context>(magic)` | Manual typing for runtime-valid patterns ArkRegex cannot infer. |
 | `regex-wand/transform` | Build-time compilation of static `regex-wand` builders. |

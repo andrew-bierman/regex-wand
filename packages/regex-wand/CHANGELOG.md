@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.2
+
+- Clarified the public API positioning: `defineRegex({ inputs, match, flags })`
+  is the recommended object API, while `createRegExp(...inputs)` is the
+  Magic-compatible positional builder.
+- Updated the README, support matrix, roadmap, and packaged agent skill to avoid
+  implying a new regex DSL or a raw-pattern API.
+
 ## 0.4.1
 
 - Renamed the recommended `defineRegex` object field from `pattern` to `inputs`
