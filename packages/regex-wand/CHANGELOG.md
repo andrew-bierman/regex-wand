@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3
+
+- Removed deprecated/legacy language from the supported `defineRegex({ pattern })`
+  alias. `inputs` remains the recommended field, and `pattern` remains a typed
+  supported alias for teams that prefer domain wording.
+
 ## 0.4.2
 
 - Clarified the public API positioning: `defineRegex({ inputs, match, flags })`
@@ -13,8 +19,8 @@
 - Renamed the recommended `defineRegex` object field from `pattern` to `inputs`
   so the API matches Magic Regex terminology and does not imply raw regex string
   syntax.
-- Kept `pattern` as a typed legacy alias for `inputs` so `0.4.0` callers remain
-  compatible.
+- Kept `pattern` as a typed alias for `inputs` so `0.4.0` callers remain
+  compatible without treating either spelling as unsafe.
 - Updated docs, playground examples, runtime tests, type tests, and packed
   consumer verification to lead with `inputs`.
 

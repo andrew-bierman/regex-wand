@@ -14,7 +14,7 @@ feature audit.
 | --- | --- |
 | Magic Regex base primitives | Re-exported from `regex-wand` and supported in builders. |
 | Plain string inputs | Escaped by Magic Regex, matching Magic Regex behavior. |
-| Object-shaped definitions | `defineRegex({ inputs, match, flags })` is the recommended API for readable options. `pattern` is accepted as a legacy alias for `inputs`. |
+| Object-shaped definitions | `defineRegex({ inputs, match, flags })` is the recommended API for readable options. `pattern` is accepted as an alias for teams that prefer domain wording. |
 | Magic-compatible positional builder | `createRegExp(...inputs)` mirrors Magic Regex's positional input API and preserves surrounding `${string}` inference. |
 | Exact matching | `defineRegex({ match: "exact" })` and `createExactRegExp(...inputs)` add start/end anchors at runtime and in types. |
 | Existing Magic Regex values | `fromMagic(magic)` adapts a `MagicRegExp` at the compile boundary. |

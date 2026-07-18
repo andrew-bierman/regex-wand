@@ -164,12 +164,12 @@ const objectSetFlags = defineRegex({
 })
 expectType<"gi">(objectSetFlags.flags)
 
-const legacyPatternAlias = defineRegex({
+const patternAlias = defineRegex({
 	match: "exact",
 	pattern: ["/users/", digit.times.atLeast(1).as("userId")],
 })
-expectType<`/users/${number}`>(legacyPatternAlias.infer)
-expectType<{ userId: `${number}` }>(legacyPatternAlias.inferNamedCaptures)
+expectType<`/users/${number}`>(patternAlias.infer)
+expectType<{ userId: `${number}` }>(patternAlias.inferNamedCaptures)
 
 const lowerWord = createExactRegExp(oneOrMore(letter.lowercase).as("word"))
 const lowerWordMatch = lowerWord.exec("abc")

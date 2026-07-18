@@ -211,7 +211,7 @@ export type DefineRegexOptions<
 			 * fragments keep their capture, group, and composition behavior.
 			 */
 			readonly inputs: Inputs
-			/** Legacy alias for `inputs`; kept for compatibility with 0.4.0. */
+			/** Alias for `inputs`; use one of `inputs` or `pattern`. */
 			readonly pattern?: never
 			/**
 			 * `contains` keeps Magic Regex's default search-style behavior. `exact` adds
@@ -222,10 +222,7 @@ export type DefineRegexOptions<
 			readonly flags?: Flags
 	  }
 	| {
-			/**
-			 * @deprecated Use `inputs` instead. `pattern` is kept as a compatibility
-			 * alias for 0.4.0 callers.
-			 */
+			/** Alias for `inputs` for teams that prefer domain wording. */
 			readonly pattern: Inputs
 			readonly inputs?: never
 			readonly match?: Match

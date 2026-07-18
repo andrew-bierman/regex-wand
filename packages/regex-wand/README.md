@@ -255,8 +255,8 @@ const route = fromMagicAs<
 - `defineRegex({ inputs, match, flags })` is the recommended object-shaped API.
   `inputs` is a Magic Regex-compatible tuple, `match` is `"contains"` by
   default or `"exact"` for start/end anchoring, and `flags` accepts helper
-  values, arrays, strings, or Sets. `pattern` remains accepted as a legacy alias
-  for `inputs`.
+  values, arrays, strings, or Sets. `pattern` is also accepted as an alias for
+  teams that prefer domain wording.
 - `createRegExp(...inputs)` is the Magic Regex-compatible positional builder for
   contains-style regexes.
 - `createExactRegExp(...inputs)` is a positional helper for start/end anchored
