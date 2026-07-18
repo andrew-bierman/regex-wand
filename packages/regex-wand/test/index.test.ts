@@ -144,7 +144,7 @@ describe("regex-wand", () => {
 		expect(setFlagged.flags).toBe("gi")
 	})
 
-	it("keeps pattern as a legacy alias for object-shaped definitions", () => {
+	it("supports pattern as an alias for object-shaped definitions", () => {
 		const route = defineRegex({
 			match: "exact",
 			pattern: ["/users/", digit.times.atLeast(1).as("userId")],
